@@ -439,8 +439,7 @@ class Parser {
       output.listing.security_deposit = shikikin_reikin_line.match(/.*(\d+).*(\d+)/)[1];
       output.listing.reikin = shikikin_reikin_line.match(/.*(\d+).*(\d+)/)[2];
     }
-
-    let monthly_rent = boxText.match(/賃料\s(.*)円/)[1].replace(",", "");
+    let monthly_rent = boxText.match(/賃料(.*)円/)[1].replace(/\s/g, "").replace(",", "");
     output.listing.monthly_rent = (parseInt(monthly_rent) / 10000).toString();
     output.listing.square_m = boxText.match(/面積.*?(\d+(?:\.\d+)?)(?:平米|㎡|\?)/)[1];
 
