@@ -197,7 +197,7 @@ class Parser {
     output.listing.square_m = $('th:contains("面積") + td', '.mainItemInfo.bukkenOverviewInfo').html().replace("m²", "");
 
     let address = $('.text-with-button', '.mainItemInfo.bukkenOverviewInfo').html();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('th:contains("交通") + td p', '.mainItemInfo.bukkenOverviewInfo');
 
@@ -255,7 +255,7 @@ class Parser {
     output.listing.square_m = $('th:contains("専有面積") + td').text().replace("m2", "");
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('.property_view_table-read', 'th:contains("駅徒歩") + td');
 
@@ -319,7 +319,7 @@ class Parser {
     output.listing.square_m = $('th:contains("専有面積") + td').text().replace("m2", "");
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('ul', 'th:contains("交通") + td').eq(0).children();
 
@@ -394,7 +394,7 @@ class Parser {
     output.listing.square_m = $('.description_area_val').text().replace("㎡", "");
 
     let address = $('td:contains("所在地：") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('td:contains("交通：") + td').text().matchAll(/「(.*?)分/g);
 
@@ -445,7 +445,7 @@ class Parser {
     output.listing.square_m = boxText.match(/面積.*?(\d+(?:\.\d+)?)(?:平米|㎡|\?)/)[1];
 
     let address = boxText.match(/物件所在：(.*)/)[1];
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     output.listing.walking_time = boxText.match(/(?:線|ライナー).*?(\d+)/)[1];
     output.listing.closest_station = boxText.match(/(?:線|ライナー)\s(.*?)[\s,駅,歩,徒]/)[1] + "駅";
@@ -476,7 +476,7 @@ class Parser {
     }
 
     let address = $('dt:contains("所在地：") + dd').text().replace("ー","-");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('dt:contains("交通：") + dd');
 
@@ -514,7 +514,7 @@ class Parser {
     output.property.property_type = $('.mrh-label-article').text().match(/賃貸(.*?)$/)[1];
 
     let address = $('th:contains("所在地") + td').text().replace("周辺地図", "");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("最寄り駅") + td').text().matchAll(/「(.*?)分/g);
 
@@ -549,7 +549,7 @@ class Parser {
     output.listing.square_m = $('th:contains("間取り") + td').text().match(/（(.*?)㎡/)[1];
 
     let address = $('th:contains("住所") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $("p", 'th:contains("交通") + td');
 
@@ -603,7 +603,7 @@ class Parser {
     }
 
     let address = $('th:contains("住所") + td').text().replace("地図で物件の周辺環境をチェック！", "");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('dl', 'th:contains("交通") + td');
 
@@ -662,7 +662,7 @@ class Parser {
     output.listing.square_m = $('dt:contains("専有面積") + dd').text().replace("m²", "");
 
     let address = $('dt:contains("所在地") + dd').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('dt:contains("交通") + dd').text().matchAll(/線(.*?)分/g);
 
@@ -698,7 +698,7 @@ class Parser {
     output.listing.reikin = $('h3:contains("礼金") + p', 'li').first().text().replace("ヶ月分", "").replace(/\s/g, '').replace("-", "0");
 
     let address = $('h3:contains("所在地") + p', 'li').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('h3:contains("最寄り駅") + p', 'li').text().matchAll(/「(.*?)分/g);
 
@@ -737,7 +737,7 @@ class Parser {
     output.listing.reikin =　$('dt:contains("敷金／礼金") + dd').text().match(/／\s(.*?)$/m)[1].replace("ヶ月", "").replace("なし", "0");
 
     let address = $('dt:contains("住所") + dd').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('p', 'dt:contains("交通") + dd');
 
@@ -787,7 +787,7 @@ class Parser {
     }
 
     let address = $('.address').text().replace(/\n/g, "").replace(/ー/g, "-");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('li', '.traffic');
 
@@ -841,7 +841,7 @@ class Parser {
     }
 
     let address = $('#chk-bkc-fulladdress').contents().first().text().replace(/[\s|\n]/gm, "");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('p', '#chk-bkc-fulltraffic');
 
@@ -914,7 +914,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("交通") + td').text().matchAll(/線(.*?)分/g);
 
@@ -966,7 +966,7 @@ class Parser {
     output.listing.reikin =　security_deposit_reikin.match(/礼金：(.*?)償却：/)[1].replace("ヶ月", "").replace("なし", "0").replace("-", "0");
 
     let address = $('dt:contains("所在地：") + dd').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('dt:contains("最寄駅：") + dd').text().matchAll(/「(.*?)分/g);
 
@@ -1028,7 +1028,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     return output;
   }
@@ -1074,7 +1074,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     return output;
   }
@@ -1108,7 +1108,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("最寄り駅") + td').text().matchAll(/線(.*?)分/g);
 
@@ -1151,7 +1151,7 @@ class Parser {
     }
 
     let address = $('th:contains("住 所") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("アクセス") + td').text().matchAll(/[【｢『「\s](.*?)分/g);
 
@@ -1192,7 +1192,7 @@ class Parser {
     }
 
     let address = $('dt:contains("住所") + dd').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     output.listing.closest_station = $('dt:contains("交通機関") + dd').text().match(/線\s(.*?)(?:\s|\/)/)[1].replace("駅", "") + "駅";
     output.listing.walking_time = $('dt:contains("交通機関") + dd').text().match(/徒歩(.*?)分/)[1];
@@ -1220,7 +1220,7 @@ class Parser {
     output.listing.reikin = $('td:contains("敷金/礼金") + td').text().match(/\/(.*?)$/)[1].replace("ヶ月", "");
 
     let address = title_text.match(/【(.*?)】/)[1].replace("戸建", "");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     output.listing.closest_station = title_text.match(/^(.*?)の/)[1];
     output.listing.walking_time = $('p:contains("' + output.listing.closest_station + '"):contains("徒歩")').text().match(/徒歩(.*?)分/)[1];
@@ -1247,7 +1247,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').first().text().match(/^(.*?)周辺地図/m)[1];
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('.access-list', '.detail_outline-data-sep2').children();
 
@@ -1292,7 +1292,7 @@ class Parser {
     }
 
     let address = $('dt:contains("所在地：") + dd').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('dt:contains("最寄駅：") + dd').text().matchAll(/「(.*?)分/g);
 
@@ -1354,7 +1354,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').eq(0).text().replace("地図・周辺情報", "");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stations = $('th:contains("交通") + td').eq(0).children();
 
@@ -1390,7 +1390,7 @@ class Parser {
     output.property.property_type = "アパート";
 
     let address = $('th:contains("住所") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("最寄駅") + td').text().matchAll(/線(.*?)分/g);
 
@@ -1426,7 +1426,7 @@ class Parser {
     output.property.property_type = "アパート";
 
     let address = $('th:contains("住所") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("最寄駅") + td').text().matchAll(/線(.*?)分/g);
 
@@ -1469,7 +1469,7 @@ class Parser {
     }
 
     let address = $('div', 'th:contains("所在地") + td').first().text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("主要交通機関") + td').text().matchAll(/\/(.*?)分/g);
 
@@ -1525,7 +1525,7 @@ class Parser {
     output.property.property_type = "アパート";
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatch = $('th:contains("交通") + td').text().match(/線(.*?)分/)[1];
     output.listing.closest_station = stationMatch.match(/^(.*?)駅/)[0].replace("　", "");
@@ -1552,7 +1552,7 @@ class Parser {
     output.property.property_type = "一戸建て";
 
     let address = $('dt:contains("住所：") + dd').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('dt:contains("最寄駅：") + dd').text().matchAll(/「(.*?)分/g);
 
@@ -1610,7 +1610,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("主要交通機関") + td').text().matchAll(/\/(.*?)分/g);
 
@@ -1655,9 +1655,9 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text().match(/\n(.*?)\n/)[1].replace(/\s/g,"");
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
-    output.listing.closest_station = $('th:contains("交通") + td').text().match(/線\s(.*?)\s徒/)[1];
+    output.listing.closest_station = $('th:contains("交通") + td').text().replace(/^\s+/g, "").match(/\s(.*?)\s徒/)[1];
     output.listing.walking_time = $('th:contains("交通") + td').text().match(/徒歩(.*?)分/)[1];
 
     return output;
@@ -1686,7 +1686,7 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     output.listing.closest_station = $('ul','th:contains("アクセス") + td').eq(0).children().eq(0).text().match(/^(.*?)\s徒/m)[1].replace(/[\t|\n]/gm, "");
     output.listing.walking_time = $('ul','th:contains("アクセス") + td').eq(0).children().eq(0).text().match(/徒歩(.*?)分/m)[1].replace(/[\t|\n]/gm, "");
@@ -1734,7 +1734,7 @@ class Parser {
     }
 
     let address = $('th:contains("住所") + td').children().eq(0).text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     output.listing.closest_station = $('ul','th:contains("交通機関") + td').children().eq(0).text().match(/線\s(.*?)\s徒/m)[1];
     output.listing.walking_time = $('ul','th:contains("交通機関") + td').children().eq(0).text().match(/徒歩(.*?)分/m)[1];
@@ -1755,7 +1755,7 @@ class Parser {
     output.listing.reikin = $('th:contains("礼金") + td').text().replace("ヶ月", "");
 
     let address = $('th:contains("所在地") + td').text();
-    output.property = await util.parseAddress(address);
+    output.property = await util.parseAddress(address, output.property);
 
     let stationMatches = $('th:contains("交通アクセス") + td').text().matchAll(/\/(.*?)分/g);
 
