@@ -1,0 +1,61 @@
+.list {
+  text-align: left;
+  max-width: 750px;
+  margin: auto;
+}
+
+.submit-form {
+  max-width: 300px;
+  margin: auto;
+}
+
+.edit-form {
+  max-width: 300px;
+  margin: auto;
+}
+
+.selected.active {
+  background-color: White !important;
+  color: #212529 !important;
+}
+
+.selected.active:hover {
+  background-color: #f8f9fa !important;
+}
+
+.selected.focus:not(.selected.active) {
+  border-color: #343a40 !important;
+  background-color: #343a40 !important;
+}
+
+.selected.focus:hover:not(.selected.active) {
+  background-color: #212529 !important;
+}
+
+.selected {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.form-control:focus {
+  border-color: #343a40;
+  box-shadow: 0 0 0 0.2rem rgba(33, 37, 41, 0.15);
+}
+
+.listingItem.active {
+  background-color: #343a40 !important;
+  border-color: #dee2e6 !important;
+}
+
+.listingItem {
+  border: 1px solid #dee2e6;
+}
+
+.card {
+  border: 1px solid #dee2e6;
+}
+
+.card-header {
+  border-bottom: 0px;
+  border-bottom: 1px solid #dee2e6;
+}
