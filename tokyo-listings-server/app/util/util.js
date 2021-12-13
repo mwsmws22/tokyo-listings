@@ -1,17 +1,7 @@
 const japa = require('jp-address-parser');
-const cloneDeep = require('clone-deep');
-const property = {
-  prefecture: "",
-  municipality: "",
-  town: "",
-  district: "",
-  block: "",
-  house_number: "",
-  property_type: ""
-}
 
 module.exports = {
-  parseAddress: async function (address) {
+  parseAddress: async function (address, prop) {
     let parseRes = await japa.parse(address).catch(e => { });
 
     if (!parseRes) {
@@ -27,14 +17,13 @@ module.exports = {
     }
 
     if (parseRes) {
-      prop = cloneDeep(property)
       prop.prefecture = parseRes.prefecture ? parseRes.prefecture : "";
       prop.municipality = parseRes.city ? parseRes.city : "";
       prop.town = parseRes.town ? parseRes.town : "";
       prop.district = parseRes.chome ? parseRes.chome : "";
       prop.block = parseRes.ban ? parseRes.ban : "";
       prop.house_number = parseRes.go ? parseRes.go : "";
-      return prop
+      return prop;
     }
   },
   removeNullProps: function (obj) {
