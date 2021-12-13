@@ -11,7 +11,7 @@ In order for this project to run, you must:
     - Populate with REACT_APP_GOOGLE_MAPS_API_KEY and PORT
 4. Create tokyo-listings-server\app\config\db.config.js
     - A template is given, see tokyo-listings-server\app\config\db.config.template.js
-    - I used a an Amazon AWS PostgreSQL database
+    - I used an Amazon AWS PostgreSQL database
 5. Run tokyo-listings-bat-files\runTokyoListings.bat
     - Make sure to update dir path
 
