@@ -124,7 +124,7 @@ exports.findAllByPartialUrl = (req, res) => {
 exports.findAllByAddressAndSqM = (req, res) => {
   let listings = req.body.params.map(async p => ({
       ...p,
-      parsedAddress: util.removeNullProps(await util.parseAddress(p.address))
+      parsedAddress: util.removeNullProps(await util.parseAddress(p.address, null))
   }));
 
   Promise.all(listings).then((listings) => {
