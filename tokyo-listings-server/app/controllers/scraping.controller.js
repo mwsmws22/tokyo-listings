@@ -4,6 +4,7 @@ const Listing = db.listing;
 
 const needOriginalUrls = ["www.realtokyoestate.co.jp", "tokyo-style.cc", "www.omusubi-estate.com", "www.tatodesign.jp", "joylifestyle.jp", "www.inet-tokyo.com"]
 const dontEvenCheckUrls = ["www.v-officenavi.com"]
+const addParamsUrls = ['chintai-ex.jp', 'smocca.jp']
 
 exports.scrape = (req, res) => {
   var url = req.url.substring(1).replace("get/", "");
@@ -14,10 +15,10 @@ exports.scrape = (req, res) => {
     url = paramUrl;
   }
 
-  //needs specific url params for proper formatting
-  if (hostname === 'chintai-ex.jp' || hostname === 'smocca.jp') {
+  if (addParamsUrls.includes(hostname)) {
     url += '?no_like_list=true&recommend_type=base_at_like_list';
   }
+
   // console.log(hostname);
   // console.log(url);
 
@@ -54,7 +55,7 @@ exports.scrapeCheck = (req, res) => {
 
   const specificSiteCheck = []; //debugging to check a specific site's listings. Leave empty to proceed without filtering
 
-  if (![...needOriginalUrls, 'chintai-ex.jp'].includes(hostname)) {
+  if (![...needOriginalUrls, ...addParamsUrls].includes(hostname)) {
     url = paramUrl;
   }
 
