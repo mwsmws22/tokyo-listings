@@ -2,6 +2,7 @@ import RemoveArchivedListingsJob from './jobs/RemoveArchivedListingsJob.js'
 import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob.js'
 import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob.js'
 import LoaderYahoo from './loaders/LoaderYahoo.js'
+import LoaderSuumo from './loaders/LoaderSuumo.js'
 import LoaderGoogle from './loaders/LoaderGoogle.js'
 
 class ServiceHandler {
@@ -14,6 +15,8 @@ class ServiceHandler {
     switch (new URL(url).hostname) {
       case 'realestate.yahoo.co.jp':
         return new LoaderYahoo()
+      case 'suumo.jp':
+        return new LoaderSuumo()
       case 'www.google.com':
         return new LoaderGoogle()
       default:

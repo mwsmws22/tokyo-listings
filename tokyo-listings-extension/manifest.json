@@ -7,7 +7,11 @@
 
   "content_scripts": [{
     "js": ["./dist/bundle.js"],
-    "matches": ["https://realestate.yahoo.co.jp/rent/search/*","https://www.google.com/search*"]
+    "matches": [
+      "https://realestate.yahoo.co.jp/rent/search/*",
+      "https://www.google.com/search*",
+      "https://suumo.jp/jj/chintai/ichiran/FR301FC001/*"
+    ]
   }],
 
   "icons": {
