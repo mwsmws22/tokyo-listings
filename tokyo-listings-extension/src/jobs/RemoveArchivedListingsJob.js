@@ -20,9 +20,9 @@ export default class RemoveArchivedListingsJob {
     fetch(this.endpoint, this.buildPayload())
       .then(res => res.json())
       .then(out => {
-        const remKeys = out.map(res => res.url.match(/detail\/(.*?)\//)[1])
+        const urls = out.map(res => res.url)
         this.scrapedElems.forEach(elem => {
-          const diff = elem.listings.filter(l => remKeys.includes(l.key))
+          const diff = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
           if (diff.length == elem.listings.length) {
             elem.propertyElem.remove()
           } else if (diff.length < elem.listings.length) {
