@@ -128,6 +128,8 @@ class Parser {
         return this.parseTomigaya(html);
       case 'east-and-west.jp':
         return this.parseTomigaya(html);
+      case 'www.sousaku-kukan.com':
+        return this.parseTomigaya(html);
       case 'aoyama-fudousan.com':
         return this.parseTomigaya(html);
       case 'kagurazaka-fudousan.com':

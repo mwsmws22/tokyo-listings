@@ -24,6 +24,7 @@ export default class FilterScrapeableResultsJob {
       'tomigaya.jp',
       'tokyo-designers.com',
       'east-and-west.jp',
+      'www.sousaku-kukan.com',
       'aoyama-fudousan.com',
       'kagurazaka-fudousan.com',
       'www.jkhome.com',
