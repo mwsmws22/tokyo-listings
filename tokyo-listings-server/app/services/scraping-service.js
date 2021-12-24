@@ -1750,8 +1750,15 @@ class Parser {
     output.listing.availability = "募集中";
     output.listing.monthly_rent = parseInt($('th:contains("月額賃料 (坪単価)") + td').text().replace(/[\t|\n]/gm, "").match(/^(.*?)円/)[1].replace(",", "")) / 10000;
     output.listing.square_m = $('th:contains("専有面積") + td').text().match(/\((.*?)㎡/)[1];
-    output.listing.security_deposit = $('th:contains("保証金") + td').text().replace("ヶ月", "");
     output.listing.reikin = $('th:contains("礼金") + td').text().replace("ヶ月", "");
+
+    let security_deposit = $('th:contains("保証金") + td').text().replace(/ヶ月/g, "");
+
+    if (security_deposit.includes('住居')) {
+      output.listing.security_deposit = security_deposit.match(/住居(.*?)$/)[1]
+    } else {
+      output.listing.security_deposit = security_deposit;
+    }
 
     let address = $('th:contains("所在地") + td').text();
     output.property = await util.parseAddress(address, output.property);
