@@ -1,4 +1,5 @@
 const db = require("../models");
+const ListingService = require('../services/listing-service');
 const Listing = db.listing;
 const Property = db.property;
 const Op = db.Sequelize.Op;
@@ -153,4 +154,17 @@ exports.findAllByAddressAndSqM = (req, res) => {
         });
       });
   });
+};
+
+exports.getUpdatedSuumoBukkenUrls = (req, res) => {
+  const urls = req.body.urls.map(async url => await ListingService.getUpdatedSuumoBukkenUrlFromPage(url))
+
+  Promise.all(urls).then(urls => {
+    let response = Object.assign(...urls)
+    res.send(response)
+  }).catch(err => {
+    res.status(500).send({
+      message: err.message || "An issue occurred while resolving promises from ListingService.getSuumoUrlFromPage"
+    })
+  })
 };
