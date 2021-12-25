@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Companion Chrome extension for my Tokyo Listings web app",
   "dependencies": {
-    "core-js": "^3.19.3"
+    "core-js": "^3.19.3",
+    "jquery": "^3.6.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
