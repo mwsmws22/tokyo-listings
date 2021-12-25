@@ -20,9 +20,15 @@ export default class UpdateSuumoBukkenUrlsJob {
     fetch(this.endpoint, this.buildPayload())
       .then(res => res.json())
       .then(out => {
+        let updatedUrlSet = new Set()
         this.scrapedElems.forEach(l => {
-          let linkElems = Array.from(l.listingElem.getElementsByTagName("a"))
-          linkElems.forEach(a => a.setAttribute('href', out[l.url]))
+          if (!updatedUrlSet.has(out[l.url])) {
+            let linkElems = Array.from(l.listingElem.getElementsByTagName("a"))
+            linkElems.forEach(a => a.setAttribute('href', out[l.url]))
+            updatedUrlSet.add(out[l.url])
+          } else {
+            l.listingElem.remove()
+          }
         })
       })
       .catch(err => console.log(err))
