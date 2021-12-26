@@ -131,7 +131,7 @@ export class ListingAccordion extends Component {
                       <tr>
                         <td className="bg-light">URL</td>
                         <td colSpan="3">
-                          <a href={l.listing.url} style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "100%"}}>
+                          <a href={l.listing.url} target="_blank" style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "100%"}}>
                             <span style={{ whiteSpace: "nowrap"}}>{ l.listing.url }</span>
                           </a>
                         </td>

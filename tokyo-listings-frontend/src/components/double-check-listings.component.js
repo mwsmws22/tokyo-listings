@@ -178,7 +178,7 @@ class DoubleCheckListings extends React.Component {
               <ListGroup.Item key={l.id} onClick={() => this.selectProperty(l)} variant={l.id === this.state.selectedListingID && "dark"}>
                 <div className="row justify-content-between" style={{height: this.state.list_item_height-25}}>
                   <div className="col-9">
-                    <a href={l.url} style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "100%"}}>
+                    <a href={l.url} target="_blank" style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "100%"}}>
                       <span style={{ whiteSpace: "nowrap"}}>{ l.url }</span>
                     </a>
                   </div>
