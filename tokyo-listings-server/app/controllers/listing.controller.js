@@ -103,7 +103,7 @@ exports.findAllByInterest = (req, res) => {
 };
 
 exports.findAllByPartialUrl = (req, res) => {
-  const likeStatements = req.body.partials.map(p => ({ [Op.like]: '%' + p + '%' }));
+  const likeStatements = req.body.map(p => ({ [Op.like]: '%' + p + '%' }));
 
   Listing.findAll({
     where: {
@@ -123,7 +123,7 @@ exports.findAllByPartialUrl = (req, res) => {
 };
 
 exports.findAllByAddressAndSqM = (req, res) => {
-  let listings = req.body.params.map(async p => ({
+  let listings = req.body.map(async p => ({
       ...p,
       parsedAddress: util.removeNullProps(await util.parseAddress(p.address, null))
   }));
@@ -157,7 +157,7 @@ exports.findAllByAddressAndSqM = (req, res) => {
 };
 
 exports.getUpdatedSuumoBukkenUrls = (req, res) => {
-  const urls = req.body.urls.map(async url => await ListingService.getUpdatedSuumoBukkenUrlFromPage(url))
+  const urls = req.body.map(async url => await ListingService.getUpdatedSuumoBukkenUrlFromPage(url))
 
   Promise.all(urls).then(urls => {
     let response = Object.assign(...urls)
