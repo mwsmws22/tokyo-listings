@@ -1,36 +1,33 @@
+import JobUtils from '../utils/JobUtils.js'
+
 export default class RemoveArchivedListingsJob {
 
-  constructor(scrapedElems) {
-    this.scrapedElems = scrapedElems
-    this.endpoint = "http://localhost:8082/api/listing/partialUrl/"
-  }
+  static ENDPOINT = "http://localhost:8082/api/listing/partialUrl/"
 
-  buildPayload() {
-    return {
-      method: "post",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({partials: this.scrapedElems.flatMap(elem => elem.listings).map(l => l.key)})
-    }
-  }
-
-  execute() {
-    fetch(this.endpoint, this.buildPayload())
-      .then(res => res.json())
-      .then(out => {
-        const urls = out.map(res => res.url)
-        this.scrapedElems.forEach(elem => {
-          const diff = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
-          if (diff.length == elem.listings.length) {
-            elem.propertyElem.remove()
-          } else if (diff.length < elem.listings.length) {
-            diff.forEach(l => l.listingElem.remove())
-          }
+  static execute(scrapedElems) {
+    return new Promise((resolve, reject) => {
+      const keys = scrapedElems.flatMap(elem => elem.listings).map(l => l.key)
+      const payload = JobUtils.buildPayload(keys)
+      fetch(this.ENDPOINT, payload)
+        .then(res => res.json())
+        .then(out => {
+          const urls = out.map(res => res.url)
+          resolve(scrapedElems.filter(elem => {
+            const hits = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
+            const nonHits = elem.listings.filter(l => !urls.some(url => url.includes(l.key)))
+            if (hits.length == elem.listings.length) {
+              elem.propertyElem.remove()
+              return false
+            } else if (nonHits.length == elem.listings.length) {
+              return true
+            } else {
+              hits.forEach(l => l.listingElem.remove())
+              elem.listings = nonHits
+              return true
+            }
+          }))
         })
-      })
-      .catch(err => console.log(err))
+        .catch(err => console.log(err))
+    })
   }
-
 }

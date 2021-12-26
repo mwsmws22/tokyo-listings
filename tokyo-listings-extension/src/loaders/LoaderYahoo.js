@@ -1,7 +1,7 @@
 export default class LoaderYahoo {
 
   constructor() {
-    this.params = ['remove archived listings', 'highlight similar listings']
+    this.pipeline = ['remove archived listings', 'highlight similar listings']
     this.scrapedElems = []
   }
 
@@ -20,5 +20,4 @@ export default class LoaderYahoo {
       })
     )
   }
-
 }

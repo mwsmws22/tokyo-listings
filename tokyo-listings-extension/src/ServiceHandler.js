@@ -27,20 +27,21 @@ class ServiceHandler {
 
   execute() {
     this.loader?.execute()
-    this.loader?.params.forEach(param => {
-      switch (param) {
+    this.loader?.pipeline.map(job => {
+      switch (job) {
         case 'remove archived listings':
-          return new RemoveArchivedListingsJob(this.loader.scrapedElems).execute()
+          return (scrapedElems) => RemoveArchivedListingsJob.execute(scrapedElems)
         case 'update suumo bukken urls':
-          return new UpdateSuumoBukkenUrlsJob(this.loader.scrapedElems).execute()
+          return (scrapedElems) => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
         case 'highlight similar listings':
-          return new HighlightSimilarListingsJob(this.loader.scrapedElems).execute()
+          return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems)
         case 'filter scrapeable results':
-          return new FilterScrapeableResultsJob(this.loader.searchResults).execute()
+          return (scrapedElems) => FilterScrapeableResultsJob.execute(scrapedElems)
       }
-    })
+    }).reduce((prev, curr) => {
+      return prev.then(curr)
+    }, Promise.resolve(this.loader?.scrapedElems))
   }
-
 }
 
 const sh = new ServiceHandler()

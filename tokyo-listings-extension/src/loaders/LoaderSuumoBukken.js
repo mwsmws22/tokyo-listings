@@ -3,7 +3,7 @@ import $ from "jquery"
 export default class LoaderSuumoBukken {
 
   constructor() {
-    this.params = ['update suumo bukken urls']
+    this.pipeline = ['update suumo bukken urls', 'remove archived listings', 'highlight similar listings']
     this.scrapedElems = []
   }
 
@@ -13,12 +13,14 @@ export default class LoaderSuumoBukken {
 
     listings.forEach(tr =>
       this.scrapedElems.push({
-        listingElem: tr,
+        propertyElem: tr,
         address: address,
-        square_m: $(tr).find("[class='bdLLGrayL bdLLGrayT taC pH15 pV5 TF breakA']")[2].innerText.match(/^(.*?)平米/)[1],
-        url: $(tr).find("[class='fs12 bld']")[0].href
+        listings: [{
+          listingElem: tr,
+          square_m: $(tr).find("[class='bdLLGrayL bdLLGrayT taC pH15 pV5 TF breakA']")[2].innerText.match(/^(.*?)平米/)[1],
+          key: $(tr).find("[class='fs12 bld']")[0].href
+        }]
       })
     )
   }
-
 }
