@@ -3,6 +3,7 @@ import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob.js'
 import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob.js'
 import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob.js'
 import LoaderYahoo from './loaders/LoaderYahoo.js'
+import LoaderSumaity from './loaders/LoaderSumaity.js'
 import LoaderSuumo from './loaders/LoaderSuumo.js'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken.js'
 import LoaderGoogle from './loaders/LoaderGoogle.js'
@@ -16,6 +17,8 @@ class ServiceHandler {
   loaderFactory(url) {
     if (url.includes('realestate.yahoo.co.jp/rent/search')) {
       return new LoaderYahoo()
+    } else if (url.includes('sumaity.com/chintai/area_list')) {
+      return new LoaderSumaity()
     } else if (url.includes('suumo.jp/jj/chintai/ichiran/FR301FC001')) {
       return new LoaderSuumo()
     } else if (url.includes('suumo.jp/library')) {
