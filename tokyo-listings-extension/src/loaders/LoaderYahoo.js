@@ -8,16 +8,20 @@ export default class LoaderYahoo {
   execute() {
     const listings = Array.from(document.getElementById('listBuilding').children)
 
-    listings.forEach(div =>
+    listings.forEach(div => {
+      const buildData = div.querySelector('div.buildData')
+      const listings = Array.from(div.querySelector('ul.roomList').children)
+
       this.scrapedElems.push({
         propertyElem: div,
-        address: div.children[0].children[2].children[1].children[1].innerText,
-        listings: Array.from(div.children[0].children[4].children).map(li => ({
+        address: buildData.children[1].children[1].innerText,
+        stations: buildData.children[0].children[1].innerText,
+        listings: listings.map(li => ({
           listingElem: li,
-          key: li.children[0].children[0].children[0].value,
-          square_m: li.children[5].innerText.match(/\n(.*?)m2/)[1]
+          key: li.querySelector('input.ignorePropertyClick').value,
+          square_m: li.querySelector('p.floorplan').innerText.match(/\n(.*?)m2/)[1]
         }))
       })
-    )
+    })
   }
 }
