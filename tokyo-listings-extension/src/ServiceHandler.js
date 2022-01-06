@@ -3,6 +3,7 @@ import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob.js'
 import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob.js'
 import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob.js'
 import LoaderYahoo from './loaders/LoaderYahoo.js'
+import LoaderRStore from './loaders/LoaderRStore.js'
 import LoaderSumaity from './loaders/LoaderSumaity.js'
 import LoaderSuumo from './loaders/LoaderSuumo.js'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken.js'
@@ -25,6 +26,8 @@ class ServiceHandler {
       return new LoaderSuumoBukken()
     } else if (url.includes('google.com/search')) {
       return new LoaderGoogle()
+    } else if (url.includes('r-store.jp/search')) {
+      return new LoaderRStore()
     }
   }
 

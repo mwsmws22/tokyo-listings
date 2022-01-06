@@ -12,7 +12,7 @@ export default class RemoveArchivedListingsJob {
         .then(res => res.json())
         .then(out => {
           const urls = out.map(res => res.url)
-          resolve(scrapedElems.filter(elem => {
+          const filteredElems = scrapedElems.filter(elem => {
             const hits = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
             const nonHits = elem.listings.filter(l => !urls.some(url => url.includes(l.key)))
             if (hits.length == elem.listings.length) {
@@ -25,9 +25,24 @@ export default class RemoveArchivedListingsJob {
               elem.listings = nonHits
               return true
             }
-          }))
+          })
+          this.logRemovedListings(scrapedElems, filteredElems)
+          resolve(filteredElems)
         })
         .catch(err => console.log(err))
     })
+  }
+
+  static logRemovedListings(originalElems, scrapedElems) {
+    console.log("the following listings were removed")
+    let missingListings = []
+    originalElems.forEach(elem => {
+      elem.listings.forEach(listing => {
+        let missingListing = !scrapedElems.some(se => se.listings.some(l => l.key == listing.key))
+        if (missingListing) { missingListings.push(listing) }
+      })
+    })
+    console.log(missingListings)
+    return Promise.resolve(scrapedElems)
   }
 }
