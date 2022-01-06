@@ -2,6 +2,7 @@ import RemoveArchivedListingsJob from './jobs/RemoveArchivedListingsJob.js'
 import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob.js'
 import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob.js'
 import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob.js'
+import RemoveDistantStationsJob from './jobs/RemoveDistantStationsJob.js'
 import LoaderYahoo from './loaders/LoaderYahoo.js'
 import LoaderSumaity from './loaders/LoaderSumaity.js'
 import LoaderSuumo from './loaders/LoaderSuumo.js'
@@ -30,10 +31,13 @@ class ServiceHandler {
 
   execute() {
     this.loader?.execute()
+    console.log(this.loader.scrapedElems)
     this.loader?.pipeline.map(job => {
       switch (job) {
         case 'remove archived listings':
           return (scrapedElems) => RemoveArchivedListingsJob.execute(scrapedElems)
+        case 'remove distant stations':
+          return (scrapedElems) => RemoveDistantStationsJob.execute(scrapedElems)
         case 'update suumo bukken urls':
           return (scrapedElems) => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
         case 'highlight similar listings':
