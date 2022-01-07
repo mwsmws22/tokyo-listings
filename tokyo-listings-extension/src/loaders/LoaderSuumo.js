@@ -13,9 +13,9 @@ export default class LoaderSuumo {
     listings.forEach(li =>
       this.scrapedElems.push({
         propertyElem: li,
-        address: li.querySelector('.cassetteitem_detail-col1').innerText,
         listings: Array.from(li.querySelectorAll('tbody')).map(tb => ({
           listingElem: tb,
+          address: li.querySelector('.cassetteitem_detail-col1').innerText,
           key: tb.querySelector('.js-cassette_link_href').href.match(/jnc_(.*?)\//)[1],
           square_m: tb.querySelector('.cassetteitem_menseki').innerText.replace("m2","")
         }))
