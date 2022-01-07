@@ -40,7 +40,12 @@ class ServiceHandler {
         case 'update suumo bukken urls':
           return (scrapedElems) => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
         case 'highlight similar listings':
-          return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems)
+          switch (typeof this.loader) {
+            case 'LoaderRStore':
+              return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems, ['closest_station', 'square_m'])
+            default:
+              return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems, ['address', 'square_m'])
+          }
         case 'filter scrapeable results':
           return (scrapedElems) => FilterScrapeableResultsJob.execute(scrapedElems)
       }
