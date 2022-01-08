@@ -123,7 +123,7 @@ exports.findAllByPartialUrl = (req, res) => {
 };
 
 exports.findAllByParams = (req, res) => {
-  const listings = req.body.map(l => {
+  const listings = req.body.map(async l => {
     if (l.address) {
       const addressObj = util.removeNullProps(await util.parseAddress(l.address, null))
       l = {...l, ...Object.fromEntries(Object.entries(addressObj).map(([k,v]) => ([`$property.${k}$`, v])))}
