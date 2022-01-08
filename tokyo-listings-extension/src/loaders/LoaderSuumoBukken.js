@@ -4,6 +4,7 @@ export default class LoaderSuumoBukken {
 
   constructor() {
     this.pipeline = ['update suumo bukken urls', 'remove archived listings', 'highlight similar listings']
+    this.similarParams = ['address', 'square_m']
     this.scrapedElems = []
   }
 
