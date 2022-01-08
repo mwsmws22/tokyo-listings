@@ -1,7 +1,8 @@
 export default class LoaderRStore {
 
   constructor() {
-    this.pipeline = ['remove archived listings']
+    this.pipeline = ['remove archived listings', 'highlight similar listings']
+    this.similarParams = ['closest_station', 'square_m']
     this.scrapedElems = []
   }
 

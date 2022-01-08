@@ -40,13 +40,13 @@ class ServiceHandler {
         case 'update suumo bukken urls':
           return (scrapedElems) => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
         case 'highlight similar listings':
-          return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems)
+          return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems, this.loader.similarParams)
         case 'filter scrapeable results':
           return (scrapedElems) => FilterScrapeableResultsJob.execute(scrapedElems)
       }
     }).reduce((prev, curr) => {
       return prev.then(curr)
-    }, Promise.resolve(this.loader?.scrapedElems))
+    }, Promise.resolve(this.loader.scrapedElems))
   }
 }
 
