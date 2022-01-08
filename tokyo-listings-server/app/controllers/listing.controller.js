@@ -122,38 +122,32 @@ exports.findAllByPartialUrl = (req, res) => {
     });
 };
 
-exports.findAllByAddressAndSqM = (req, res) => {
-  let listings = req.body.map(async p => ({
-      ...p,
-      parsedAddress: util.removeNullProps(await util.parseAddress(p.address, null))
-  }));
+exports.findAllByParams = (req, res) => {
+  const listings = req.body.map(async l => {
+    if (l.address) {
+      const addressObj = util.removeNullProps(await util.parseAddress(l.address, null))
+      l = {...l, ...Object.fromEntries(Object.entries(addressObj).map(([k,v]) => ([`$property.${k}$`, v])))}
+      delete l.address
+    }
+    return l
+  })
 
   Promise.all(listings).then((listings) => {
     Listing.findAll({
       where: {
-        [Op.or]: listings.map(l => ({
-            square_m: l.square_m,
-            ...Object.fromEntries(Object.entries(l.parsedAddress).map(([k,v]) => ([`$property.${k}$`, v])))
-        }))
+        [Op.or]: listings
       },
       include: [{
         model: Property
       }]
-    }).then(data => {
-        let winners = listings.filter(l =>
-          data.filter(d => d.square_m == l.square_m &&
-            Object.entries(l.parsedAddress).filter(([k,v]) => d.property[k] != v).length == 0
-          ).length > 0
-        ).map(({address, square_m}) => ({address, square_m}))
-        res.send(winners);
-      })
+    }).then(data => res.send(data))
       .catch(err => {
         res.status(500).send({
           message:
             err.message || "Some error occurred while retrieving Listing."
-        });
-      });
-  });
+        })
+      })
+  })
 };
 
 exports.getUpdatedSuumoBukkenUrls = (req, res) => {
