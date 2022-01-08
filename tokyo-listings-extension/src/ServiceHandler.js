@@ -8,11 +8,13 @@ import LoaderSumaity from './loaders/LoaderSumaity.js'
 import LoaderSuumo from './loaders/LoaderSuumo.js'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken.js'
 import LoaderGoogle from './loaders/LoaderGoogle.js'
+import JobUtils from './utils/JobUtils.js'
 
 class ServiceHandler {
 
   constructor() {
     this.loader = this.loaderFactory(location.href)
+    String.prototype.convertHalfWidth = JobUtils.convertHalfWidth
   }
 
   loaderFactory(url) {
