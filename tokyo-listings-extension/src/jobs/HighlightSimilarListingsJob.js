@@ -17,7 +17,7 @@ export default class HighlightSimilarListingsJob {
                 if (this.compareObjectParams(l,o)) {
                   l.listingElem.style.backgroundColor = "lightyellow"
                 }
-              })  
+              })
             )
           )
           resolve(scrapedElems)
@@ -27,20 +27,26 @@ export default class HighlightSimilarListingsJob {
   }
 
   static constructParamObjs(scrapedElems, params) {
-    const paramObjs = scrapedElems.map(elem => {
+    const paramObjs = scrapedElems.map(elem =>
       elem.listings.map(l => {
         const kvPairs = params.map(p => ([p, l[p]]))
         return Object.fromEntries(kvPairs)
       })
-    }).flat()
+    ).flat()
 
     return JobUtils.removeDupObjFromArray(paramObjs)
   }
 
   static compareObjectParams(listing, out) {
-    //LAST PART!!!!
-    if (out.some(o => o.address == elem.address && o.square_m == l.square_m)) {
-      l.listingElem.style.backgroundColor = "lightyellow"
+    if (listing.address) {
+      out.address = JobUtils.buildAddress(out.property, 4, listing.address.includes("丁目"))
+      listing.address = listing.address.convertHalfWidth()
     }
+
+    const {key, listingElem, ...rest} = listing
+
+    return Object.entries(rest).every(([kL,vL]) =>
+      Object.entries(out).some(([kO,vO]) => kL == kO && vL == String(vO))
+    )
   }
 }
