@@ -43,6 +43,6 @@ export default class RemoveArchivedListingsJob {
       })
     })
     console.log(missingListings)
-    return Promise.resolve(scrapedElems)
+    return
   }
 }

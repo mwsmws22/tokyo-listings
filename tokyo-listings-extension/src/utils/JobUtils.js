@@ -43,11 +43,11 @@ export default class JobUtils {
     'www.oasis-estate.jp'
   ])
 
-  static removeDupObjFromArray (array) {
+  static removeDupObjFromArray(array) {
     return Array.from(new Set(array.map(e => JSON.stringify(e)))).map(e => JSON.parse(e))
   }
 
-  static buildPayload (body) {
+  static buildPayload(body) {
     return {
       method: "post",
       headers: {
@@ -56,5 +56,48 @@ export default class JobUtils {
       },
       body: JSON.stringify(body)
     }
+  }
+
+  static buildAddress(p, i, district_kanji = true) {
+    let address = ""
+
+    if (i > 0) {
+      address += p.prefecture
+    }
+    if (i > 1) {
+      address += p.municipality
+    }
+    if (i > 2) {
+      address += p.town
+    }
+    if (i > 3) {
+      if (p.district) {
+        address += p.district
+        if (district_kanji) {
+          address += "丁目"
+        }
+      }
+    }
+    if (i > 4) {
+      if (p.block) {
+        if (!district_kanji) {
+          address += "-"
+        }
+        address += p.block;
+        if (p.house_number) {
+          address += "-" + p.house_number
+        }
+      } else if (p.house_number) {
+        address += p.house_number
+      }
+    }
+
+    return address
+  }
+
+  static convertHalfWidth() {
+    return this.replace(/[\uff01-\uff5e]/g, function(ch) {
+      return String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
+    })
   }
 }
