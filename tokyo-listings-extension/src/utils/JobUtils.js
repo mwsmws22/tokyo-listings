@@ -100,4 +100,8 @@ export default class JobUtils {
       return String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
     })
   }
+
+  static updateAddressJapaneseCharacters() {
+    return this.replace(/ヶ/g, 'ケ').replace(/ノ/g, '之')
+  }
 }

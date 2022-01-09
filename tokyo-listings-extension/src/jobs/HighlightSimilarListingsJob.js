@@ -38,9 +38,10 @@ export default class HighlightSimilarListingsJob {
   }
 
   static compareObjectParams(listing, out) {
+
     if (listing.address) {
       out.address = JobUtils.buildAddress(out.property, 4, listing.address.includes("丁目"))
-      listing.address = listing.address.convertHalfWidth()
+      listing.address = listing.address.convertHalfWidth().updateAddressJapaneseCharacters()
     }
 
     const {key, listingElem, ...rest} = listing
