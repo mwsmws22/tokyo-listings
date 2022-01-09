@@ -15,6 +15,7 @@ class ServiceHandler {
   constructor() {
     this.loader = this.loaderFactory(location.href)
     String.prototype.convertHalfWidth = JobUtils.convertHalfWidth
+    String.prototype.updateAddressJapaneseCharacters = JobUtils.updateAddressJapaneseCharacters
   }
 
   loaderFactory(url) {
