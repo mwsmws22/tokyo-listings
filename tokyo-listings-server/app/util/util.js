@@ -2,7 +2,7 @@ const japa = require('jp-address-parser')
 
 module.exports = {
   parseAddress: async function (address) {
-    const prefectures = ['東京都', '千葉県', '神奈川県']
+    const prefectures = ['東京都', '千葉県', '神奈川県', '埼玉県']
     const mappings = {
       'prefecture': 'prefecture',
       'city': 'municipality',
