@@ -1,46 +1,48 @@
-const japa = require('jp-address-parser');
-const cloneDeep = require('clone-deep');
-
-const propertyStruct = {
-    prefecture: "",
-    municipality: "",
-    town: "",
-    district: "",
-    block: "",
-    house_number: ""
-}
+const japa = require('jp-address-parser')
 
 module.exports = {
-  parseAddress: async function (address, prop) {
-    if (!prop) {
-      prop = cloneDeep(propertyStruct)
+  parseAddress: async function (address) {
+    const prefectures = ['東京都', '千葉県', '神奈川県']
+    const mappings = {
+      'prefecture': 'prefecture',
+      'city': 'municipality',
+      'town': 'town',
+      'chome': 'district',
+      'ban': 'block',
+      'go': 'house_number'
     }
 
-    let parseRes = await japa.parse(address).catch(e => { });
+    let prop = {}
+    var parsedRes
 
-    if (!parseRes) {
-      parseRes = await japa.parse("東京都" + address).catch(e => { });
-    }
-
-    if (!parseRes) {
-      parseRes = await japa.parse("千葉県" + address).catch(e => { });
-    }
-
-    if (!parseRes) {
-      parseRes = await japa.parse("神奈川県" + address).catch(e => { });
+    if (prefectures.some(p => address.startsWith(p))) {
+      parseRes = await japa.parse(address)
+    } else {
+      for (const p of prefectures) {
+        const response = await japa.parse(p + address)
+        if (response) {
+          parseRes = response
+          break
+        }
+      }
     }
 
     if (parseRes) {
-      prop.prefecture = parseRes.prefecture ? parseRes.prefecture : "";
-      prop.municipality = parseRes.city ? parseRes.city : "";
-      prop.town = parseRes.town ? parseRes.town : "";
-      prop.district = parseRes.chome ? parseRes.chome : "";
-      prop.block = parseRes.ban ? parseRes.ban : "";
-      prop.house_number = parseRes.go ? parseRes.go : "";
-      return prop;
+      Object.entries(mappings).forEach(([k,v]) => {
+        if (parseRes[k]) { prop[v] = parseRes[k] }
+      })
+
+      if (!prop.house_number && parseRes.left?.startsWith('‐')) {
+        prop.house_number = parseInt(parseRes.left.replace('‐',''))
+      }
+
+      return prop
     }
   },
-  removeNullProps: function (obj) {
-    return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null && v !== ""));
+  updateFields: function (obj1, obj2) {
+    Object.entries(obj2).forEach(([k,v]) => {
+      if (k in obj1) { obj1[k] = v}
+    })
+    return obj1
   }
 }
