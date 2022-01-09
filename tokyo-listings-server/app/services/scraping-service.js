@@ -292,8 +292,6 @@ class Parser {
       output.property.property_type = property_type;
     }
 
-    console.log(output)
-
     return output;
   }
 
