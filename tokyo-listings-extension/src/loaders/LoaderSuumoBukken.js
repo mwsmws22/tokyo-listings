@@ -4,6 +4,7 @@ export default class LoaderSuumoBukken {
 
   constructor() {
     this.pipeline = ['update suumo bukken urls', 'remove archived listings', 'highlight similar listings']
+    this.similarParams = ['address', 'square_m']
     this.scrapedElems = []
   }
 
@@ -14,9 +15,9 @@ export default class LoaderSuumoBukken {
     listings.forEach(tr =>
       this.scrapedElems.push({
         propertyElem: tr,
-        address: address,
         listings: [{
           listingElem: tr,
+          address: address,
           square_m: $(tr).find("[class='bdLLGrayL bdLLGrayT taC pH15 pV5 TF breakA']")[2].innerText.match(/^(.*?)平米/)[1],
           key: $(tr).find("[class='fs12 bld']")[0].href
         }]

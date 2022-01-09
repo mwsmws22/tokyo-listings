@@ -10,7 +10,7 @@ require('dotenv').config()
 const PORT = process.env.PORT;
 
 var corsOptions = {
-  origin: ["http://localhost:8081", "https://realestate.yahoo.co.jp", "https://suumo.jp", "https://sumaity.com"]
+  origin: ["http://localhost:8081", "https://realestate.yahoo.co.jp", "https://suumo.jp", "https://sumaity.com", "https://www.r-store.jp"]
 };
 
 app.use(cors(corsOptions));

@@ -2,6 +2,7 @@ export default class LoaderYahoo {
 
   constructor() {
     this.pipeline = ['remove archived listings', 'highlight similar listings']
+    this.similarParams = ['address', 'square_m']
     this.scrapedElems = []
   }
 
@@ -14,10 +15,9 @@ export default class LoaderYahoo {
 
       this.scrapedElems.push({
         propertyElem: div,
-        address: buildData.children[1].children[1].innerText,
-        stations: buildData.children[0].children[1].innerText,
         listings: listings.map(li => ({
           listingElem: li,
+          address: buildData.children[1].children[1].innerText,
           key: li.querySelector('input.ignorePropertyClick').value,
           square_m: li.querySelector('p.floorplan').innerText.match(/\n(.*?)m2/)[1]
         }))

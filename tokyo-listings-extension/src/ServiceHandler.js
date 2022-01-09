@@ -4,15 +4,18 @@ import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob.js'
 import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob.js'
 import RemoveDistantStationsJob from './jobs/RemoveDistantStationsJob.js'
 import LoaderYahoo from './loaders/LoaderYahoo.js'
+import LoaderRStore from './loaders/LoaderRStore.js'
 import LoaderSumaity from './loaders/LoaderSumaity.js'
 import LoaderSuumo from './loaders/LoaderSuumo.js'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken.js'
 import LoaderGoogle from './loaders/LoaderGoogle.js'
+import JobUtils from './utils/JobUtils.js'
 
 class ServiceHandler {
 
   constructor() {
     this.loader = this.loaderFactory(location.href)
+    String.prototype.convertHalfWidth = JobUtils.convertHalfWidth
   }
 
   loaderFactory(url) {
@@ -26,6 +29,8 @@ class ServiceHandler {
       return new LoaderSuumoBukken()
     } else if (url.includes('google.com/search')) {
       return new LoaderGoogle()
+    } else if (url.includes('r-store.jp/search')) {
+      return new LoaderRStore()
     }
   }
 
@@ -41,13 +46,13 @@ class ServiceHandler {
         case 'update suumo bukken urls':
           return (scrapedElems) => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
         case 'highlight similar listings':
-          return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems)
+          return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems, this.loader.similarParams)
         case 'filter scrapeable results':
           return (scrapedElems) => FilterScrapeableResultsJob.execute(scrapedElems)
       }
     }).reduce((prev, curr) => {
       return prev.then(curr)
-    }, Promise.resolve(this.loader?.scrapedElems))
+    }, Promise.resolve(this.loader.scrapedElems))
   }
 }
 

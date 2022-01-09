@@ -8,7 +8,7 @@ module.exports = app => {
   router.get("/interest/:interest", listing.findAllByInterest);
   router.post("/partialUrl/", listing.findAllByPartialUrl);
   router.post("/suumoBukken/", listing.getUpdatedSuumoBukkenUrls);
-  router.post("/similarListings/", listing.findAllByAddressAndSqM);
+  router.post("/similarListings/", listing.findAllByParams);
   router.put("/:id", listing.update);
   router.delete("/:id", listing.delete);
 
