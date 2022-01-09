@@ -1496,7 +1496,7 @@ class Parser {
       output.property.property_type = "一戸建て";
     }
 
-    let address = $('div', 'th:contains("所在地") + td').first().text();
+    let address = $('div', 'th:contains("所在地") + td').first().text().replace(/\s/g,'');
     address = await util.parseAddress(address);
     output.property = util.updateFields(output.property, address);
 
