@@ -17,7 +17,7 @@ export default class LoaderSumaity {
           listingElem: tr,
           address: div.querySelector('.address').innerText,
           key: tr.querySelector('a.detailBtn').href.match(/prop_(.*?)\//)[1],
-          square_m: tr.querySelector('td.type').children[1].innerText.replace("m2", "")
+          square_m: String(parseFloat(tr.querySelector('td.type').children[1].innerText.replace("m2", "")))
         }))
       })
     )
