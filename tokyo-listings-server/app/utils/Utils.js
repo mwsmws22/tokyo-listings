@@ -2,7 +2,7 @@ module.exports = class Utils {
 
   static parseAddress(address) {
     const japa = require('jp-address-parser')
-    const prefectures = ['東京都', '千葉県', '神奈川県', '埼玉県']
+    const prefectures = ['東京都', '埼玉県', '神奈川県', '千葉県']
     const mappings = {
       'prefecture': 'prefecture',
       'city': 'municipality',
@@ -32,10 +32,8 @@ module.exports = class Utils {
           .then(res => mapper(res, resolve))
           .catch(failed => reject('unable to parse address'))
       } else {
-        japa.parse('東京都' + address)
-          .catch(failed => japa.parse('埼玉県' + address))
-          .catch(failed => japa.parse('神奈川県' + address))
-          .catch(failed => japa.parse('千葉県' + address))
+        prefectures.map(p => () => japa.parse(p + address))
+          .reduce((prev, curr) => prev.catch(curr), Promise.reject())
           .then(res => mapper(res, resolve))
           .catch(failed => reject('unable to parse address'))
       }
