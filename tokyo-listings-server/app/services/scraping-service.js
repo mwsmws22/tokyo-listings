@@ -1,9 +1,6 @@
 const cheerio = require('cheerio');
 const cloneDeep = require('clone-deep');
-
 const Utils = require('../utils/Utils');
-const StringUtils = require('../utils/StringUtils')
-StringUtils.initialize()
 
 // for writing out html to file
 // const fs = require('fs');
@@ -33,8 +30,6 @@ const dataStruct = {
 };
 
 const scrape = (url, cb) => {
-
-
 
   var pass;
   var useHeaders = ['www.renov-depart.jp', 'www.chintai.net', 'house.goo.ne.jp', 'www.aeras-group.jp', 'www.hatomarksite.com', 'house.ocn.ne.jp'];
@@ -72,7 +67,6 @@ const scrape = (url, cb) => {
         }
         catch (err) {
           cb("bad link");
-          // console.log(err);
         }
       });
     }
@@ -982,7 +976,7 @@ class Parser {
     output.listing.security_deposit = security_deposit_reikin.match(/敷金：(.*?)礼金：/)[1].replace("ヶ月", "").replace("なし", "0").replace("-", "0");
     output.listing.reikin =　security_deposit_reikin.match(/礼金：(.*?)償却：/)[1].replace("ヶ月", "").replace("なし", "0").replace("-", "0");
 
-    let address = $('dt:contains("所在地：") + dd').text();
+    let address = $('dt:contains("所在地：") + dd').text().noSpaces();
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);
 
@@ -1045,7 +1039,7 @@ class Parser {
       output.property.property_type = "アパート";
     }
 
-    let address = $('th:contains("所在地") + td').text();
+    let address = $('th:contains("所在地") + td').text().noSpaces();
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);
 
@@ -1127,7 +1121,7 @@ class Parser {
       output.property.property_type = "一戸建て";
     }
 
-    let address = $('th:contains("所在地") + td').text();
+    let address = $('th:contains("所在地") + td').text().noSpaces();
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);
 
@@ -1768,7 +1762,7 @@ class Parser {
       output.property.property_type = property_type;
     }
 
-    let address = $('th:contains("住所") + td').children().eq(0).text();
+    let address = $('th:contains("住所") + td').children().eq(0).text().noSpaces();
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);
 

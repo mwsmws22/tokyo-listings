@@ -3,6 +3,9 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 
+const StringUtils = require('./app/utils/StringUtils')
+StringUtils.initialize()
+
 const db = require("./app/models");
 db.sequelize.sync();
 
