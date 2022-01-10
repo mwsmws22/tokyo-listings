@@ -3,7 +3,7 @@ const ListingService = require('../services/listing-service');
 const Listing = db.listing;
 const Property = db.property;
 const Op = db.Sequelize.Op;
-const util = require('../utils/util');
+const Utils = require('../utils/Utils');
 
 exports.create = (req, res) => {
   if (!req.body.property_id) {
@@ -125,7 +125,7 @@ exports.findAllByPartialUrl = (req, res) => {
 exports.findAllByParams = (req, res) => {
   const listings = req.body.map(async l => {
     if (l.address) {
-      const addressObj = await util.parseAddress(l.address)
+      const addressObj = await Utils.parseAddress(l.address)
       l = {...l, ...Object.fromEntries(Object.entries(addressObj).map(([k,v]) => ([`$property.${k}$`, v])))}
       delete l.address
     }
