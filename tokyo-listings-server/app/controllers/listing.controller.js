@@ -3,7 +3,7 @@ const ListingService = require('../services/listing-service');
 const Listing = db.listing;
 const Property = db.property;
 const Op = db.Sequelize.Op;
-const util = require('../util/util');
+const util = require('../utils/util');
 
 exports.create = (req, res) => {
   if (!req.body.property_id) {

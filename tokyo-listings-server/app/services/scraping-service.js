@@ -1,6 +1,9 @@
 const cheerio = require('cheerio');
 const cloneDeep = require('clone-deep');
-const util = require('../util/util');
+const util = require('../utils/util');
+
+const StringUtils = require('../utils/StringUtils')
+StringUtils.initialize()
 
 // for writing out html to file
 // const fs = require('fs');
@@ -29,11 +32,9 @@ const dataStruct = {
   }
 };
 
-String.prototype.convertHalfWidth = function () {
-  return this.replace(/[\uff01-\uff5e]/g, function(ch) { return String.fromCharCode(ch.charCodeAt(0) - 0xfee0); });
-};
-
 const scrape = (url, cb) => {
+
+
 
   var pass;
   var useHeaders = ['www.renov-depart.jp', 'www.chintai.net', 'house.goo.ne.jp', 'www.aeras-group.jp', 'www.hatomarksite.com', 'house.ocn.ne.jp'];
@@ -332,7 +333,7 @@ class Parser {
       const text = $(elem).text();
 
       if (text.indexOf("バス") === -1) {
-        let tempStation = text.match(/(.*?)駅/i)[1].replace(/\s/g, '') + "駅";
+        let tempStation = text.match(/(.*?)駅/i)[1].noSpace() + "駅";
         let tempWalkTime = text.match(/徒歩(.*?)分/i)[1];
 
         if (output.listing.closest_station === "") {
@@ -514,10 +515,10 @@ class Parser {
 
     output.listing.url = this.url;
     output.listing.availability = "募集中";
-    output.listing.monthly_rent = $(".mrh-table-article__price").first().text().replace("万円", "").replace(/\s/g, '');
+    output.listing.monthly_rent = $(".mrh-table-article__price").first().text().replace("万円", "").noSpace();
     output.listing.reikin = $('th:contains("敷金／礼金／保証金") + td').text().match(/(\d+)/g)[1];
     output.listing.security_deposit = $('th:contains("敷金／礼金／保証金") + td').text().match(/(\d+)/g)[0];
-    output.listing.square_m = $('th:contains("建物面積") + td').first().text().replace("㎡", "").replace(/\s/g, '');
+    output.listing.square_m = $('th:contains("建物面積") + td').first().text().replace("㎡", "").noSpace();
     output.property.property_type = $('.mrh-label-article').text().match(/賃貸(.*?)$/)[1];
 
     let address = $('th:contains("所在地") + td').text().replace("周辺地図", "");
@@ -703,10 +704,10 @@ class Parser {
 
     output.listing.url = this.url;
     output.listing.availability = "募集中";
-    output.listing.monthly_rent = parseInt($('h3:contains("賃料") + p', 'li').first().text().replace("円", "").replace(",", "").replace(/\s/g, '')) / 10000;
+    output.listing.monthly_rent = parseInt($('h3:contains("賃料") + p', 'li').first().text().replace("円", "").replace(",", "").noSpace()) / 10000;
     output.listing.square_m = $('h3:contains("面積") + p', 'li').text().replace("㎡", "");
-    output.listing.security_deposit = $('h3:contains("敷金 / 保証金") + p', 'li').text().replace("ヶ月分", "").replace(/\s/g, '').replace("-", "0");
-    output.listing.reikin = $('h3:contains("礼金") + p', 'li').first().text().replace("ヶ月分", "").replace(/\s/g, '').replace("-", "0");
+    output.listing.security_deposit = $('h3:contains("敷金 / 保証金") + p', 'li').text().replace("ヶ月分", "").noSpace().replace("-", "0");
+    output.listing.reikin = $('h3:contains("礼金") + p', 'li').first().text().replace("ヶ月分", "").noSpace().replace("-", "0");
 
     let address = $('h3:contains("所在地") + p', 'li').text();
     address = await util.parseAddress(address);
@@ -743,12 +744,12 @@ class Parser {
 
     output.listing.url = this.url;
     output.listing.availability = "募集中";
-    output.listing.monthly_rent = parseInt($('dt:contains("賃料") + dd').text().replace("円", "").replace(",", "").replace(/\s/g, '')) / 10000;
-    output.listing.square_m = $('dt:contains("面積") + dd').text().replace("㎡", "").replace(/\s/g, '');
-    output.listing.security_deposit = $('dt:contains("敷金／礼金") + dd').text().match(/(.*?)\s／/)[1].replace("ヶ月", "").replace("なし", "0").replace(/\s/g, '');
+    output.listing.monthly_rent = parseInt($('dt:contains("賃料") + dd').text().replace("円", "").replace(",", "").noSpace()) / 10000;
+    output.listing.square_m = $('dt:contains("面積") + dd').text().replace("㎡", "").noSpace();
+    output.listing.security_deposit = $('dt:contains("敷金／礼金") + dd').text().match(/(.*?)\s／/)[1].replace("ヶ月", "").replace("なし", "0").noSpace();
     output.listing.reikin =　$('dt:contains("敷金／礼金") + dd').text().match(/／\s(.*?)$/m)[1].replace("ヶ月", "").replace("なし", "0");
 
-    let address = $('dt:contains("住所") + dd').text();
+    let address = $('dt:contains("住所") + dd').text().noSpaces();
     address = await util.parseAddress(address);
     output.property = util.updateFields(output.property, address);
 
@@ -833,7 +834,7 @@ class Parser {
     output.listing.url = this.url;
     output.listing.availability = "募集中";
     output.listing.monthly_rent = $('#chk-bkc-moneyroom').text().match(/(.*?)万円/)[1];
-    output.listing.square_m = $('#chk-bkc-housearea').text().replace("m²", "").replace(/\s/g, '');
+    output.listing.square_m = $('#chk-bkc-housearea').text().replace("m²", "").noSpace();
 
     let security_deposit = $('#chk-bkc-moneyshikirei').text().match(/(.*?)\s\//)[1];
     let reikin = $('#chk-bkc-moneyshikirei').text().match(/\/\s(.*?)$/m)[1];
@@ -868,7 +869,7 @@ class Parser {
         // another outlier: "つくばエクスプレス 浅草駅 徒歩10分"
         // another outlier: "東京メトロ東西線落合駅徒歩５分"
         // another outlier: "ＪＲ総武線 平井駅 3.1km"
-        let tempStation = text.match(/(?:\s|線)(.*?)徒歩/)[1].replace(/\s/g, '').replace("駅", "") + "駅";
+        let tempStation = text.match(/(?:\s|線)(.*?)徒歩/)[1].noSpace().replace("駅", "") + "駅";
         let tempWalkTime = text.match(/徒歩(.*?)分/)[1];
 
         if (output.listing.closest_station === "") {
@@ -976,7 +977,7 @@ class Parser {
     output.listing.monthly_rent = parseInt($('dt:contains("賃料：") + dd').text().replace("¥", "").replace(",", "")) / 10000;
     output.listing.square_m = $('dt:contains("面積：") + dd').text().replace("㎡", "");
 
-    let security_deposit_reikin = $('p:contains("敷金：")').text().replace(/\s/g, '').replace(/\([^()]*\)/g, '').replace(/（[^（）]*）/, '');
+    let security_deposit_reikin = $('p:contains("敷金：")').text().noSpace().replace(/\([^()]*\)/g, '').replace(/（[^（）]*）/, '');
 
     output.listing.security_deposit = security_deposit_reikin.match(/敷金：(.*?)礼金：/)[1].replace("ヶ月", "").replace("なし", "0").replace("-", "0");
     output.listing.reikin =　security_deposit_reikin.match(/礼金：(.*?)償却：/)[1].replace("ヶ月", "").replace("なし", "0").replace("-", "0");
@@ -1013,11 +1014,11 @@ class Parser {
     output.listing.url = this.url;
     output.listing.availability = "募集中";
     output.listing.monthly_rent = $('.price-number').text();
-    output.listing.square_m = $('th:contains("専有面積") + td').text().replace("㎡", "").replace(/\s/g, '');
+    output.listing.square_m = $('th:contains("専有面積") + td').text().replace("㎡", "").noSpace();
     output.listing.closest_station = $('th:contains("交通") + td').text().match(/線(.*?)徒歩/)[1];
     output.listing.walking_time = $('th:contains("交通") + td').text().match(/徒歩(.*?)分/)[1];
 
-    var security_deposit = $('th:contains("敷金/保証金") + td').text().replace(/(\r\n|\n|\r)/gm, "").replace(/\s/g, '').match(/(.*?)\//)[1];
+    var security_deposit = $('th:contains("敷金/保証金") + td').text().replace(/(\r\n|\n|\r)/gm, "").noSpace().match(/(.*?)\//)[1];
     var reikin =　$('th:contains("礼金") + td').text().match(/(.*?)(\/|$)/)[1].replace("※税込", "");
 
     if (security_deposit.includes("ヶ月")) {
@@ -1058,7 +1059,7 @@ class Parser {
 
     output.listing.url = this.url;
     output.listing.availability = "募集中";
-    output.listing.monthly_rent = $('span.num._color-main').text().replace("万円", "").replace(/\s/g, '');
+    output.listing.monthly_rent = $('span.num._color-main').text().replace("万円", "").noSpace();
 
     if (output.listing.monthly_rent.includes("要問い合わせ")) {
       throw "no longer available";
@@ -1114,7 +1115,7 @@ class Parser {
     output.listing.url = this.url;
     output.listing.availability = "募集中";
     output.listing.monthly_rent = parseInt(monthly_rent.replace("円", "").replace(",", "")) / 10000;
-    output.listing.square_m = $('th:contains("専有面積") + td').text().replace("m²", "").replace(/\s/g, '');
+    output.listing.square_m = $('th:contains("専有面積") + td').text().replace("m²", "").noSpace();
     output.listing.security_deposit = $('th:contains("敷金") + td').text().replace("ヶ月", "").replace("なし", "0");
     output.listing.reikin = $('th:contains("礼金") + td').text().replace("ヶ月", "").replace("なし", "0");
 
@@ -1201,7 +1202,7 @@ class Parser {
 
     output.listing.url = this.url;
     output.listing.availability = "募集中";
-    output.listing.monthly_rent = $('.EstateDetail-Sec1-RentFee').text().replace(/\s/g, '').match(/(.*?)万円/)[1];
+    output.listing.monthly_rent = $('.EstateDetail-Sec1-RentFee').text().noSpace().match(/(.*?)万円/)[1];
     output.listing.square_m = $('dd:contains("広さ")').text().match(/広さ：(.*?)㎡/)[1];
     output.listing.security_deposit = $('p:contains("敷")').text().replace("敷", "").replace("ヶ月", "").replace("無", "0").replace("--", "0");
     output.listing.reikin = $('p:contains("礼")').text().replace("礼", "").replace("ヶ月", "").replace("無", "0").replace("--", "0");
@@ -1378,7 +1379,7 @@ class Parser {
       output.property.property_type = property_type;
     }
 
-    let address = $('th:contains("所在地") + td').eq(0).text().replace("地図・周辺情報", "").replace(/\s/g,'');
+    let address = $('th:contains("所在地") + td').eq(0).text().replace("地図・周辺情報", "").noSpace();
     address = await util.parseAddress(address);
     output.property = util.updateFields(output.property, address);
 
@@ -1496,7 +1497,7 @@ class Parser {
       output.property.property_type = "一戸建て";
     }
 
-    let address = $('div', 'th:contains("所在地") + td').first().text().replace(/\s/g,'');
+    let address = $('div', 'th:contains("所在地") + td').first().text().noSpace();
     address = await util.parseAddress(address);
     output.property = util.updateFields(output.property, address);
 
