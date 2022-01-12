@@ -94,14 +94,4 @@ export default class JobUtils {
 
     return address
   }
-
-  static convertHalfWidth() {
-    return this.replace(/[\uff01-\uff5e]/g, function(ch) {
-      return String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
-    })
-  }
-
-  static updateAddressJapaneseCharacters() {
-    return this.replace(/ヶ/g, 'ケ').replace(/ノ/g, '之')
-  }
 }

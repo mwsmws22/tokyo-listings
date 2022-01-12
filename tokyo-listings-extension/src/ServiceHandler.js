@@ -5,17 +5,17 @@ import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob.js'
 import LoaderYahoo from './loaders/LoaderYahoo.js'
 import LoaderRStore from './loaders/LoaderRStore.js'
 import LoaderSumaity from './loaders/LoaderSumaity.js'
+import LoaderSumaityBukken from './loaders/LoaderSumaityBukken.js'
 import LoaderSuumo from './loaders/LoaderSuumo.js'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken.js'
 import LoaderGoogle from './loaders/LoaderGoogle.js'
-import JobUtils from './utils/JobUtils.js'
+import StringUtils from './utils/StringUtils.js'
 
 class ServiceHandler {
 
   constructor() {
     this.loader = this.loaderFactory(location.href)
-    String.prototype.convertHalfWidth = JobUtils.convertHalfWidth
-    String.prototype.updateAddressJapaneseCharacters = JobUtils.updateAddressJapaneseCharacters
+    StringUtils.initialize()
   }
 
   loaderFactory(url) {
@@ -23,6 +23,8 @@ class ServiceHandler {
       return new LoaderYahoo()
     } else if (url.includes('sumaity.com/chintai/area_list')) {
       return new LoaderSumaity()
+    } else if (url.includes('sumaity.com/chintai') && url.includes('bldg')) {
+      return new LoaderSumaityBukken()
     } else if (url.includes('suumo.jp/jj/chintai/ichiran/FR301FC001')) {
       return new LoaderSuumo()
     } else if (url.includes('suumo.jp/library')) {
@@ -36,6 +38,7 @@ class ServiceHandler {
 
   execute() {
     this.loader?.execute()
+    console.log(this.loader.scrapedElems)
     this.loader?.pipeline.map(job => {
       switch (job) {
         case 'remove archived listings':
