@@ -38,7 +38,6 @@ class ServiceHandler {
 
   execute() {
     this.loader?.execute()
-    console.log(this.loader.scrapedElems)
     this.loader?.pipeline.map(job => {
       switch (job) {
         case 'remove archived listings':
