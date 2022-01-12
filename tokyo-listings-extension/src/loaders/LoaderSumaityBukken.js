@@ -9,7 +9,7 @@ export default class LoaderSumaityBukken {
   execute() {
     const listings = Array.from(document.querySelector('table.floor_plan').children[0].children)
     let address = document.querySelector('table.buildingSummary').children[0].children[0].children[1].innerText
-    address = address.remove('街レビューを見る').remove('周辺物件').noSpaces()
+    address = address.remove('街レビューを見る').remove('周辺物件').noSpaces().remove('\n')
 
     listings.slice(1, listings.length).forEach(tr =>
       this.scrapedElems.push({
