@@ -11,7 +11,7 @@ import LoaderSuumoBukken from './loaders/LoaderSuumoBukken.js'
 import LoaderGoogle from './loaders/LoaderGoogle.js'
 import StringUtils from './utils/StringUtils.js'
 
-class ServiceHandler {
+export default class ServiceHandler {
 
   constructor() {
     this.loader = this.loaderFactory(location.href)
@@ -54,6 +54,3 @@ class ServiceHandler {
     }, Promise.resolve(this.loader.scrapedElems))
   }
 }
-
-const sh = new ServiceHandler()
-sh.execute()
