@@ -1373,7 +1373,7 @@ class Parser {
       output.property.property_type = property_type;
     }
 
-    let address = $('th:contains("所在地") + td').eq(0).text().replace("地図・周辺情報", "").noSpaces();
+    let address = $('th:contains("所在地") + td').eq(0).text().remove("地図・周辺情報", " ", "\n");
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);
 
