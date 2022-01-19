@@ -738,10 +738,10 @@ class Parser {
 
     output.listing.url = this.url;
     output.listing.availability = "募集中";
-    output.listing.monthly_rent = parseInt($('dt:contains("賃料") + dd').text().replace("円", "").replace(",", "").noSpaces()) / 10000;
-    output.listing.square_m = $('dt:contains("面積") + dd').text().replace("㎡", "").noSpaces();
-    output.listing.security_deposit = $('dt:contains("敷金／礼金") + dd').text().match(/(.*?)\s／/)[1].replace("ヶ月", "").replace("なし", "0").noSpaces();
-    output.listing.reikin =　$('dt:contains("敷金／礼金") + dd').text().match(/／\s(.*?)$/m)[1].replace("ヶ月", "").replace("なし", "0");
+    output.listing.monthly_rent = $('dt:contains("賃料") + dd').text().remove("円", ",", " ").toManen();
+    output.listing.square_m = $('dt:contains("面積") + dd').text().remove("㎡", " ");
+    output.listing.security_deposit = $('dt:contains("敷金／礼金") + dd').text().match(/(.*?)\s／/)[1].remove("ヶ月", "か月", " ").replace("なし", "0");
+    output.listing.reikin =　$('dt:contains("敷金／礼金") + dd').text().match(/／\s(.*?)$/m)[1].remove("ヶ月", "か月").replace("なし", "0");
 
     let address = $('dt:contains("住所") + dd').text().noSpaces();
     address = await Utils.parseAddress(address);
