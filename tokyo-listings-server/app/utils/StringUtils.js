@@ -7,7 +7,7 @@ module.exports = class StringUtils {
   }
 
   static noSpaces() {
-    return this.remove(' ')
+    return this.replace(/\s/g, '')
   }
 
   static remove(...args) {
@@ -23,12 +23,17 @@ module.exports = class StringUtils {
     return parseInt(this) / 10000
   }
 
+  static escape() {
+    return JSON.stringify(this)
+  }
+
   static initialize() {
     String.prototype.convertHalfWidth = this.convertHalfWidth
     String.prototype.noSpaces = this.noSpaces
     String.prototype.remove = this.remove
     String.prototype.float = this.float
     String.prototype.toManen = this.toManen
+    String.prototype.escape = this.escape
     return
   }
 }
