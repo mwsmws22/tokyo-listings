@@ -3,10 +3,12 @@ var x = true
 enableBrowserAction()
 
 function disableBrowserAction() {
+  chrome.browserAction.setIcon({path: './icons/logo16_dark.png'})
   chrome.storage.local.set({enabled: false})
 }
 
 function enableBrowserAction() {
+  chrome.browserAction.setIcon({path: './icons/logo16_light.png'})
   chrome.storage.local.set({enabled: true})
 }
 
