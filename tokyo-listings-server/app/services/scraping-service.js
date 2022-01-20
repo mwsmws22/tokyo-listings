@@ -32,7 +32,7 @@ const dataStruct = {
 const scrape = (url, cb) => {
 
   var pass;
-  var useHeaders = ['www.renov-depart.jp', 'www.chintai.net', 'house.goo.ne.jp', 'www.aeras-group.jp', 'www.hatomarksite.com', 'house.ocn.ne.jp'];
+  const useHeaders = ['www.renov-depart.jp', 'www.chintai.net', 'house.goo.ne.jp', 'www.aeras-group.jp', 'www.hatomarksite.com', 'house.ocn.ne.jp'];
   const { protocol, hostname, pathname, search } = new URL(url);
   const adapter = protocol === "https:" ? require("https") : require("http")
 
@@ -46,7 +46,7 @@ const scrape = (url, cb) => {
     pass = url;
   }
 
-  adapter.get(pass, (res) => {
+  const req = adapter.get(pass, (res) => {
     let html = '';
     var { statusCode } = res;
 
@@ -70,6 +70,11 @@ const scrape = (url, cb) => {
         }
       });
     }
+  });
+
+  req.end();
+  req.on('error', (e) => {
+    console.error(e);
   });
 };
 
