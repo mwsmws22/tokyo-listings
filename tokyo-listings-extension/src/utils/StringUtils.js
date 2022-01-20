@@ -10,7 +10,8 @@ export default class StringUtils {
     return this.remove(' ')
   }
 
-  static updateAddressJapaneseCharacters() {
+  // standardizes a few specific japanese characters
+  static jp() {
     return this.replace(/ヶ/g, 'ケ').replace(/ノ/g, '之')
   }
 
@@ -24,7 +25,7 @@ export default class StringUtils {
 
   static initialize() {
     String.prototype.convertHalfWidth = this.convertHalfWidth
-    String.prototype.updateAddressJapaneseCharacters = this.updateAddressJapaneseCharacters
+    String.prototype.jp = this.jp
     String.prototype.noSpaces = this.noSpaces
     String.prototype.remove = this.remove
     String.prototype.float = this.float

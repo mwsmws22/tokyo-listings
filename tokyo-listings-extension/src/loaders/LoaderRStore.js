@@ -16,7 +16,7 @@ export default class LoaderRStore {
           listingElem: div,
           key: div.children[0].href.match(/room\/(.*?)$/)[1],
           square_m: div.querySelector('.spec-area').innerText.replace("㎡", ""),
-          closest_station: div.querySelector('.room_title').innerText.match(/^(.*?)\s/)[1] + "駅"
+          closest_station: div.querySelector('.room_title').innerText.match(/^(.*?)\s/)[1].jp() + "駅"
         }]
       })
     )
