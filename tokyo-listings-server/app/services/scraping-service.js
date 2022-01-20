@@ -393,7 +393,7 @@ class Parser {
 
     output.listing.square_m = $('.description_area_val').text().replace("㎡", "");
 
-    let address = $('td:contains("所在地：") + td').text();
+    let address = $('td:contains("所在地：") + td').text().remove('\n', '\t');
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);
 
