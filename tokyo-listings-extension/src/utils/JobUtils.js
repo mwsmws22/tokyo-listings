@@ -1,5 +1,4 @@
 export default class JobUtils {
-
   static SCRAPEABLE_SITES = new Set([
     'www.athome.co.jp',
     'suumo.jp',
@@ -49,9 +48,9 @@ export default class JobUtils {
 
   static buildPayload(body) {
     return {
-      method: "post",
+      method: 'post',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
@@ -59,7 +58,7 @@ export default class JobUtils {
   }
 
   static buildAddress(p, i, district_kanji = true) {
-    let address = ""
+    let address = ''
 
     if (i > 0) {
       address += p.prefecture
@@ -74,18 +73,18 @@ export default class JobUtils {
       if (p.district) {
         address += p.district
         if (district_kanji) {
-          address += "丁目"
+          address += '丁目'
         }
       }
     }
     if (i > 4) {
       if (p.block) {
         if (!district_kanji) {
-          address += "-"
+          address += '-'
         }
-        address += p.block;
+        address += p.block
         if (p.house_number) {
-          address += "-" + p.house_number
+          address += '-' + p.house_number
         }
       } else if (p.house_number) {
         address += p.house_number

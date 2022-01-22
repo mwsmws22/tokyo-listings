@@ -12,7 +12,6 @@ import LoaderGoogle from './loaders/LoaderGoogle.js'
 import StringUtils from './utils/StringUtils.js'
 
 export default class ServiceHandler {
-
   constructor() {
     this.loader = this.loaderFactory(location.href)
     StringUtils.initialize()
@@ -38,19 +37,22 @@ export default class ServiceHandler {
 
   execute() {
     this.loader?.execute()
-    this.loader?.pipeline.map(job => {
-      switch (job) {
-        case 'remove archived listings':
-          return (scrapedElems) => RemoveArchivedListingsJob.execute(scrapedElems)
-        case 'update suumo bukken urls':
-          return (scrapedElems) => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
-        case 'highlight similar listings':
-          return (scrapedElems) => HighlightSimilarListingsJob.execute(scrapedElems, this.loader.similarParams)
-        case 'filter scrapeable results':
-          return (scrapedElems) => FilterScrapeableResultsJob.execute(scrapedElems)
-      }
-    }).reduce((prev, curr) => {
-      return prev.then(curr)
-    }, Promise.resolve(this.loader.scrapedElems))
+    this.loader?.pipeline
+      .map(job => {
+        switch (job) {
+          case 'remove archived listings':
+            return scrapedElems => RemoveArchivedListingsJob.execute(scrapedElems)
+          case 'update suumo bukken urls':
+            return scrapedElems => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
+          case 'highlight similar listings':
+            return scrapedElems =>
+              HighlightSimilarListingsJob.execute(scrapedElems, this.loader.similarParams)
+          case 'filter scrapeable results':
+            return scrapedElems => FilterScrapeableResultsJob.execute(scrapedElems)
+        }
+      })
+      .reduce((prev, curr) => {
+        return prev.then(curr)
+      }, Promise.resolve(this.loader.scrapedElems))
   }
 }

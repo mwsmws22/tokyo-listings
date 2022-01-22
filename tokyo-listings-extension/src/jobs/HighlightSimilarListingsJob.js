@@ -1,8 +1,7 @@
 import JobUtils from '../utils/JobUtils.js'
 
 export default class HighlightSimilarListingsJob {
-
-  static ENDPOINT = "http://localhost:8082/api/listing/similarListings/"
+  static ENDPOINT = 'http://localhost:8082/api/listing/similarListings/'
 
   static execute(scrapedElems, params) {
     const paramObjs = this.constructParamObjs(scrapedElems, params)
@@ -14,8 +13,8 @@ export default class HighlightSimilarListingsJob {
           scrapedElems.forEach(elem =>
             elem.listings.forEach(l =>
               out.forEach(o => {
-                if (this.compareObjectParams(l,o)) {
-                  l.listingElem.style.backgroundColor = "lightyellow"
+                if (this.compareObjectParams(l, o)) {
+                  l.listingElem.style.backgroundColor = 'lightyellow'
                 }
               })
             )
@@ -27,27 +26,32 @@ export default class HighlightSimilarListingsJob {
   }
 
   static constructParamObjs(scrapedElems, params) {
-    const paramObjs = scrapedElems.map(elem =>
-      elem.listings.map(l => {
-        const kvPairs = params.map(p => ([p, l[p]]))
-        return Object.fromEntries(kvPairs)
-      })
-    ).flat()
+    const paramObjs = scrapedElems
+      .map(elem =>
+        elem.listings.map(l => {
+          const kvPairs = params.map(p => [p, l[p]])
+          return Object.fromEntries(kvPairs)
+        })
+      )
+      .flat()
 
     return JobUtils.removeDupObjFromArray(paramObjs)
   }
 
   static compareObjectParams(listing, out) {
-
     if (listing.address) {
-      out.address = JobUtils.buildAddress(out.property, 4, listing.address.includes("丁目"))
+      out.address = JobUtils.buildAddress(
+        out.property,
+        4,
+        listing.address.includes('丁目')
+      )
       listing.address = listing.address.convertHalfWidth().jp()
     }
 
-    const {key, listingElem, ...rest} = listing
+    const { key, listingElem, ...rest } = listing
 
-    return Object.entries(rest).every(([kL,vL]) =>
-      Object.entries(out).some(([kO,vO]) => kL == kO && vL == String(vO))
+    return Object.entries(rest).every(([kL, vL]) =>
+      Object.entries(out).some(([kO, vO]) => kL == kO && vL == String(vO))
     )
   }
 }
