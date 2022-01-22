@@ -32,7 +32,7 @@ const dataStruct = {
 const scrape = (url, cb) => {
 
   var pass;
-  const useHeaders = ['www.renov-depart.jp', 'www.chintai.net', 'house.goo.ne.jp', 'www.aeras-group.jp', 'www.hatomarksite.com', 'house.ocn.ne.jp'];
+  const useHeaders = ['www.renov-depart.jp', 'www.chintai.net', 'house.goo.ne.jp', 'www.aeras-group.jp', 'www.hatomarksite.com', 'house.ocn.ne.jp', 'www.rehouse.co.jp'];
   const { protocol, hostname, pathname, search } = new URL(url);
   const adapter = protocol === "https:" ? require("https") : require("http")
 
@@ -517,9 +517,15 @@ class Parser {
     output.listing.monthly_rent = $(".mrh-table-article__price").first().text().replace("万円", "").noSpaces();
     output.listing.reikin = $('th:contains("敷金／礼金／保証金") + td').text().match(/(\d+)/g)[1];
     output.listing.security_deposit = $('th:contains("敷金／礼金／保証金") + td').text().match(/(\d+)/g)[0];
-    output.listing.square_m = $('th:contains("建物面積") + td').first().text().replace("㎡", "").noSpaces();
-    output.property.property_type = $('.mrh-label-article').text().match(/賃貸(.*?)$/)[1];
+    output.listing.square_m = $('th:contains("専有面積")+ td, th:contains("建物面積") + td').first().text().replace("㎡", "").noSpaces();
+    let property_type = $('.mrh-label-article').text().match(/賃貸(.*?)$/)[1];
 
+    if (property_type === "マンション") {
+      output.property.property_type = "アパート"
+    } else {
+      output.property.property_type = property_type
+    }
+    
     let address = $('th:contains("所在地") + td').text().replace("周辺地図", "");
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);
