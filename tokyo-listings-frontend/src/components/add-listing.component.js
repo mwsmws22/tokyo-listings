@@ -327,7 +327,7 @@ class AddListing extends React.Component {
         <Form autoComplete="off" style={{paddingBottom: 8}}>
           <Form.Group>
             { this.state.listing_exists !== true ? <Form.Label>Listing URL</Form.Label> : <Form.Label className="text-danger">Listing already in DB!</Form.Label> }
-            <Form.Control name="url" ref={this.urlInput} value={this.state.current_listing.listing.url} onChange={this.handleURL} placeholder="Enter URL"/>
+            <Form.Control id="inputUrl" name="url" ref={this.urlInput} value={this.state.current_listing.listing.url} onChange={this.handleURL} placeholder="Enter URL"/>
             <Overlay key={this.state.overlayKey} target={this.urlInput.current} show={this.state.similar_listings.length > 0 && !this.state.hideOverlay} placement="right">
               <Popover style={{width: "600px", maxWidth: "600px"}} key={seedrandom(this.state.current_listing.listing.url)}>
                 <Popover.Title as="h3">Similar Listings</Popover.Title>
