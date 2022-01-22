@@ -10,16 +10,14 @@
         "default": "Ctrl+Shift+8"
       }
     },
-    "load" : {
+    "load": {
       "suggested_key": {
-           "default": "Ctrl+Shift+9"
+        "default": "Ctrl+Shift+9"
       },
       "description": "Load listing in app"
     }
   },
-  "permissions": [
-    "storage", "tabs"
-  ],
+  "permissions": ["storage", "tabs"],
   "background": {
     "scripts": ["background.js"]
   },

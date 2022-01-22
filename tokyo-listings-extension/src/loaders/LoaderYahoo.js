@@ -1,5 +1,4 @@
 export default class LoaderYahoo {
-
   constructor() {
     this.pipeline = ['remove archived listings', 'highlight similar listings']
     this.similarParams = ['address', 'square_m']

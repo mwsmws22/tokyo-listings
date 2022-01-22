@@ -6,6 +6,6 @@ class PageUtils {
   }
 }
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    PageUtils.insertUrl(request.loadUrl)
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  PageUtils.insertUrl(request.loadUrl)
 })

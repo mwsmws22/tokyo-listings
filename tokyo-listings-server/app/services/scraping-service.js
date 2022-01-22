@@ -518,6 +518,7 @@ class Parser {
     output.listing.reikin = $('th:contains("敷金／礼金／保証金") + td').text().match(/(\d+)/g)[1];
     output.listing.security_deposit = $('th:contains("敷金／礼金／保証金") + td').text().match(/(\d+)/g)[0];
     output.listing.square_m = $('th:contains("専有面積")+ td, th:contains("建物面積") + td').first().text().replace("㎡", "").noSpaces();
+
     let property_type = $('.mrh-label-article').text().match(/賃貸(.*?)$/)[1];
 
     if (property_type === "マンション") {
@@ -525,7 +526,7 @@ class Parser {
     } else {
       output.property.property_type = property_type
     }
-    
+
     let address = $('th:contains("所在地") + td').text().replace("周辺地図", "");
     address = await Utils.parseAddress(address);
     output.property = Utils.updateFields(output.property, address);

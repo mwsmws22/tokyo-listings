@@ -1,8 +1,7 @@
 import JobUtils from '../utils/JobUtils.js'
 
 export default class RemoveArchivedListingsJob {
-
-  static ENDPOINT = "http://localhost:8082/api/listing/partialUrl/"
+  static ENDPOINT = 'http://localhost:8082/api/listing/partialUrl/'
 
   static execute(scrapedElems) {
     return new Promise((resolve, reject) => {
@@ -14,7 +13,9 @@ export default class RemoveArchivedListingsJob {
           const urls = out.map(res => res.url)
           const filteredElems = scrapedElems.filter(elem => {
             const hits = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
-            const nonHits = elem.listings.filter(l => !urls.some(url => url.includes(l.key)))
+            const nonHits = elem.listings.filter(
+              l => !urls.some(url => url.includes(l.key))
+            )
             if (hits.length == elem.listings.length) {
               elem.propertyElem.remove()
               return false
@@ -34,12 +35,16 @@ export default class RemoveArchivedListingsJob {
   }
 
   static logRemovedListings(originalElems, scrapedElems) {
-    console.log("the following listings were removed")
+    console.log('the following listings were removed')
     let missingListings = []
     originalElems.forEach(elem => {
       elem.listings.forEach(listing => {
-        let missingListing = !scrapedElems.some(se => se.listings.some(l => l.key == listing.key))
-        if (missingListing) { missingListings.push(listing) }
+        let missingListing = !scrapedElems.some(se =>
+          se.listings.some(l => l.key == listing.key)
+        )
+        if (missingListing) {
+          missingListings.push(listing)
+        }
       })
     })
     console.log(missingListings)
