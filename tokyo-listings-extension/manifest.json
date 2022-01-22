@@ -9,26 +9,38 @@
       "suggested_key": {
         "default": "Ctrl+Shift+8"
       }
+    },
+    "load" : {
+      "suggested_key": {
+           "default": "Ctrl+Shift+9"
+      },
+      "description": "Load listing in app"
     }
   },
   "permissions": [
-    "storage"
+    "storage", "tabs"
   ],
   "background": {
     "scripts": ["background.js"]
   },
-  "content_scripts": [{
-    "js": ["./dist/bundle.js"],
-    "matches": [
-      "https://realestate.yahoo.co.jp/rent/search/*",
-      "https://www.google.com/search*",
-      "https://suumo.jp/jj/chintai/ichiran/FR301FC001/*",
-      "https://suumo.jp/library/*/to_*",
-      "https://sumaity.com/chintai/area_list/*",
-      "https://sumaity.com/chintai/*_bldg/bldg*",
-      "https://www.r-store.jp/search*"
-    ]
-  }],
+  "content_scripts": [
+    {
+      "js": ["./dist/bundle.js"],
+      "matches": [
+        "https://realestate.yahoo.co.jp/rent/search/*",
+        "https://www.google.com/search*",
+        "https://suumo.jp/jj/chintai/ichiran/FR301FC001/*",
+        "https://suumo.jp/library/*/to_*",
+        "https://sumaity.com/chintai/area_list/*",
+        "https://sumaity.com/chintai/*_bldg/bldg*",
+        "https://www.r-store.jp/search*"
+      ]
+    },
+    {
+      "js": ["./src/utils/PageUtils.js"],
+      "matches": ["http://localhost:8081/add"]
+    }
+  ],
   "icons": {
     "16": "/icons/logo16_light.png",
     "32": "/icons/logo32_dark.png",
