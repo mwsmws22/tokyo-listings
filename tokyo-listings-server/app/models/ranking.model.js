@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Ranking = sequelize.define("ranking", {
+  const Ranking = sequelize.define('ranking', {
     general_notes: {
       type: Sequelize.STRING
     },
@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
     status: {
       type: Sequelize.STRING
     }
-  });
+  })
 
-  return Ranking;
-};
+  return Ranking
+}

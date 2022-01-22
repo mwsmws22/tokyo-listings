@@ -1,7 +1,6 @@
 module.exports = class StringUtils {
-
   static convertHalfWidth() {
-    return this.replace(/[\uff01-\uff5e]/g, function(ch) {
+    return this.replace(/[\uff01-\uff5e]/g, function (ch) {
       return String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
     })
   }

@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Property = sequelize.define("property", {
+  const Property = sequelize.define('property', {
     prefecture: {
       type: Sequelize.STRING
     },
@@ -33,7 +33,7 @@ module.exports = (sequelize, Sequelize) => {
     exact: {
       type: Sequelize.BOOLEAN
     }
-  });
+  })
 
-  return Property;
-};
+  return Property
+}
