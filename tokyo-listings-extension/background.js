@@ -32,7 +32,12 @@ function sendListingToApp() {
         chrome.tabs.sendMessage(tabs[0].id, {loadUrl: listingTab})
       } else {
         chrome.tabs.create({'url': 'http://localhost:8081/add'}, function(tab) {
-          chrome.tabs.sendMessage(tab.id, {loadUrl: listingTab})
+          chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+            if (info.status === 'complete' && tabId === tab.id) {
+                chrome.tabs.onUpdated.removeListener(listener)
+                chrome.tabs.sendMessage(tab.id, {loadUrl: listingTab})
+            }
+          })
         })
       }
     })
