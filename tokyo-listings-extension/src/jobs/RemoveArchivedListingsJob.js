@@ -11,21 +11,21 @@ export default class RemoveArchivedListingsJob {
         .then(res => res.json())
         .then(out => {
           const urls = out.map(res => res.url)
-          const filteredElems = scrapedElems.filter(elem => {
+          const filteredElems = scrapedElems.flatMap(elem => {
             const hits = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
             const nonHits = elem.listings.filter(
               l => !urls.some(url => url.includes(l.key))
             )
             if (hits.length === elem.listings.length) {
               elem.propertyElem.remove()
-              return false
+              return []
             }
             if (nonHits.length === elem.listings.length) {
-              return true
+              return [elem]
             }
             hits.forEach(l => l.listingElem.remove())
             elem.listings = nonHits
-            return true
+            return [elem]
           })
           this.logRemovedListings(scrapedElems, filteredElems)
           resolve(filteredElems)
