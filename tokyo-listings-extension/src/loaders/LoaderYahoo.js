@@ -6,9 +6,9 @@ export default class LoaderYahoo {
   }
 
   execute() {
-    const listings = Array.from(document.getElementById('listBuilding').children)
+    const properties = Array.from(document.getElementById('listBuilding').children)
 
-    listings.forEach(div => {
+    properties.forEach(div => {
       const buildData = div.querySelector('div.buildData')
       const listings = Array.from(div.querySelector('ul.roomList').children)
 

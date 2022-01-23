@@ -1,37 +1,43 @@
-import RemoveArchivedListingsJob from './jobs/RemoveArchivedListingsJob.js'
-import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob.js'
-import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob.js'
-import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob.js'
-import LoaderYahoo from './loaders/LoaderYahoo.js'
-import LoaderRStore from './loaders/LoaderRStore.js'
-import LoaderSumaity from './loaders/LoaderSumaity.js'
-import LoaderSumaityBukken from './loaders/LoaderSumaityBukken.js'
-import LoaderSuumo from './loaders/LoaderSuumo.js'
-import LoaderSuumoBukken from './loaders/LoaderSuumoBukken.js'
-import LoaderGoogle from './loaders/LoaderGoogle.js'
-import StringUtils from './utils/StringUtils.js'
+import RemoveArchivedListingsJob from './jobs/RemoveArchivedListingsJob'
+import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob'
+import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob'
+import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob'
+import LoaderYahoo from './loaders/LoaderYahoo'
+import LoaderRStore from './loaders/LoaderRStore'
+import LoaderSumaity from './loaders/LoaderSumaity'
+import LoaderSumaityBukken from './loaders/LoaderSumaityBukken'
+import LoaderSuumo from './loaders/LoaderSuumo'
+import LoaderSuumoBukken from './loaders/LoaderSuumoBukken'
+import LoaderGoogle from './loaders/LoaderGoogle'
+import StringUtils from './utils/StringUtils'
 
 export default class ServiceHandler {
   constructor() {
-    this.loader = this.loaderFactory(location.href)
+    this.loaderFactory(window.location.href)
     StringUtils.initialize()
   }
 
   loaderFactory(url) {
     if (url.includes('realestate.yahoo.co.jp/rent/search')) {
-      return new LoaderYahoo()
-    } else if (url.includes('sumaity.com/chintai/area_list')) {
-      return new LoaderSumaity()
-    } else if (url.includes('sumaity.com/chintai') && url.includes('bldg')) {
-      return new LoaderSumaityBukken()
-    } else if (url.includes('suumo.jp/jj/chintai/ichiran/FR301FC001')) {
-      return new LoaderSuumo()
-    } else if (url.includes('suumo.jp/library')) {
-      return new LoaderSuumoBukken()
-    } else if (url.includes('google.com/search')) {
-      return new LoaderGoogle()
-    } else if (url.includes('r-store.jp/search')) {
-      return new LoaderRStore()
+      this.loader = new LoaderYahoo()
+    }
+    if (url.includes('sumaity.com/chintai/area_list')) {
+      this.loader = new LoaderSumaity()
+    }
+    if (url.includes('sumaity.com/chintai') && url.includes('bldg')) {
+      this.loader = new LoaderSumaityBukken()
+    }
+    if (url.includes('suumo.jp/jj/chintai/ichiran/FR301FC001')) {
+      this.loader = new LoaderSuumo()
+    }
+    if (url.includes('suumo.jp/library')) {
+      this.loader = new LoaderSuumoBukken()
+    }
+    if (url.includes('google.com/search')) {
+      this.loader = new LoaderGoogle()
+    }
+    if (url.includes('r-store.jp/search')) {
+      this.loader = new LoaderRStore()
     }
   }
 
@@ -49,10 +55,11 @@ export default class ServiceHandler {
               HighlightSimilarListingsJob.execute(scrapedElems, this.loader.similarParams)
           case 'filter scrapeable results':
             return scrapedElems => FilterScrapeableResultsJob.execute(scrapedElems)
+          default:
+            return scrapedElems => Promise.resolve(scrapedElems)
         }
       })
-      .reduce((prev, curr) => {
-        return prev.then(curr)
-      }, Promise.resolve(this.loader.scrapedElems))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve(this.loader.scrapedElems))
+      .catch(err => console.error(err))
   }
 }
