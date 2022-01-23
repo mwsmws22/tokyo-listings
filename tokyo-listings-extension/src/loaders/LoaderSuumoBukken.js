@@ -13,9 +13,8 @@ export default class LoaderSuumoBukken {
 
   execute() {
     const listings = Array.from(document.querySelectorAll('tr.caseBukken'))
-    const address = $(
-      "[class='bdLLGrayT bdLLGrayB pH10 pV5 lh14']"
-    )[0].innerText.noSpaces()
+    const addressObj = $("[class='bdLLGrayT bdLLGrayB pH10 pV5 lh14']")[0]
+    const address = addressObj.innerText.remove(' ')
 
     listings.forEach(tr =>
       this.scrapedElems.push({

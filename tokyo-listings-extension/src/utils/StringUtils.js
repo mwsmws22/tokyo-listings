@@ -5,17 +5,14 @@ export default class StringUtils {
     )
   }
 
-  static noSpaces() {
-    return this.remove(' ')
-  }
-
   // standardizes a few specific japanese characters
   static jp() {
     return this.replace(/ヶ/g, 'ケ').replace(/ノ/g, '之')
   }
 
-  static remove(s) {
-    return this.replace(new RegExp(s, 'g'), '')
+  static remove(...args) {
+    const reduceFunc = (prev, curr) => prev.replace(new RegExp(curr, 'g'), '')
+    return args.reduce(reduceFunc, this)
   }
 
   static float() {
@@ -25,7 +22,6 @@ export default class StringUtils {
   static initialize() {
     String.prototype.convertHalfWidth = this.convertHalfWidth
     String.prototype.jp = this.jp
-    String.prototype.noSpaces = this.noSpaces
     String.prototype.remove = this.remove
     String.prototype.float = this.float
   }

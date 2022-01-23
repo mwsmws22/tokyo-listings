@@ -28,6 +28,12 @@
       {
         "exceptions": ["String"]
       }
+    ],
+    "no-param-reassign": [
+      "error", 
+      {
+        "props": false
+        }
     ]
   },
   "ignorePatterns": ["icons/*", "dist/*"]

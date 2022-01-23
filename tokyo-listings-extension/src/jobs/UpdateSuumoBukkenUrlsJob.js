@@ -12,7 +12,7 @@ export default class UpdateSuumoBukkenUrlsJob {
         .then(out => {
           const updatedUrlSet = new Set()
           resolve(
-            scrapedElems.filter(l => {
+            scrapedElems.flatMap(l => {
               const url = out[l.listings[0].key]
               if (!updatedUrlSet.has(url)) {
                 Array.from(l.propertyElem.getElementsByTagName('a')).forEach(a =>
@@ -20,10 +20,10 @@ export default class UpdateSuumoBukkenUrlsJob {
                 )
                 updatedUrlSet.add(url)
                 l.listings[0].key = url
-                return true
+                return [l]
               }
               l.propertyElem.remove()
-              return false
+              return []
             })
           )
         })

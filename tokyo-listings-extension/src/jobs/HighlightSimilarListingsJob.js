@@ -14,7 +14,7 @@ export default class HighlightSimilarListingsJob {
             elem.listings.forEach(l =>
               out.forEach(o => {
                 if (this.compareObjectParams(l, o)) {
-                  l.listingElem.style.backgroundColor = 'lightyellow'
+                  l.listingElem.setAttribute('style', 'background-color: lightyellow')
                 }
               })
             )
@@ -40,11 +40,8 @@ export default class HighlightSimilarListingsJob {
 
   static compareObjectParams(listing, out) {
     if (listing.address) {
-      out.address = JobUtils.buildAddress(
-        out.property,
-        4,
-        listing.address.includes('丁目')
-      )
+      const districtKanji = listing.address.includes('丁目')
+      out.address = JobUtils.buildAddress(out.property, 4, districtKanji)
       listing.address = listing.address.convertHalfWidth().jp()
     }
 
