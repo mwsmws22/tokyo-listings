@@ -23,7 +23,7 @@ export default class LoaderSumaityBukken {
         listings: [
           {
             listingElem: tr,
-            address: address,
+            address,
             key: tr
               .querySelector('div.estateDetailBtn')
               .children[0].href.match(/prop_(.*?)\//)[1],

@@ -57,7 +57,7 @@ export default class JobUtils {
     }
   }
 
-  static buildAddress(p, i, district_kanji = true) {
+  static buildAddress(p, i, districtKanji = true) {
     let address = ''
 
     if (i > 0) {
@@ -72,19 +72,19 @@ export default class JobUtils {
     if (i > 3) {
       if (p.district) {
         address += p.district
-        if (district_kanji) {
+        if (districtKanji) {
           address += '丁目'
         }
       }
     }
     if (i > 4) {
       if (p.block) {
-        if (!district_kanji) {
+        if (!districtKanji) {
           address += '-'
         }
         address += p.block
         if (p.house_number) {
-          address += '-' + p.house_number
+          address += `-${p.house_number}`
         }
       } else if (p.house_number) {
         address += p.house_number

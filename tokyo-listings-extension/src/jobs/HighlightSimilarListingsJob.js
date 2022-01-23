@@ -1,4 +1,4 @@
-import JobUtils from '../utils/JobUtils.js'
+import JobUtils from '../utils/JobUtils'
 
 export default class HighlightSimilarListingsJob {
   static ENDPOINT = 'http://localhost:8082/api/listing/similarListings/'
@@ -21,7 +21,7 @@ export default class HighlightSimilarListingsJob {
           )
           resolve(scrapedElems)
         })
-        .catch(err => console.log(err))
+        .catch(err => reject(err))
     })
   }
 
@@ -51,7 +51,7 @@ export default class HighlightSimilarListingsJob {
     const { key, listingElem, ...rest } = listing
 
     return Object.entries(rest).every(([kL, vL]) =>
-      Object.entries(out).some(([kO, vO]) => kL == kO && vL == String(vO))
+      Object.entries(out).some(([kO, vO]) => kL === kO && vL === String(vO))
     )
   }
 }

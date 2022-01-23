@@ -1,4 +1,4 @@
-import ServiceHandler from './ServiceHandler.js'
+import ServiceHandler from './ServiceHandler'
 
 chrome.storage.local.get('enabled', data => {
   if (data.enabled) {

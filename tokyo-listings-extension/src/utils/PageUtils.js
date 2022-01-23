@@ -1,11 +1,11 @@
 class PageUtils {
   static insertUrl(url) {
-    let element = document.getElementById('inputUrl')
+    const element = document.getElementById('inputUrl')
     element.value = url
     element.dispatchEvent(new Event('input', { bubbles: true }))
   }
 }
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(request => {
   PageUtils.insertUrl(request.loadUrl)
 })

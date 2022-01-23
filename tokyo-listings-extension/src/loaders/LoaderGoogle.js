@@ -12,7 +12,7 @@ export default class LoaderGoogle {
   execute() {
     const results = Array.from(
       document.getElementById('search').children[0].children[1].children
-    ).filter(elem => elem.localName == 'div' && elem.className != 'ULSxyf')
+    ).filter(elem => elem.localName === 'div' && elem.className !== 'ULSxyf')
 
     results.forEach(div => {
       this.scrapedElems.push({

@@ -1,4 +1,4 @@
-import JobUtils from '../utils/JobUtils.js'
+import JobUtils from '../utils/JobUtils'
 
 export default class UpdateSuumoBukkenUrlsJob {
   static ENDPOINT = 'http://localhost:8082/api/listing/suumoBukken/'
@@ -10,7 +10,7 @@ export default class UpdateSuumoBukkenUrlsJob {
       fetch(this.ENDPOINT, payload)
         .then(res => res.json())
         .then(out => {
-          let updatedUrlSet = new Set()
+          const updatedUrlSet = new Set()
           resolve(
             scrapedElems.filter(l => {
               const url = out[l.listings[0].key]
@@ -21,14 +21,13 @@ export default class UpdateSuumoBukkenUrlsJob {
                 updatedUrlSet.add(url)
                 l.listings[0].key = url
                 return true
-              } else {
-                l.propertyElem.remove()
-                return false
               }
+              l.propertyElem.remove()
+              return false
             })
           )
         })
-        .catch(err => console.log(err))
+        .catch(err => reject(err))
     })
   }
 }

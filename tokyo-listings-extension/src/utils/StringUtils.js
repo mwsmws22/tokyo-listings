@@ -1,8 +1,8 @@
 export default class StringUtils {
   static convertHalfWidth() {
-    return this.replace(/[\uff01-\uff5e]/g, function (ch) {
-      return String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
-    })
+    return this.replace(/[\uff01-\uff5e]/g, ch =>
+      String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
+    )
   }
 
   static noSpaces() {
@@ -28,6 +28,5 @@ export default class StringUtils {
     String.prototype.noSpaces = this.noSpaces
     String.prototype.remove = this.remove
     String.prototype.float = this.float
-    return
   }
 }

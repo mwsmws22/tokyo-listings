@@ -1,6 +1,4 @@
-var x = true
-
-enableBrowserAction()
+let x = true
 
 function disableBrowserAction() {
   chrome.browserAction.setIcon({ path: './icons/logo16_dark.png' })
@@ -13,7 +11,7 @@ function enableBrowserAction() {
 }
 
 function updateState() {
-  if (x == false) {
+  if (x === false) {
     x = true
     enableBrowserAction()
   } else {
@@ -24,14 +22,14 @@ function updateState() {
 }
 
 function sendListingToApp() {
-  chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
     const listingTab = tabs[0].url
-    chrome.tabs.query({ url: 'http://localhost:8081/add' }, function (tabs) {
-      if (tabs.length > 0) {
-        chrome.tabs.update(tabs[0].id, { active: true })
-        chrome.tabs.sendMessage(tabs[0].id, { loadUrl: listingTab })
+    chrome.tabs.query({ url: 'http://localhost:8081/add' }, tabz => {
+      if (tabz.length > 0) {
+        chrome.tabs.update(tabz[0].id, { active: true })
+        chrome.tabs.sendMessage(tabz[0].id, { loadUrl: listingTab })
       } else {
-        chrome.tabs.create({ url: 'http://localhost:8081/add' }, function (tab) {
+        chrome.tabs.create({ url: 'http://localhost:8081/add' }, tab => {
           chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
             if (info.status === 'complete' && tabId === tab.id) {
               chrome.tabs.onUpdated.removeListener(listener)
@@ -49,6 +47,8 @@ function commandHandler(command) {
     sendListingToApp()
   }
 }
+
+enableBrowserAction()
 
 chrome.browserAction.onClicked.addListener(updateState)
 chrome.commands.onCommand.addListener(commandHandler)

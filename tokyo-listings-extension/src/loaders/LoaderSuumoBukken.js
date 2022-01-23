@@ -23,7 +23,7 @@ export default class LoaderSuumoBukken {
         listings: [
           {
             listingElem: tr,
-            address: address,
+            address,
             square_m: $(tr)
               .find("[class='bdLLGrayL bdLLGrayT taC pH15 pV5 TF breakA']")[2]
               .innerText.match(/^(.*?)平米/)[1],
