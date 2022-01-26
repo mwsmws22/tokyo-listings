@@ -1,6 +1,6 @@
 export default class LoaderGoogle {
   constructor() {
-    this.pipeline = ['filter scrapeable results']
+    this.pipeline = ['FilterScrapeableResultsJob']
     this.badHosts = new Set([
       'www.google.com',
       'translate.google.com',

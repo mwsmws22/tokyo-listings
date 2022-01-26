@@ -30,10 +30,10 @@
       }
     ],
     "no-param-reassign": [
-      "error", 
+      "error",
       {
         "props": false
-        }
+      }
     ]
   },
   "ignorePatterns": ["icons/*", "dist/*"]
