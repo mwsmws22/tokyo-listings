@@ -2,6 +2,7 @@ import RemoveArchivedListingsJob from './jobs/RemoveArchivedListingsJob'
 import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob'
 import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob'
 import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob'
+import ShowMoreListingsJob from './jobs/ShowMoreListingsJob'
 import LoaderYahoo from './loaders/LoaderYahoo'
 import LoaderRStore from './loaders/LoaderRStore'
 import LoaderSumaity from './loaders/LoaderSumaity'
@@ -9,12 +10,10 @@ import LoaderSumaityBukken from './loaders/LoaderSumaityBukken'
 import LoaderSuumo from './loaders/LoaderSuumo'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken'
 import LoaderGoogle from './loaders/LoaderGoogle'
-import StringUtils from './utils/StringUtils'
 
 export default class ServiceHandler {
   constructor() {
     this.loaderFactory(window.location.href)
-    StringUtils.initialize()
   }
 
   loaderFactory(url) {
@@ -55,6 +54,9 @@ export default class ServiceHandler {
               HighlightSimilarListingsJob.execute(scrapedElems, this.loader.similarParams)
           case 'filter scrapeable results':
             return scrapedElems => FilterScrapeableResultsJob.execute(scrapedElems)
+          case 'show more listings':
+            return scrapedElems =>
+              ShowMoreListingsJob.execute(scrapedElems, this.loader.showMoreButton)
           default:
             return scrapedElems => Promise.resolve(scrapedElems)
         }
