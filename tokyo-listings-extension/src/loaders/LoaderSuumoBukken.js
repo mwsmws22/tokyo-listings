@@ -3,9 +3,10 @@ import $ from 'jquery'
 export default class LoaderSuumoBukken {
   constructor() {
     this.pipeline = [
-      'update suumo bukken urls',
-      'remove archived listings',
-      'highlight similar listings'
+      'ShowMoreListingsJob'
+      'UpdateSuumoBukkenUrlsJob',
+      'RemoveArchivedListingsJob',
+      'HighlightSimilarListingsJob'
     ]
     this.similarParams = ['address', 'square_m']
     this.scrapedElems = []
@@ -15,6 +16,8 @@ export default class LoaderSuumoBukken {
     const listings = Array.from(document.querySelectorAll('tr.caseBukken'))
     const addressObj = $("[class='bdLLGrayT bdLLGrayB pH10 pV5 lh14']")[0]
     const address = addressObj.innerText.remove(' ')
+
+    this.showMoreButton = document.getElementById('naviChintai')
 
     listings.forEach(tr =>
       this.scrapedElems.push({

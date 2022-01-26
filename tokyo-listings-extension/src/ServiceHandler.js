@@ -1,7 +1,3 @@
-import RemoveArchivedListingsJob from './jobs/RemoveArchivedListingsJob'
-import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob'
-import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob'
-import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob'
 import LoaderYahoo from './loaders/LoaderYahoo'
 import LoaderRStore from './loaders/LoaderRStore'
 import LoaderSumaity from './loaders/LoaderSumaity'
@@ -9,12 +5,11 @@ import LoaderSumaityBukken from './loaders/LoaderSumaityBukken'
 import LoaderSuumo from './loaders/LoaderSuumo'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken'
 import LoaderGoogle from './loaders/LoaderGoogle'
-import StringUtils from './utils/StringUtils'
+import JobMapper from './mappers/JobMapper.js'
 
 export default class ServiceHandler {
   constructor() {
     this.loaderFactory(window.location.href)
-    StringUtils.initialize()
   }
 
   loaderFactory(url) {
@@ -44,22 +39,8 @@ export default class ServiceHandler {
   execute() {
     this.loader?.execute()
     this.loader?.pipeline
-      .map(job => {
-        switch (job) {
-          case 'remove archived listings':
-            return scrapedElems => RemoveArchivedListingsJob.execute(scrapedElems)
-          case 'update suumo bukken urls':
-            return scrapedElems => UpdateSuumoBukkenUrlsJob.execute(scrapedElems)
-          case 'highlight similar listings':
-            return scrapedElems =>
-              HighlightSimilarListingsJob.execute(scrapedElems, this.loader.similarParams)
-          case 'filter scrapeable results':
-            return scrapedElems => FilterScrapeableResultsJob.execute(scrapedElems)
-          default:
-            return scrapedElems => Promise.resolve(scrapedElems)
-        }
-      })
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve(this.loader.scrapedElems))
+      .map(job => JobMapper.getJob(job))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve(this.loader.params))
       .catch(err => console.error(err))
   }
 }

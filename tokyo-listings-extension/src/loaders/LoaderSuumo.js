@@ -1,6 +1,6 @@
 export default class LoaderSuumo {
   constructor() {
-    this.pipeline = ['remove archived listings', 'highlight similar listings']
+    this.pipeline = ['RemoveArchivedListingsJob', 'HighlightSimilarListingsJob']
     this.similarParams = ['address', 'square_m']
     this.scrapedElems = []
   }
