@@ -1305,9 +1305,9 @@ class Parser {
     output.listing.url = this.url
     output.listing.availability = '募集中'
     output.listing.monthly_rent = $('span.num._color-main')
+      .eq(0)
       .text()
-      .replace('万円', '')
-      .noSpaces()
+      .replace('万円', ' ')
 
     if (output.listing.monthly_rent.includes('要問い合わせ')) {
       throw 'no longer available'
@@ -1345,6 +1345,11 @@ class Parser {
     }
 
     let address = $('th:contains("所在地") + td').text()
+
+    if (/^谷中\d丁目$/.test(address)) {
+      address = '東京都台東区' + address
+    }
+
     address = await Utils.parseAddress(address)
     output.property = Utils.updateFields(output.property, address)
 
