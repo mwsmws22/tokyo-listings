@@ -1353,6 +1353,9 @@ class Parser {
     if (/^谷中\d丁目$/.test(address)) {
       address = '東京都台東区' + address
     }
+    if (/^東五軒町$/.test(address)) {
+      address = '東京都新宿区' + address
+    }
 
     address = await Utils.parseAddress(address)
     output.property = Utils.updateFields(output.property, address)
