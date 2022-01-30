@@ -649,21 +649,25 @@ class Parser {
 
     output.listing.url = this.url
     output.listing.availability = '募集中'
-    output.listing.monthly_rent =
-      parseInt(
-        $('th:contains("家賃") + td').eq(0).text().replace('￥', '').replace(',', '')
-      ) / 10000
+
+    const monthly_rent = $('th:contains("家賃") + td').eq(0).text().remove(',', '￥')
+
+    if (!monthly_rent) {
+      throw 'no longer available'
+    }
+
+    output.listing.monthly_rent = monthly_rent.toManen()
     output.listing.security_deposit = $('th:contains("敷/礼") + td')
       .eq(0)
       .text()
       .match(/^(.*?)\//)[1]
-      .replace('ヶ月', '')
+      .remove('ヶ月')
       .replace('-', '0')
     output.listing.reikin = $('th:contains("敷/礼") + td')
       .eq(0)
       .text()
       .match(/\/(.*?)$/)[1]
-      .replace('ヶ月', '')
+      .remove('ヶ月')
       .replace('-', '0')
     output.listing.square_m = $('th:contains("間取り") + td')
       .eq(0)
