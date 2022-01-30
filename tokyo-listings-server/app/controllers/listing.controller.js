@@ -91,7 +91,8 @@ exports.findAllByInterest = (req, res) => {
     where: req.query,
     include: [
       { model: Property, attributes: [], where: { interest: req.params.interest } }
-    ]
+    ],
+    order: [['property_id', 'ASC']]
   })
     .then(data => {
       res.send(data)
