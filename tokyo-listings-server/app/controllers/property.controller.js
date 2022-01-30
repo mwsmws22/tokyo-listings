@@ -1,7 +1,6 @@
 const db = require('../models')
 const Property = db.property
 const Listing = db.listing
-const Ranking = db.ranking
 const Op = db.Sequelize.Op
 
 exports.create = (req, res) => {
@@ -86,10 +85,7 @@ exports.findAll = (req, res) => {
 exports.findAllWithChildren = (req, res) => {
   Property.findAll({
     where: req.query,
-    include: [
-      { model: Listing, as: 'listings' },
-      { model: Ranking, as: 'ranking' }
-    ],
+    include: [{ model: Listing, as: 'listings' }],
     order: [
       ['id', 'ASC'],
       [{ model: Listing, as: 'listings' }, 'availability', 'ASC']

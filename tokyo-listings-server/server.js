@@ -29,7 +29,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 require('./app/routes/listing.routes')(app)
 require('./app/routes/property.routes')(app)
 require('./app/routes/scraping.routes')(app)
-require('./app/routes/ranking.routes')(app)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`)

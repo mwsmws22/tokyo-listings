@@ -8,7 +8,6 @@ import ViewListings from "./components/view-listings.component";
 import CheckListings from "./components/check-listings.component";
 import PropertyInfo from "./components/property-info.component";
 import EditProperty from "./components/edit-property.component";
-import RankProperty from "./components/rank-property.component";
 import DoubleCheckListings from "./components/double-check-listings.component";
 import { FaTimes } from "react-icons/fa";
 import './App.css';
@@ -90,7 +89,7 @@ function App() {
   }
 
   const updateOnEdit = (mode) => {
-    // console.log("updateOnEdit"); //issue is that when "delete" is hit, propertyInfo isn't updated
+    // issue is that when "delete" is hit, propertyInfo isn't updated
     setUpdatePropertyInfo(!updatePropertyInfo);
     switch (mode) {
       case "update info":
@@ -104,10 +103,6 @@ function App() {
         break;
       case "delete property":
         closePropertyInfo();
-        break;
-      case "create ranking":
-        break;
-      case "delete ranking":
         break;
       default:
         break;
@@ -139,13 +134,13 @@ function App() {
         <View style={{flex: "0 0 600px"}}>
           <View style={{paddingRight: 15}}>
             <Navbar bg="dark" variant="dark">
-              <Navbar.Brand style={{cursor:"default"}}>Tokyo Listings</Navbar.Brand>
-              <Nav className="mr-auto">
-                <Nav.Link active={tab === "view"} href="/view">View</Nav.Link>
-                <Nav.Link active={tab === "add"} href="/add">Add</Nav.Link>
-                <Nav.Link active={tab === "check"} href="/check">Check</Nav.Link>
+              <Navbar.Brand style={{ cursor: "default", paddingRight: 20, paddingLeft: 5 }}>Tokyo Listings</Navbar.Brand>
+              <hr class="vertical"/>
+              <Nav className="m-auto">
+                <Nav.Link style={{ paddingRight: 30 }} active={tab === "view"} href="/view">View</Nav.Link>
+                <Nav.Link style={{ paddingRight: 30 }} active={tab === "add"} href="/add">Add</Nav.Link>
+                <Nav.Link style={{ paddingRight: 30 }} active={tab === "check"} href="/check">Check</Nav.Link>
                 <Nav.Link active={tab === "double"} href="/double">Double Check</Nav.Link>
-                <Nav.Link active={tab === "ranking"} href="/ranking">Ranking</Nav.Link>
               </Nav>
             </Navbar>
             <Switch>
@@ -190,15 +185,13 @@ function App() {
                 <Nav className="mr-auto">
                   <Nav.Link active={state === "viewInfo"} onClick={goToPropInfo}>Info</Nav.Link>
                   <Nav.Link active={state === "editInfo"} onClick={() => setState("editInfo")}>Edit</Nav.Link>
-                  <Nav.Link active={state === "ranking"} onClick={() => setState("ranking")}>Ranking</Nav.Link>
                 </Nav>
                 <FaTimes style={{cursor: "pointer"}} onClick={closePropertyInfo} color="white" size="1.5em"/>
               </Navbar>
               { state === "viewInfo"
                 ? (<PropertyInfo property={properties.filter(p => p.id === selectedPropertyID)[0]} listingId={selectedListingID} setSelectedListingID={setSelectedListingID}/>)
                 : state === "editInfo"
-                ? (<EditProperty latlng={clickLatLng} property={properties.filter(p => p.id === selectedPropertyID)[0]} listingId={selectedListingID} updateOnEdit={updateOnEdit}/>)
-                : (<RankProperty property={properties.filter(p => p.id === selectedPropertyID)[0]} updateOnEdit={updateOnEdit}/>)
+                && (<EditProperty latlng={clickLatLng} property={properties.filter(p => p.id === selectedPropertyID)[0]} listingId={selectedListingID} updateOnEdit={updateOnEdit}/>)
               }
             </View>
           </View>)

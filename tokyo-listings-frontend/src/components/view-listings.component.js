@@ -240,15 +240,7 @@ class ViewListings extends React.Component {
             {this.state.properties.map(p =>
               <ListGroup.Item className="listingItem" active={p.id === this.state.selectedPropertyID} action onClick={() => this.clickProperty(p)} key={p.id}>
                 <div style={{height: this.state.list_item_height-25}}>
-                  {p.ranking
-                    ? (<div className="row">
-                        <h5 className="col-10" style={{ whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "100%"}}>{formatAddress(p) + "の" + p.property_type}</h5>
-                        <div className="col text-right">
-                          <Badge pill variant="primary" style={{fontSize: "0.8rem", paddingBottom: "4px", cursor:"pointer"}}> Ranked </Badge>
-                        </div>
-                      </div>)
-                    : (<h5>{formatAddress(p) + "の" + p.property_type}</h5>)
-                  }
+                  <h5>{formatAddress(p) + "の" + p.property_type}</h5>
                   <small style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "100%"}}>
                     <span style={{ whiteSpace: "nowrap"}}>
                       賃料: <b>{p.listings[0].monthly_rent}万円</b> &nbsp;/&nbsp;
