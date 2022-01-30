@@ -17,6 +17,6 @@ In order for this project to run, you must:
 
 Here is a quick screenshot of the application:
 
-![Tokyo Listings](http://puu.sh/IvTUA/8363cc9bb9.PNG)
+![Tokyo Listings](http://puu.sh/IFQgM/0f98fb19f4.PNG)
 
 Eventually, more detailed documentation will follow.
