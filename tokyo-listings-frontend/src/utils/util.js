@@ -41,6 +41,6 @@ export function sleep(ms) {
 export function scrollMagic(window_height, list_item_height, non_list_height) {
   let listItems = ~~((window_height-non_list_height)/list_item_height);
   if (listItems === 0) {listItems=1;}
-  let listHeight = (listItems*list_item_height)+7;
+  let listHeight = (listItems*list_item_height)+1;
   return listHeight;
 }
