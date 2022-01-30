@@ -21,10 +21,8 @@ db.sequelize = sequelize
 
 db.property = require('./property.model.js')(sequelize, Sequelize)
 db.listing = require('./listing.model.js')(sequelize, Sequelize)
-db.ranking = require('./ranking.model.js')(sequelize, Sequelize)
 
 db.property.hasMany(db.listing, { foreignKey: 'property_id' })
 db.listing.belongsTo(db.property, { foreignKey: 'property_id' })
-db.property.hasOne(db.ranking, { foreignKey: 'property_id' })
 
 module.exports = db
