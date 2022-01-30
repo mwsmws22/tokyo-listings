@@ -90,7 +90,7 @@ function App() {
   }
 
   const updateOnEdit = (mode) => {
-    console.log("updateOnEdit"); //issue is that when "delete" is hit, propertyInfo isn't updated
+    // console.log("updateOnEdit"); //issue is that when "delete" is hit, propertyInfo isn't updated
     setUpdatePropertyInfo(!updatePropertyInfo);
     switch (mode) {
       case "update info":
