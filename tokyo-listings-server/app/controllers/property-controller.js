@@ -1,7 +1,7 @@
 const db = require('../models')
+
 const Property = db.property
 const Listing = db.listing
-const Op = db.Sequelize.Op
 
 exports.create = (req, res) => {
   if (!req.body.prefecture) {
@@ -15,59 +15,59 @@ exports.create = (req, res) => {
     .then(data => {
       res.send(data)
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: err.message || 'Some error occurred while creating the Property.'
+        message: err.message
       })
-    })
+    )
 }
 
 exports.delete = (req, res) => {
-  const id = req.params.id
+  const { id } = req.params
 
   Property.destroy({
-    where: { id: id }
+    where: { id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num === 1) {
         res.send({
           message: 'Property was deleted successfully!'
         })
       } else {
         res.send({
-          message: `Cannot delete Property with id=${id}. Maybe Property was not found!`
+          message: `Cannot delete Property with id=${id}`
         })
       }
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: 'Could not delete Property with id=' + id
+        message: err.message
       })
-    })
+    )
 }
 
 exports.update = (req, res) => {
-  const id = req.params.id
+  const { id } = req.params
 
   Property.update(req.body, {
-    where: { id: id }
+    where: { id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num === 1) {
         res.send({
           message: 'Property was updated successfully.'
         })
       } else {
         res.send({
-          message: `Cannot update Property with id=${id}. Maybe Property was not found or req.body is empty!`
+          message: `Cannot update Property with id=${id}`
         })
       }
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: 'Error updating Property with id=' + id
+        message: err.message
       })
-    })
+    )
 }
 
 exports.findAll = (req, res) => {
@@ -75,11 +75,11 @@ exports.findAll = (req, res) => {
     .then(data => {
       res.send(data)
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Properties.'
+        message: err.message
       })
-    })
+    )
 }
 
 exports.findAllWithChildren = (req, res) => {
@@ -96,7 +96,7 @@ exports.findAllWithChildren = (req, res) => {
     })
     .catch(err => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Properties.'
+        message: err.message
       })
     })
 }

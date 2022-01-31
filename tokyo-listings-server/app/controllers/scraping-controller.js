@@ -1,5 +1,6 @@
-const scraper = require('../services/scraping-service')
 const db = require('../models')
+const ScrapingService = require('../services/scraping-service')
+
 const Listing = db.listing
 
 const needOriginalUrls = [
@@ -14,8 +15,8 @@ const dontEvenCheckUrls = ['www.v-officenavi.com']
 const addParamsUrls = ['chintai-ex.jp', 'smocca.jp']
 
 exports.scrape = (req, res) => {
-  var url = req.url.substring(1).replace('get/', '')
-  var paramUrl = req.params[0]
+  let url = req.url.substring(1).replace('get/', '')
+  const paramUrl = req.params[0]
   const { hostname } = new URL(paramUrl)
 
   if (!needOriginalUrls.includes(hostname)) {
@@ -26,40 +27,38 @@ exports.scrape = (req, res) => {
     url += '?no_like_list=true&recommend_type=base_at_like_list'
   }
 
-  // console.log(hostname);
-  // console.log(url);
-
-  Listing.findAll({ where: { url: url } })
+  Listing.findAll({ where: { url } })
     .then(data => {
       if (data.length !== 0) {
-        res.send({ listing_exists: true, url: url })
+        res.send({ listing_exists: true, url })
       } else if (dontEvenCheckUrls.includes(hostname)) {
-        res.send({ url: url })
+        res.send({ url })
       } else {
-        scraper.scrape(url, output => {
+        ScrapingService.scrape(url, output => {
           if (output === 'bad link') {
             res.status(500).send({ message: 'bad link' })
           } else if (output !== null) {
             res.send(output)
           } else {
-            res.send({ url: url })
+            res.send({ url })
           }
         })
       }
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Listing.'
+        message: err.message
       })
-    })
+    )
 }
 
 exports.scrapeCheck = (req, res) => {
-  var url = req.url.substring(1).replace('check/', '')
-  var paramUrl = req.params[0]
+  let url = req.url.substring(1).replace('check/', '')
+  const paramUrl = req.params[0]
   const { hostname } = new URL(paramUrl)
 
-  const specificSiteCheck = [] //debugging to check a specific site's listings. Leave empty to proceed without filtering
+  // debugging to check a specific site's listings. Leave empty to proceed without filtering
+  const specificSiteCheck = []
 
   if (![...needOriginalUrls, ...addParamsUrls].includes(hostname)) {
     url = paramUrl
@@ -73,15 +72,15 @@ exports.scrapeCheck = (req, res) => {
   }
 
   if (dontEvenCheckUrls.includes(hostname)) {
-    res.send({ url: url })
+    res.send({ url })
   } else {
-    scraper.scrape(url, output => {
+    ScrapingService.scrape(url, output => {
       if (output === 'bad link') {
         res.status(500).send({ message: 'bad link' })
       } else if (output !== null) {
         res.send(output)
       } else {
-        res.send({ url: url })
+        res.send({ url })
       }
     })
   }

@@ -1,8 +1,9 @@
 const db = require('../models')
 const ListingService = require('../services/listing-service')
+
 const Listing = db.listing
 const Property = db.property
-const Op = db.Sequelize.Op
+const { Op } = db.Sequelize
 const Utils = require('../utils/Utils')
 
 exports.create = (req, res) => {
@@ -17,59 +18,59 @@ exports.create = (req, res) => {
     .then(data => {
       res.send(data)
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: err.message || 'Some error occurred while creating the Listing.'
+        message: err.message
       })
-    })
+    )
 }
 
 exports.delete = (req, res) => {
-  const id = req.params.id
+  const { id } = req.params
 
   Listing.destroy({
-    where: { id: id }
+    where: { id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num === 1) {
         res.send({
           message: 'Listing was deleted successfully!'
         })
       } else {
         res.send({
-          message: `Cannot delete Listing with id=${id}. Maybe Listing was not found!`
+          message: `Cannot delete Listing with id=${id}.`
         })
       }
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: 'Could not delete Listing with id=' + id
+        message: err.message
       })
-    })
+    )
 }
 
 exports.update = (req, res) => {
-  const id = req.params.id
+  const { id } = req.params
 
   Listing.update(req.body, {
-    where: { id: id }
+    where: { id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num === 1) {
         res.send({
           message: 'Listing was updated successfully.'
         })
       } else {
         res.send({
-          message: `Cannot update Listing with id=${id}. Maybe Listing was not found or req.body is empty!`
+          message: `Cannot update Listing with id=${id}.`
         })
       }
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: 'Error updating Listing with id=' + id
+        message: err.message
       })
-    })
+    )
 }
 
 exports.findAll = (req, res) => {
@@ -79,11 +80,11 @@ exports.findAll = (req, res) => {
     .then(data => {
       res.send(data)
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Listing.'
+        message: err.message
       })
-    })
+    )
 }
 
 exports.findAllByInterest = (req, res) => {
@@ -97,15 +98,15 @@ exports.findAllByInterest = (req, res) => {
     .then(data => {
       res.send(data)
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Listing.'
+        message: err.message
       })
-    })
+    )
 }
 
 exports.findAllByPartialUrl = (req, res) => {
-  const likeStatements = req.body.map(p => ({ [Op.like]: '%' + p + '%' }))
+  const likeStatements = req.body.map(p => ({ [Op.like]: `%${p}%` }))
 
   Listing.findAll({
     where: {
@@ -117,32 +118,33 @@ exports.findAllByPartialUrl = (req, res) => {
     .then(data => {
       res.send(data)
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Listing.'
+        message: err.message
       })
-    })
+    )
 }
 
 exports.findAllByParams = (req, res) => {
   const listings = req.body.map(async l => {
     if (l.address) {
       const addressObj = await Utils.parseAddress(l.address)
-      l = {
+      const newL = {
         ...l,
         ...Object.fromEntries(
           Object.entries(addressObj).map(([k, v]) => [`$property.${k}$`, v])
         )
       }
-      delete l.address
+      delete newL.address
+      return newL
     }
     return l
   })
 
-  Promise.all(listings).then(listings => {
+  Promise.all(listings).then(listingsResolved => {
     Listing.findAll({
       where: {
-        [Op.or]: listings
+        [Op.or]: listingsResolved
       },
       include: [
         {
@@ -151,29 +153,27 @@ exports.findAllByParams = (req, res) => {
       ]
     })
       .then(data => res.send(data))
-      .catch(err => {
+      .catch(err =>
         res.status(500).send({
-          message: err.message || 'Some error occurred while retrieving Listing.'
+          message: err.message
         })
-      })
+      )
   })
 }
 
 exports.getUpdatedSuumoBukkenUrls = (req, res) => {
-  const urls = req.body.map(
-    async url => await ListingService.getUpdatedSuumoBukkenUrlFromPage(url)
+  const urls = req.body.map(async url =>
+    ListingService.getUpdatedSuumoBukkenUrlFromPage(url)
   )
 
   Promise.all(urls)
-    .then(urls => {
-      let response = Object.assign(...urls)
+    .then(urlsResolved => {
+      const response = Object.assign(...urlsResolved)
       res.send(response)
     })
-    .catch(err => {
+    .catch(err =>
       res.status(500).send({
-        message:
-          err.message ||
-          'An issue occurred while resolving promises from ListingService.getSuumoUrlFromPage'
+        message: err.message
       })
-    })
+    )
 }

@@ -1,8 +1,7 @@
+const router = require('express').Router()
+const property = require('../controllers/property-controller')
+
 module.exports = app => {
-  const property = require('../controllers/property.controller.js')
-
-  var router = require('express').Router()
-
   router.post('/', property.create)
   router.get('/', property.findAll)
   router.put('/:id', property.update)
