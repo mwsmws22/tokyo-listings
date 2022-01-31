@@ -1,6 +1,6 @@
-const dbConfig = require('../config/db.config.js')
-
 const Sequelize = require('sequelize')
+const dbConfig = require('../config/db-config')
+
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
@@ -19,8 +19,8 @@ const db = {}
 db.Sequelize = Sequelize
 db.sequelize = sequelize
 
-db.property = require('./property.model.js')(sequelize, Sequelize)
-db.listing = require('./listing.model.js')(sequelize, Sequelize)
+db.property = require('./property-model')(sequelize, Sequelize)
+db.listing = require('./listing-model')(sequelize, Sequelize)
 
 db.property.hasMany(db.listing, { foreignKey: 'property_id' })
 db.listing.belongsTo(db.property, { foreignKey: 'property_id' })

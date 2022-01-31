@@ -1,8 +1,8 @@
 module.exports = class StringUtils {
   static convertHalfWidth() {
-    return this.replace(/[\uff01-\uff5e]/g, function (ch) {
-      return String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
-    })
+    return this.replace(/[\uff01-\uff5e]/g, ch =>
+      String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
+    )
   }
 
   static noSpaces() {
@@ -33,6 +33,5 @@ module.exports = class StringUtils {
     String.prototype.float = this.float
     String.prototype.toManen = this.toManen
     String.prototype.escape = this.escape
-    return
   }
 }

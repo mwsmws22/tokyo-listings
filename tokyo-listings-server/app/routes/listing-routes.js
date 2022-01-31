@@ -1,8 +1,7 @@
+const router = require('express').Router()
+const listing = require('../controllers/listing-controller')
+
 module.exports = app => {
-  const listing = require('../controllers/listing.controller.js')
-
-  var router = require('express').Router()
-
   router.post('/', listing.create)
   router.get('/', listing.findAll)
   router.get('/interest/:interest', listing.findAllByInterest)

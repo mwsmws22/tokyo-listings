@@ -19,23 +19,17 @@ export default class ServiceHandler {
   loaderFactory(url) {
     if (url.includes('realestate.yahoo.co.jp/rent/search')) {
       this.loader = new LoaderYahoo()
-    }
-    if (url.includes('sumaity.com/chintai/area_list')) {
+    } else if (url.includes('sumaity.com/chintai/area_list')) {
       this.loader = new LoaderSumaity()
-    }
-    if (url.includes('sumaity.com/chintai') && url.includes('bldg')) {
+    } else if (url.includes('sumaity.com/chintai') && url.includes('bldg')) {
       this.loader = new LoaderSumaityBukken()
-    }
-    if (url.includes('suumo.jp/jj/chintai/ichiran/FR301FC001')) {
+    } else if (url.includes('suumo.jp/jj/chintai/ichiran/FR301FC001')) {
       this.loader = new LoaderSuumo()
-    }
-    if (url.includes('suumo.jp/library')) {
+    } else if (url.includes('suumo.jp/library')) {
       this.loader = new LoaderSuumoBukken()
-    }
-    if (url.includes('google.com/search')) {
+    } else if (url.includes('google.com/search')) {
       this.loader = new LoaderGoogle()
-    }
-    if (url.includes('r-store.jp/search')) {
+    } else if (url.includes('r-store.jp/search')) {
       this.loader = new LoaderRStore()
     }
   }

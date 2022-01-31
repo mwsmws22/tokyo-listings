@@ -1,15 +1,13 @@
 {
-  "parser": "@babel/eslint-parser",
   "env": {
-    "browser": true,
+    "commonjs": true,
     "es2021": true,
-    "webextensions": true
+    "node": true
   },
-  "extends": ["airbnb-base", "prettier"],
+  "extends": ["airbnb-base", "plugin:node/recommended", "prettier"],
   "plugins": ["prettier"],
   "parserOptions": {
-    "ecmaVersion": 12,
-    "sourceType": "module"
+    "ecmaVersion": 12
   },
   "rules": {
     "prettier/prettier": [
@@ -33,8 +31,22 @@
       "error",
       {
         "props": false
-        }
+      }
+    ],
+    "radix": [
+      "error",
+      "as-needed"
+    ],
+    "arrow-parens": [
+      "error",
+      "as-needed"
+    ],
+    "prefer-destructuring": [
+      "error",
+      {
+        "object": true,
+        "array": false
+      }
     ]
-  },
-  "ignorePatterns": ["icons/*", "dist/*"]
+  }
 }
