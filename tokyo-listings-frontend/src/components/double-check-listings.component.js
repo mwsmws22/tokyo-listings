@@ -76,9 +76,7 @@ class DoubleCheckListings extends React.Component {
       ScrapingService.scrapeCheck(l.url)
         .then(response => {
           if (!response.data.skip) {
-            if (!response.data.url) {
-              this.setState({ listings: this.sortListings(l) });
-            }
+            this.setState({ listings: this.sortListings(l) });
           }
         })
         .catch(e => {
