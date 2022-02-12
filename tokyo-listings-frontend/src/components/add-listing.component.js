@@ -6,6 +6,7 @@ import PropertyDataService from "../services/property.service";
 import ScrapingService from "../services/scraping.service";
 import { ListingAccordion } from "./listing-accordion.component";
 import { removeNullProps, isUrlValid, formatAddress } from "../utils/util";
+import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import Geocode from "react-geocode";
 import equal from 'fast-deep-equal';
 
@@ -58,6 +59,7 @@ class AddListing extends React.Component {
     this.getExistingProperty = this.getExistingProperty.bind(this);
     this.checkProperty = this.checkProperty.bind(this);
     this.selectExistingProperty = this.selectExistingProperty.bind(this);
+    this.scrapeUrl = this.scrapeUrl.bind(this);
     this.setLatLng = props.setLatLng.bind(this);
     this.urlInput = React.createRef();
     this.overlay = React.createRef();
@@ -72,7 +74,8 @@ class AddListing extends React.Component {
       query: "",
       overlayKey: Math.random(),
       latlng: null,
-      hideOverlay: false
+      hideOverlay: false,
+      checkDB: true
     }
   }
 
@@ -148,11 +151,12 @@ class AddListing extends React.Component {
   handleURL(e) {
     this.handleInput(e, "listing");
     this.setState({listing_exists: false});
+    this.scrapeUrl(e.target.value);
+  }
 
-    let url = e.target.value;
-
+  scrapeUrl(url, checkDB = this.state.checkDB) {
     if (isUrlValid(url)) {
-      ScrapingService.scrape(url)
+      ScrapingService.scrape(url, checkDB)
         .then(response => {
           if (response.data.listing_exists) {
             this.setState({listing_exists: true});
@@ -164,7 +168,12 @@ class AddListing extends React.Component {
           }
         })
         .catch(e => {
-          console.log(e);
+          if (e.response) {
+            console.log("SERVER ERROR: ")
+            console.log(e.response.data.message)
+          } else {
+            console.log(e)
+          }
       });
     }
   }
@@ -327,7 +336,14 @@ class AddListing extends React.Component {
         <Form autoComplete="off" style={{paddingBottom: 8}}>
           <Form.Group>
             { this.state.listing_exists !== true ? <Form.Label>Listing URL</Form.Label> : <Form.Label className="text-danger">Listing already in DB!</Form.Label> }
-            <Form.Control id="inputUrl" name="url" ref={this.urlInput} value={this.state.current_listing.listing.url} onChange={this.handleURL} placeholder="Enter URL"/>
+            <View style={{flexDirection: "row"}} ref={this.urlInput}>
+              <View style={{flex: 3.5, paddingRight: 10}}>
+                <Form.Control id="inputUrl" name="url"  value={this.state.current_listing.listing.url} onChange={this.handleURL} placeholder="Enter URL"/>
+              </View>
+              <View style={{flex: 1}}>
+                <BootstrapSwitchButton checked={this.state.checkDB} onChange={ (val) => this.setState({ checkDB: val }, this.scrapeUrl(this.state.current_listing.listing.url, val)) } onstyle="outline-primary" offstyle="outline-secondary" onlabel="Check DB" offlabel="Check DB" />
+              </View>
+            </View>
             <Overlay key={this.state.overlayKey} target={this.urlInput.current} show={this.state.similar_listings.length > 0 && !this.state.hideOverlay} placement="right">
               <Popover style={{width: "600px", maxWidth: "600px"}} key={seedrandom(this.state.current_listing.listing.url)}>
                 <Popover.Title as="h3">Similar Listings</Popover.Title>

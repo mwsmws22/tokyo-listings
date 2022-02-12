@@ -1,37 +1,26 @@
-module.exports = class StringUtils {
-  static convertHalfWidth() {
-    return this.replace(/[\uff01-\uff5e]/g, ch =>
-      String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
-    )
-  }
+String.prototype.convertHalfWidth = function convertHalfWidth() {
+  return this.replace(/[\uff01-\uff5e]/g, ch =>
+    String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
+  )
+}
 
-  static noSpaces() {
-    return this.replace(/\s/g, '')
-  }
+String.prototype.escape = function escape() {
+  return JSON.stringify(this)
+}
 
-  static remove(...args) {
-    const reduceFunc = (prev, curr) => prev.replace(new RegExp(curr, 'g'), '')
-    return args.reduce(reduceFunc, this)
-  }
+String.prototype.float = function float() {
+  return String(parseFloat(this))
+}
 
-  static float() {
-    return String(parseFloat(this))
-  }
+String.prototype.noSpaces = function noSpaces() {
+  return this.replace(/\s/g, '')
+}
 
-  static toManen() {
-    return parseInt(this) / 10000
-  }
+String.prototype.remove = function remove(...args) {
+  const reduceFunc = (prev, curr) => prev.replace(new RegExp(curr, 'g'), '')
+  return args.reduce(reduceFunc, this)
+}
 
-  static escape() {
-    return JSON.stringify(this)
-  }
-
-  static initialize() {
-    String.prototype.convertHalfWidth = this.convertHalfWidth
-    String.prototype.noSpaces = this.noSpaces
-    String.prototype.remove = this.remove
-    String.prototype.float = this.float
-    String.prototype.toManen = this.toManen
-    String.prototype.escape = this.escape
-  }
+String.prototype.toManen = function toManen() {
+  return parseInt(this) / 10000
 }
