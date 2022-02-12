@@ -74,13 +74,6 @@ class CheckListings extends React.Component {
         await sleep(delay);
       }
       ScrapingService.scrapeCheck(l.url)
-        .then(response => {
-          if (!response.data.skip) {
-            if (response.data.url) {
-              this.setState({ listings: this.sortListings(l) });
-            }
-          }
-        })
         .catch(e => {
           if (l.url.includes('www.r-store.jp') && !doubleCheck) {
             this.scrapeCheck([l], true);
