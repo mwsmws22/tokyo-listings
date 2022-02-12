@@ -4,8 +4,16 @@
     "es2021": true,
     "node": true
   },
-  "extends": ["airbnb-base", "plugin:node/recommended", "prettier"],
-  "plugins": ["prettier"],
+  "extends": [
+    "airbnb-base",
+    "plugin:node/recommended",
+    "plugin:promise/recommended",
+    "prettier"
+  ],
+  "plugins": [
+    "promise",
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaVersion": 12
   },
@@ -17,9 +25,13 @@
         "singleQuote": true,
         "arrowParens": "avoid",
         "trailingComma": "none",
-        "printWidth": 90
+        "printWidth": 90,
+        "endOfLine": "crlf"
       }
     ],
+    "node/handle-callback-err": 2,
+    "promise/no-callback-in-promise": 0,
+    "node/no-unpublished-require": 0,
     "no-console": "off",
     "no-extend-native": [
       "error",

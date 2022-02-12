@@ -1,20 +1,6 @@
 const express = require('express')
-const bodyParser = require('body-parser')
 const cors = require('cors')
-
-const app = express()
-
-const StringUtils = require('./app/utils/StringUtils')
-
-StringUtils.initialize()
-
-const db = require('./app/models')
-
-db.sequelize.sync()
-
-require('dotenv').config()
-
-const { PORT } = process.env
+const DB = require('./app/models/DBModel')
 
 const corsOptions = {
   origin: [
@@ -26,14 +12,22 @@ const corsOptions = {
   ]
 }
 
+const app = express()
+
+DB.sequelize.sync()
+
+require('dotenv').config()
+require('./app/utils/StringUtils')
+
 app.use(cors(corsOptions))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-require('./app/routes/listing-routes')(app)
-require('./app/routes/property-routes')(app)
-require('./app/routes/scraping-routes')(app)
+require('./app/routes/ListingRoutes')(app)
+require('./app/routes/PropertyRoutes')(app)
+require('./app/routes/ScrapingRoutes')(app)
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`)
-})
+app.use((err, req, res, next) => res.status(500).json({ message: err.stack }))
+
+const { PORT } = process.env
+app.listen(PORT, console.log(`Server is running on port ${PORT}.`))

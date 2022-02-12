@@ -12,13 +12,12 @@
   "author": "mwsmws22",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "axios": "^0.25.0",
     "cheerio": "^1.0.0-rc.5",
     "clone-deep": "^4.0.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "follow-redirects": "^1.14.7",
     "jp-address-parser": "^1.1.9",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
@@ -28,9 +27,10 @@
     "eslint": "7.32.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0",
     "prettier": "^2.5.1"
   }
 }
