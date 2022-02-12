@@ -1,9 +1,9 @@
 const router = require('express').Router()
-const scraping = require('../controllers/scraping-controller')
+const ScrapingController = require('../controllers/ScrapingController')
 
 module.exports = app => {
-  router.get('/get/*', scraping.scrape)
-  router.get('/check/*', scraping.scrapeCheck)
+  router.post('/detail/', ScrapingController.scrapeDetail)
+  router.post('/check/', ScrapingController.scrapeCheck)
 
   app.use('/api/scrape', router)
 }

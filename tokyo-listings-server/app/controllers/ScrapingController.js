@@ -1,7 +1,7 @@
-const db = require('../models')
-const ScrapingService = require('../services/scraping-service')
-
-const Listing = db.listing
+const axios = require('axios')
+const Listing = require('../models/DBModel').listing
+const ScrapingService = require('../services/ScrapingService')
+const Utils = require('../utils/Utils')
 
 const needOriginalUrls = [
   'www.realtokyoestate.co.jp',
@@ -11,77 +11,67 @@ const needOriginalUrls = [
   'joylifestyle.jp',
   'www.inet-tokyo.com'
 ]
-const dontEvenCheckUrls = ['www.v-officenavi.com']
-const addParamsUrls = ['chintai-ex.jp', 'smocca.jp']
 
-exports.scrape = (req, res) => {
-  let url = req.url.substring(1).replace('get/', '')
-  const paramUrl = req.params[0]
-  const { hostname } = new URL(paramUrl)
+exports.scrapeDetail = async (req, res, next) => {
+  const addParamsUrls = ['chintai-ex.jp', 'smocca.jp']
+
+  let { url } = req.body
+  const { checkDB } = req.body
+  const { hostname } = new URL(url)
 
   if (!needOriginalUrls.includes(hostname)) {
-    url = paramUrl
+    url = url.split('?')[0]
   }
 
   if (addParamsUrls.includes(hostname)) {
     url += '?no_like_list=true&recommend_type=base_at_like_list'
   }
 
-  Listing.findAll({ where: { url } })
-    .then(data => {
-      if (data.length !== 0) {
-        res.send({ listing_exists: true, url })
-      } else if (dontEvenCheckUrls.includes(hostname)) {
-        res.send({ url })
+  if (checkDB) {
+    const listings = await Listing.findAll({ where: { url } })
+    if (listings.length !== 0) {
+      res.send({ listing_exists: true, url })
+    }
+  }
+
+  axios
+    .get(url, Utils.axiosOptions)
+    .then(response => {
+      if (response.status !== 200) {
+        throw new Error(`Bad status code: ${response.status}`)
       } else {
-        ScrapingService.scrape(url, output => {
-          if (output === 'bad link') {
-            res.status(500).send({ message: 'bad link' })
-          } else if (output !== null) {
-            res.send(output)
-          } else {
-            res.send({ url })
-          }
-        })
+        return response.data
       }
     })
-    .catch(err =>
-      res.status(500).send({
-        message: err.message
-      })
-    )
+    .then(html => ScrapingService.scrape(url, hostname, html))
+    .then(output => res.send(output))
+    .catch(next)
 }
 
-exports.scrapeCheck = (req, res) => {
-  let url = req.url.substring(1).replace('check/', '')
-  const paramUrl = req.params[0]
-  const { hostname } = new URL(paramUrl)
+exports.scrapeCheck = (req, res, next) => {
+  const { url } = req.body
+  const { hostname } = new URL(url)
 
-  // debugging to check a specific site's listings. Leave empty to proceed without filtering
+  // debugging to check a specific site's listings
+  // leave empty to proceed without filtering
   const specificSiteCheck = []
-
-  if (![...needOriginalUrls, ...addParamsUrls].includes(hostname)) {
-    url = paramUrl
-  }
 
   if (specificSiteCheck.length > 0) {
     if (specificSiteCheck.includes(hostname)) {
       res.send({ skip: true })
-      return
     }
   }
 
-  if (dontEvenCheckUrls.includes(hostname)) {
-    res.send({ url })
-  } else {
-    ScrapingService.scrape(url, output => {
-      if (output === 'bad link') {
-        res.status(500).send({ message: 'bad link' })
-      } else if (output !== null) {
-        res.send(output)
+  axios
+    .get(url, Utils.axiosOptions)
+    .then(response => {
+      if (response.status !== 200) {
+        throw new Error(`Bad status code: ${response.status}`)
       } else {
-        res.send({ url })
+        return response.data
       }
     })
-  }
+    .then(html => ScrapingService.scrape(url, hostname, html))
+    .then(() => res.sendStatus(200))
+    .catch(next)
 }
