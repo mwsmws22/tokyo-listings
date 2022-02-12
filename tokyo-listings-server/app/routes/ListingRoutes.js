@@ -1,15 +1,15 @@
 const router = require('express').Router()
-const listing = require('../controllers/listing-controller')
+const ListingController = require('../controllers/ListingController')
 
 module.exports = app => {
-  router.post('/', listing.create)
-  router.get('/', listing.findAll)
-  router.get('/interest/:interest', listing.findAllByInterest)
-  router.post('/partialUrl/', listing.findAllByPartialUrl)
-  router.post('/suumoBukken/', listing.getUpdatedSuumoBukkenUrls)
-  router.post('/similarListings/', listing.findAllByParams)
-  router.put('/:id', listing.update)
-  router.delete('/:id', listing.delete)
+  router.post('/', ListingController.create)
+  router.get('/', ListingController.findAll)
+  router.get('/interest/:interest', ListingController.findAllByInterest)
+  router.post('/partialUrl/', ListingController.findAllByPartialUrl)
+  router.post('/suumoBukken/', ListingController.getUpdatedSuumoBukkenUrls)
+  router.post('/similarListings/', ListingController.findAllByParams)
+  router.put('/:id', ListingController.update)
+  router.delete('/:id', ListingController.delete)
 
   app.use('/api/listing', router)
 }

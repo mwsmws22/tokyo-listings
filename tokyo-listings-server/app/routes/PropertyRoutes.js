@@ -1,12 +1,12 @@
 const router = require('express').Router()
-const property = require('../controllers/property-controller')
+const PropertyController = require('../controllers/PropertyController')
 
 module.exports = app => {
-  router.post('/', property.create)
-  router.get('/', property.findAll)
-  router.put('/:id', property.update)
-  router.delete('/:id', property.delete)
-  router.get('/withChildren/', property.findAllWithChildren)
+  router.post('/', PropertyController.create)
+  router.get('/', PropertyController.findAll)
+  router.put('/:id', PropertyController.update)
+  router.delete('/:id', PropertyController.delete)
+  router.get('/withChildren/', PropertyController.findAllWithChildren)
 
   app.use('/api/property', router)
 }

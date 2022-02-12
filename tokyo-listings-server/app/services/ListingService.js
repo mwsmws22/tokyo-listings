@@ -1,32 +1,19 @@
 const cheerio = require('cheerio')
-const { https } = require('follow-redirects')
+const axios = require('axios')
+const Utils = require('../utils/Utils')
 
-const getUpdatedSuumoBukkenUrlFromPage = async url =>
-  https
-    .get(url, res => {
-      let html = ''
-      const { statusCode } = res
-
-      if (statusCode !== 200) {
-        return new Error('bad link')
+exports.getUpdatedSuumoBukkenUrlFromPage = async url =>
+  axios
+    .get(url, Utils.axiosOptions)
+    .then(response => {
+      if (response.status !== 200) {
+        throw new Error(`Bad status code: ${response.status}`)
+      } else {
+        return response.data
       }
-      res.setEncoding('utf8')
-
-      res.on('data', chunk => {
-        html += chunk
-      })
-
-      return res.on('end', async () => {
-        try {
-          const $ = cheerio.load(html)
-          return { [url]: $('a[href*="jnc"]')[0].attribs.href }
-        } catch (err) {
-          return new Error('bad link')
-        }
-      })
     })
-    .on('error', err => err)
-
-module.exports = {
-  getUpdatedSuumoBukkenUrlFromPage
-}
+    .then(html => {
+      const $ = cheerio.load(html)
+      return { [url]: $('a[href*="jnc"]')[0].attribs.href }
+    })
+    .catch(err => err)
