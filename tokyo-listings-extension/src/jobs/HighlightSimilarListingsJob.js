@@ -6,35 +6,34 @@ export default class HighlightSimilarListingsJob {
   static execute(scrapedElems, params) {
     const paramObjs = this.constructParamObjs(scrapedElems, params)
     const payload = JobUtils.buildPayload(paramObjs)
-    return new Promise((resolve, reject) => {
-      fetch(this.ENDPOINT, payload)
-        .then(res =>
-          res.json().then(data => ({
-            data,
-            status: res.status
-          }))
-        )
-        .then(res => {
-          if (res.status !== 200) {
-            throw new Error(res.data.message)
-          } else {
-            return res.data
-          }
-        })
-        .then(out => {
-          scrapedElems.forEach(elem =>
-            elem.listings.forEach(l =>
-              out.data.forEach(o => {
-                if (this.compareObjectParams(l, o)) {
-                  l.listingElem.setAttribute('style', 'background-color: lightyellow')
-                }
-              })
-            )
+
+    return fetch(this.ENDPOINT, payload)
+      .then(async res => {
+        const data = await res.json()
+        return {
+          data,
+          status: res.status
+        }
+      })
+      .then(res => {
+        if (res.status !== 200) {
+          throw new Error(res.data.message)
+        } else {
+          return res.data
+        }
+      })
+      .then(out => {
+        scrapedElems.forEach(elem =>
+          elem.listings.forEach(l =>
+            out.data.forEach(o => {
+              if (this.compareObjectParams(l, o)) {
+                l.listingElem.setAttribute('style', 'background-color: lightyellow')
+              }
+            })
           )
-          resolve(scrapedElems)
-        })
-        .catch(err => reject(err))
-    })
+        )
+        return scrapedElems
+      })
   }
 
   static constructParamObjs(scrapedElems, params) {
