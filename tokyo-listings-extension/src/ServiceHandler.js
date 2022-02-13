@@ -56,6 +56,6 @@ export default class ServiceHandler {
         }
       })
       .reduce((prev, curr) => prev.then(curr), Promise.resolve(this.loader.scrapedElems))
-      .catch(err => console.error(err))
+      .catch(err => console.log(err))
   }
 }

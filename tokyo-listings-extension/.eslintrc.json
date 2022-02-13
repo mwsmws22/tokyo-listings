@@ -5,8 +5,15 @@
     "es2021": true,
     "webextensions": true
   },
-  "extends": ["airbnb-base", "prettier"],
-  "plugins": ["prettier"],
+  "extends": [
+    "airbnb-base",
+    "plugin:promise/recommended",
+    "prettier"
+  ],
+  "plugins": [
+    "promise",
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaVersion": 12,
     "sourceType": "module",
@@ -36,7 +43,8 @@
       {
         "props": false
         }
-    ]
+    ],
+    "promise/no-callback-in-promise": 0
   },
   "ignorePatterns": ["icons/*", "dist/*"]
 }
