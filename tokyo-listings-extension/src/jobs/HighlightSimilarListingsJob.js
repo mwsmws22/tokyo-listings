@@ -8,11 +8,23 @@ export default class HighlightSimilarListingsJob {
     const payload = JobUtils.buildPayload(paramObjs)
     return new Promise((resolve, reject) => {
       fetch(this.ENDPOINT, payload)
-        .then(res => res.json())
+        .then(res =>
+          res.json().then(data => ({
+            data,
+            status: res.status
+          }))
+        )
+        .then(res => {
+          if (res.status !== 200) {
+            throw new Error(res.data.message)
+          } else {
+            return res.data
+          }
+        })
         .then(out => {
           scrapedElems.forEach(elem =>
             elem.listings.forEach(l =>
-              out.forEach(o => {
+              out.data.forEach(o => {
                 if (this.compareObjectParams(l, o)) {
                   l.listingElem.setAttribute('style', 'background-color: lightyellow')
                 }
