@@ -158,6 +158,7 @@ class DoubleCheckListings extends React.Component {
   }
 
   componentDidMount() {
+    document.title = 'TKL Double Check';
     window.addEventListener("resize", this.handleResize);
     this.scrollRef.current.addEventListener('wheel', this.scroll, { passive: false });
   }
