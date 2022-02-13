@@ -1843,6 +1843,10 @@ const parseSumaity = async (url, html) => {
 const parseSuumo = async (url, html) => {
   const $ = cheerio.load(html)
 
+  if (!$("link[rel='canonical']").attr('href').includes('chintai/jnc_')) {
+    throw new Error('no longer available')
+  }
+
   const output = cloneDeep(dataStruct)
   output.listing.url = url
   output.listing.monthly_rent = $('.property_view_note-emphasis')
