@@ -10,10 +10,7 @@ export default class HighlightSimilarListingsJob {
     return fetch(this.ENDPOINT, payload)
       .then(async res => {
         const data = await res.json()
-        return {
-          data,
-          status: res.status
-        }
+        return { data, status: res.status }
       })
       .then(res => {
         if (res.status !== 200) {
@@ -22,18 +19,27 @@ export default class HighlightSimilarListingsJob {
           return res.data
         }
       })
-      .then(out => {
-        scrapedElems.forEach(elem =>
-          elem.listings.forEach(l =>
-            out.data.forEach(o => {
-              if (this.compareObjectParams(l, o)) {
-                l.listingElem.setAttribute('style', 'background-color: lightyellow')
-              }
-            })
-          )
+      .then(out =>
+        scrapedElems.flatMap(elem =>
+          elem.listings.flatMap(l => {
+            const matches = out.filter(o => this.compareObjectParams(l, o))
+            if (matches.length) {
+              l.listingElem.setAttribute('style', 'background-color: lightyellow')
+              return { listing: l, matches }
+            }
+            return []
+          })
         )
+      )
+      .then(matches => {
+        this.logHighlightedListings(matches)
         return scrapedElems
       })
+  }
+
+  static logHighlightedListings(allMatches) {
+    console.log('the following listings were highlighted')
+    console.log(allMatches)
   }
 
   static constructParamObjs(scrapedElems, params) {
