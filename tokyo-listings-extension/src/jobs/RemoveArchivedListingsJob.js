@@ -11,7 +11,7 @@ export default class RemoveArchivedListingsJob {
       .then(res => res.json())
       .then(out => {
         const urls = out.map(res => res.url)
-        const filteredElems = scrapedElems.flatMap(elem => {
+        return scrapedElems.flatMap(elem => {
           const hits = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
           const nonHits = elem.listings.filter(
             l => !urls.some(url => url.includes(l.key))
@@ -27,24 +27,20 @@ export default class RemoveArchivedListingsJob {
           elem.listings = nonHits
           return [elem]
         })
+      })
+      .then(filteredElems => {
         this.logRemovedListings(scrapedElems, filteredElems)
         return filteredElems
       })
   }
 
-  static logRemovedListings(originalElems, scrapedElems) {
+  static logRemovedListings(scrapedElems, filteredElems) {
     console.log('the following listings were removed')
-    const missingListings = []
-    originalElems.forEach(elem => {
-      elem.listings.forEach(listing => {
-        const missingListing = !scrapedElems.some(se =>
-          se.listings.some(l => l.key === listing.key)
-        )
-        if (missingListing) {
-          missingListings.push(listing)
-        }
-      })
-    })
+    const missingListings = scrapedElems.flatMap(elem =>
+      elem.listings.filter(
+        listing => !filteredElems.some(fe => fe.listings.some(l => l.key === listing.key))
+      )
+    )
     console.log(missingListings)
   }
 }
