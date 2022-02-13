@@ -13,6 +13,8 @@ export default class LoaderSuumoBukken {
   }
 
   execute() {
+    LoaderSuumoBukken.removeForSaleListings()
+
     const listings = Array.from(document.querySelectorAll('tr.caseBukken'))
     const addressObj = $("[class='bdLLGrayT bdLLGrayB pH10 pV5 lh14']")[0]
     const address = addressObj.innerText.remove(' ')
@@ -34,5 +36,14 @@ export default class LoaderSuumoBukken {
         ]
       })
     )
+  }
+
+  static removeForSaleListings() {
+    const forSaleHeader = document.querySelector('h3[id=chuMS]')
+    if (forSaleHeader) {
+      forSaleHeader.nextElementSibling.nextElementSibling.remove()
+      forSaleHeader.nextElementSibling.remove()
+      forSaleHeader.remove()
+    }
   }
 }
