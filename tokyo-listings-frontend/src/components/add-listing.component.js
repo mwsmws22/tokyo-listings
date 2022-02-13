@@ -70,6 +70,8 @@ class AddListing extends React.Component {
       similar_listings: [],
       show_previous: false,
       listing_exists: false,
+      no_scraper: false,
+      server_error: false,
       existing_property: -1,
       query: "",
       overlayKey: Math.random(),
@@ -150,7 +152,11 @@ class AddListing extends React.Component {
 
   handleURL(e) {
     this.handleInput(e, "listing");
-    this.setState({listing_exists: false});
+    this.setState({
+      listing_exists: false,
+      no_scraper: false,
+      server_error: false
+    });
     this.scrapeUrl(e.target.value);
   }
 
@@ -169,9 +175,18 @@ class AddListing extends React.Component {
         })
         .catch(e => {
           if (e.response) {
+            const error = e.response.data.message
+
+            if (error.includes('no scraper for this site')) {
+              this.setState({no_scraper: true})
+            } else {
+              this.setState({server_error: true})
+            }
+
             console.log("SERVER ERROR: ")
-            console.log(e.response.data.message)
+            console.log(error)
           } else {
+            console.log("UNKNOWN ERROR: ")
             console.log(e)
           }
       });
@@ -335,7 +350,15 @@ class AddListing extends React.Component {
         <h4 className="text-center mb-0" style={{paddingTop: 18}}>Add a Listing</h4>
         <Form autoComplete="off" style={{paddingBottom: 8}}>
           <Form.Group>
-            { this.state.listing_exists !== true ? <Form.Label>Listing URL</Form.Label> : <Form.Label className="text-danger">Listing already in DB!</Form.Label> }
+            {
+              this.state.listing_exists
+              ? <Form.Label className="text-danger">Listing already in DB</Form.Label>
+              : this.state.no_scraper
+              ? <Form.Label className="text-danger">Unable to scrape this site</Form.Label>
+              : this.state.server_error
+              ? <Form.Label className="text-danger">Server error</Form.Label>
+              : <Form.Label>Listing URL</Form.Label>
+            }
             <View style={{flexDirection: "row"}} ref={this.urlInput}>
               <View style={{flex: 3.5, paddingRight: 10}}>
                 <Form.Control id="inputUrl" name="url"  value={this.state.current_listing.listing.url} onChange={this.handleURL} placeholder="Enter URL"/>
