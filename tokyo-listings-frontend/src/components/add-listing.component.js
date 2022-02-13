@@ -338,6 +338,10 @@ class AddListing extends React.Component {
     this.setState({existing_property: id}, this.getExistingProperty);
   }
 
+  componentDidMount() {
+    document.title = 'TKL Add';
+  }
+
   componentDidUpdate(prevProps) {
     if (!equal(this.props.latlng, prevProps.latlng)) {
       this.setState({latlng: this.props.latlng});

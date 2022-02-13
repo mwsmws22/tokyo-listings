@@ -174,6 +174,7 @@ class ViewListings extends React.Component {
   }
 
   componentDidMount() {
+    document.title = 'TKL View';
     this.getProperties();
     window.addEventListener("resize", this.handleResize);
     this.scrollRef.current.addEventListener('wheel', this.scroll, { passive: false });
