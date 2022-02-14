@@ -150,19 +150,19 @@ class EditProperty extends React.Component {
             <View style={{flex: 1, paddingRight: 10}}>
               <Form.Group>
                 <Form.Label>Prefecture</Form.Label>
-                <Form.Control name="prefecture" value={this.state.property.prefecture} onChange={ (e) => this.handleInput(e, "property")} placeholder="都道府県"/>
+                <Form.Control name="prefecture" value={this.state.property.prefecture} onChange={ (e) => this.handleInput(e, "property")} placeholder="都 / 県"/>
               </Form.Group>
             </View>
             <View style={{flex: 1, paddingRight: 10}}>
               <Form.Group>
                 <Form.Label>City</Form.Label>
-                <Form.Control name="municipality" value={this.state.property.municipality} onChange={ (e) => this.handleInput(e, "property")} placeholder="市, 区"/>
+                <Form.Control name="municipality" value={this.state.property.municipality} onChange={ (e) => this.handleInput(e, "property")} placeholder="市 / 区"/>
               </Form.Group>
             </View>
             <View style={{flex: 1, paddingRight: 10}}>
               <Form.Group>
                 <Form.Label>Town</Form.Label>
-                <Form.Control name="town" value={this.state.property.town} onChange={ (e) => this.handleInput(e, "property")} placeholder="郡, 町, 村"/>
+                <Form.Control name="town" value={this.state.property.town} onChange={ (e) => this.handleInput(e, "property")} placeholder="町"/>
               </Form.Group>
             </View>
             <View style={{flex: 1, paddingRight: 10}}>
@@ -174,7 +174,7 @@ class EditProperty extends React.Component {
             <View style={{flex: 1, paddingRight: 10}}>
               <Form.Group>
                 <Form.Label>Block</Form.Label>
-                <Form.Control name="block" value={this.state.property.block} onChange={ (e) => this.handleInput(e, "property")} placeholder="番地"/>
+                <Form.Control name="block" value={this.state.property.block} onChange={ (e) => this.handleInput(e, "property")} placeholder="番"/>
               </Form.Group>
             </View>
             <View style={{flex: 1}}>

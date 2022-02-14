@@ -12,6 +12,8 @@ export default class LoaderYahoo {
       const buildData = div.querySelector('div.buildData')
       const listings = Array.from(div.querySelector('ul.roomList').children)
 
+      buildData.querySelector('div.ListReviewTtl')?.remove()
+
       this.scrapedElems.push({
         propertyElem: div,
         listings: listings.map(li => ({
