@@ -32,7 +32,8 @@ class ViewListings extends React.Component {
         prefecture: "",
         municipality: "",
         town: "",
-        district: ""
+        district: "",
+        block: ""
       },
       properties: [],
       previousSearchParams: null,
@@ -213,25 +214,31 @@ class ViewListings extends React.Component {
             <View style={{flex: 1, paddingRight: 10}}>
               <Form.Group>
                 <Form.Label>Prefecture</Form.Label>
-                <Form.Control autoComplete="off" name="prefecture" value={this.state.search_params.prefecture} onChange={this.inputAddress} placeholder="都道府県"/>
+                <Form.Control autoComplete="off" name="prefecture" value={this.state.search_params.prefecture} onChange={this.inputAddress} placeholder="都 / 県"/>
               </Form.Group>
             </View>
             <View style={{flex: 1, paddingRight: 10}}>
               <Form.Group>
                 <Form.Label>City</Form.Label>
-                <Form.Control autoComplete="off" name="municipality" value={this.state.search_params.municipality} onChange={this.inputAddress} placeholder="市, 区"/>
+                <Form.Control autoComplete="off" name="municipality" value={this.state.search_params.municipality} onChange={this.inputAddress} placeholder="市 / 区"/>
               </Form.Group>
             </View>
             <View style={{flex: 1, paddingRight: 10}}>
               <Form.Group>
                 <Form.Label>Town</Form.Label>
-                <Form.Control autoComplete="off" name="town" value={this.state.search_params.town} onChange={this.inputAddress} placeholder="郡, 町, 村"/>
+                <Form.Control autoComplete="off" name="town" value={this.state.search_params.town} onChange={this.inputAddress} placeholder="町"/>
+              </Form.Group>
+            </View>
+            <View style={{flex: 1, paddingRight: 10}}>
+              <Form.Group>
+                <Form.Label>District</Form.Label>
+                <Form.Control autoComplete="off" name="district" value={this.state.search_params.district} onChange={this.inputAddress} placeholder="丁目"/>
               </Form.Group>
             </View>
             <View style={{flex: 1}}>
               <Form.Group>
-                <Form.Label>District</Form.Label>
-                <Form.Control autoComplete="off" name="district" value={this.state.search_params.district} onChange={this.inputAddress} placeholder="丁目"/>
+                <Form.Label>Block</Form.Label>
+                <Form.Control autoComplete="off" name="block" value={this.state.search_params.block} onChange={this.inputAddress} placeholder="番"/>
               </Form.Group>
             </View>
           </View>
