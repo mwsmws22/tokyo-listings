@@ -24,7 +24,15 @@ export default class HighlightSimilarListingsJob {
           elem.listings.flatMap(l => {
             const matches = out.filter(o => this.compareObjectParams(l, o))
             if (matches.length) {
-              l.listingElem.setAttribute('style', 'background-color: lightyellow')
+              if (l.listingElem.tagName === 'TR') {
+                l.listingElem
+                  .querySelectorAll('td')
+                  .forEach(td =>
+                    td.setAttribute('style', 'background-color: lightyellow')
+                  )
+              } else {
+                l.listingElem.setAttribute('style', 'background-color: lightyellow')
+              }
               return { listing: l, matches }
             }
             return []
