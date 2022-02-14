@@ -120,3 +120,11 @@ exports.getUpdatedSuumoBukkenUrls = (req, res, next) => {
     .then(urlsResolved => res.send(Object.assign(...urlsResolved)))
     .catch(next)
 }
+
+exports.getSumaityBukkenRedirect = async (req, res, next) => {
+  const { url } = req.body
+
+  ListingService.getSumaityBuildingUrlFromPage(url)
+    .then(bldgUrl => res.send({ bldgUrl }))
+    .catch(next)
+}

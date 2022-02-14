@@ -2,6 +2,7 @@ import RemoveArchivedListingsJob from './jobs/RemoveArchivedListingsJob'
 import UpdateSuumoBukkenUrlsJob from './jobs/UpdateSuumoBukkenUrlsJob'
 import HighlightSimilarListingsJob from './jobs/HighlightSimilarListingsJob'
 import FilterScrapeableResultsJob from './jobs/FilterScrapeableResultsJob'
+import SumaityBukkenRedirectJob from './jobs/SumaityBukkenRedirectJob'
 import ShowMoreListingsJob from './jobs/ShowMoreListingsJob'
 import LoaderYahoo from './loaders/LoaderYahoo'
 import LoaderRStore from './loaders/LoaderRStore'
@@ -23,6 +24,11 @@ export default class ServiceHandler {
       this.loader = new LoaderSumaity()
     } else if (url.includes('sumaity.com/chintai') && url.includes('bldg')) {
       this.loader = new LoaderSumaityBukken()
+    } else if (
+      url.includes('sumaity.com/chintai') &&
+      document.title.includes('この物件の掲載は終了しました')
+    ) {
+      this.loader = new SumaityBukkenRedirectJob()
     } else if (url.includes('suumo.jp/jj/chintai/ichiran/FR301FC001')) {
       this.loader = new LoaderSuumo()
     } else if (url.includes('suumo.jp/library')) {
@@ -37,7 +43,7 @@ export default class ServiceHandler {
   execute() {
     this.loader?.execute()
     this.loader?.pipeline
-      .map(job => {
+      ?.map(job => {
         switch (job) {
           case 'remove archived listings':
             return scrapedElems => RemoveArchivedListingsJob.execute(scrapedElems)
