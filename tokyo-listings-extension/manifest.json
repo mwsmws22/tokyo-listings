@@ -31,6 +31,7 @@
         "https://suumo.jp/library/*/to_*",
         "https://sumaity.com/chintai/area_list/*",
         "https://sumaity.com/chintai/*_bldg/bldg*",
+        "https://sumaity.com/chintai/*_prop/prop_*",
         "https://www.r-store.jp/search*"
       ]
     },

@@ -8,6 +8,7 @@ module.exports = app => {
   router.post('/partialUrl/', ListingController.findAllByPartialUrl)
   router.post('/suumoBukken/', ListingController.getUpdatedSuumoBukkenUrls)
   router.post('/similarListings/', ListingController.findAllByParams)
+  router.post('/sumaityRedirect/', ListingController.getSumaityBukkenRedirect)
   router.put('/:id', ListingController.update)
   router.delete('/:id', ListingController.delete)
 
