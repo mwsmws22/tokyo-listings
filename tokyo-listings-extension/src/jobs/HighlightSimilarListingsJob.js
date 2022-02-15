@@ -33,6 +33,7 @@ export default class HighlightSimilarListingsJob {
               } else {
                 l.listingElem.setAttribute('style', 'background-color: lightyellow')
               }
+              JobUtils.moveToTheFront(elem.propertyElem)
               return { listing: l, matches }
             }
             return []

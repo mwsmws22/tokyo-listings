@@ -104,7 +104,7 @@ class EditProperty extends React.Component {
         <Form autoComplete="off" style={{paddingBottom: 8}}>
           <Form.Group>
             <Form.Label>Listing URL</Form.Label>
-            <Form.Control name="url" value={this.state.edit_listing.url} placeholder="Enter URL" readOnly/>
+            <Form.Control name="url" value={this.state.edit_listing.url} onChange={ (e) => this.handleInput(e, "listing") } placeholder="Enter URL"/>
           </Form.Group>
           <View style={{flexDirection: "row"}}>
             <View style={{flex: 1, paddingRight: 10}}>

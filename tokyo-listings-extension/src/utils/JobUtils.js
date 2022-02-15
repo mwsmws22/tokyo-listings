@@ -93,4 +93,8 @@ export default class JobUtils {
 
     return address
   }
+
+  static moveToTheFront(dom) {
+    dom.parentNode.insertBefore(dom, dom.parentNode.childNodes[0])
+  }
 }
