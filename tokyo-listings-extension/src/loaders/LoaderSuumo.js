@@ -6,11 +6,18 @@ export default class LoaderSuumo {
   }
 
   execute() {
-    const listings = Array.from(document.getElementById('js-bukkenList').children)
-      .filter(div => div.tagName === 'UL')
-      .flatMap(ul => Array.from(ul.children))
+    const uls = Array.from(document.getElementById('js-bukkenList').children).filter(
+      elem => (elem.tagName === 'UL' ? elem : elem.remove())
+    )
 
-    listings.forEach(li =>
+    const containerUl = uls[0]
+
+    uls.slice(1).forEach(ul => {
+      Array.from(ul.children).forEach(div => containerUl.appendChild(div))
+      ul.remove()
+    })
+
+    Array.from(containerUl.children).forEach(li =>
       this.scrapedElems.push({
         propertyElem: li,
         listings: Array.from(li.querySelectorAll('tbody')).map(tb => ({
