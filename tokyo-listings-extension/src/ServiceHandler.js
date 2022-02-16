@@ -11,6 +11,7 @@ import LoaderSumaityBukken from './loaders/LoaderSumaityBukken'
 import LoaderSuumo from './loaders/LoaderSuumo'
 import LoaderSuumoBukken from './loaders/LoaderSuumoBukken'
 import LoaderRealTokyoEstate from './loaders/LoaderRealTokyoEstate'
+import LoaderAtHome from './loaders/LoaderAtHome'
 import LoaderGoogle from './loaders/LoaderGoogle'
 
 export default class ServiceHandler {
@@ -40,6 +41,8 @@ export default class ServiceHandler {
       this.loader = new LoaderRStore()
     } else if (url.includes('realtokyoestate.co.jp/estate_search')) {
       this.loader = new LoaderRealTokyoEstate()
+    } else if (url.includes('athome.co.jp/chintai')) {
+      this.loader = new LoaderAtHome()
     }
   }
 

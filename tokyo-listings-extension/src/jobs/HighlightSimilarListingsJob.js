@@ -74,7 +74,7 @@ export default class HighlightSimilarListingsJob {
     const { key, listingElem, ...rest } = listing
 
     return Object.entries(rest).every(([kL, vL]) =>
-      Object.entries(out).some(([kO, vO]) => kL === kO && vL === String(vO))
+      Object.entries(out).some(([kO, vO]) => kL === kO && String(vO).includes(vL))
     )
   }
 }
