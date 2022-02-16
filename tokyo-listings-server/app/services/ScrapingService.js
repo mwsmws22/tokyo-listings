@@ -1413,15 +1413,18 @@ const parseRealTokyoEstate = async (url, html) => {
 
   const output = cloneDeep(dataStruct)
   output.listing.url = url
-  const tempRent = $('.description_price_val').text()
+
+  let tempRent = $('.description_price_val').text()
+  if (tempRent.includes('～')) {
+    tempRent = tempRent.split('～')[0]
+  }
+
   const man = tempRent.match(/(.*)万/)[1]
   let sen = tempRent.match(/万(.*)円/)[1]
 
   if (sen !== '') {
-    sen = sen.replace(',', '')
-    const senTemp = parseInt(sen) / 10000
-    const manTemp = parseInt(man)
-    output.listing.monthly_rent = (manTemp + senTemp).toString()
+    sen = sen.remove(',')
+    output.listing.monthly_rent = parseInt(man) + sen.toManen()
   } else {
     output.listing.monthly_rent = man
   }
@@ -1429,30 +1432,29 @@ const parseRealTokyoEstate = async (url, html) => {
   const reikin = $('span', '#estate_info_fee_value').text()
   if (reikin.includes('円')) {
     output.listing.reikin =
-      parseInt(reikin.replace(',', '').replace('円')) /
-      10000 /
-      output.listing.monthly_rent
+      reikin.remove(',', '円').toManen() / output.listing.monthly_rent
   } else if (reikin === 'なし') {
     output.listing.reikin = '0'
   } else {
-    output.listing.reikin = reikin.replace('ヶ月', '')
+    output.listing.reikin = reikin.remove('ヶ月')
   }
 
-  const securityDeposit = $('span', '#estate_info_deposite_value')
-    .text()
-    .replace('ヶ月', '')
+  const securityDeposit = $('span', '#estate_info_deposite_value').text()
   if (securityDeposit.includes('円')) {
     output.listing.security_deposit =
-      parseInt(securityDeposit.replace(',', '').replace('円')) /
-      10000 /
-      output.listing.monthly_rent
+      securityDeposit.remove(',', '円').toManen() / output.listing.monthly_rent
   } else if (securityDeposit === 'なし') {
     output.listing.security_deposit = '0'
   } else {
-    output.listing.security_deposit = securityDeposit
+    output.listing.security_deposit = securityDeposit.remove('ヶ月')
   }
 
-  output.listing.square_m = $('.description_area_val').text().replace('㎡', '')
+  let squareM = $('.description_area_val').text()
+  if (squareM.includes('～')) {
+    squareM = squareM.split('～')[0]
+  }
+
+  output.listing.square_m = squareM.remove('㎡')
 
   let address = $('td:contains("所在地：") + td').text().remove('\n', '\t')
   address = await Utils.parseAddress(address)

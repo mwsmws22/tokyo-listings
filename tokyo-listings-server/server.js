@@ -8,7 +8,8 @@ const corsOptions = {
     'https://realestate.yahoo.co.jp',
     'https://suumo.jp',
     'https://sumaity.com',
-    'https://www.r-store.jp'
+    'https://www.r-store.jp',
+    'https://www.realtokyoestate.co.jp'
   ]
 }
 
