@@ -167,6 +167,7 @@ class CheckListings extends React.Component {
         <View style={{flexDirection: "row", paddingBottom: 10, paddingRight: 6, paddingLeft:1}}>
           <View style={{flex: 1}}>
             <ToggleButtonGroup name="interest" type="radio" onClick={(e) => this.setInterest(e)} value={this.state.interest}>
+              <ToggleButton className="selected" value="Top" variant="dark">Top</ToggleButton>
               <ToggleButton className="selected" value="Extremely" variant="dark">Extremely</ToggleButton>
               <ToggleButton className="selected" value="KindaPlus" variant="dark">Kinda+</ToggleButton>
               <ToggleButton className="selected" value="KindaMinus" variant="dark">Kinda-</ToggleButton>

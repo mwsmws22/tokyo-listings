@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from "react-native";
-import { ListGroup, Form, ToggleButton, ToggleButtonGroup, Badge } from "react-bootstrap";
+import { ListGroup, Form, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import PropertyDataService from "../services/property.service";
 import { removeNullProps, formatAddress, scrollMagic } from "../utils/util";
 import "../styles/scrollbar.css";
@@ -28,7 +28,7 @@ class ViewListings extends React.Component {
       search_params: {
         property_type: "",
         availability: "募集中",
-        interest: "Extremely",
+        interest: "Top",
         prefecture: "",
         municipality: "",
         town: "",
@@ -81,7 +81,7 @@ class ViewListings extends React.Component {
             if (this.state.search_params.availability === "募集中") {
               tempProperties = tempProperties.filter(property => property.listings.filter(listing => listing.availability === "募集中").length > 0);
             } else if (this.state.search_params.availability === "契約済") {
-              tempProperties = tempProperties.filter(property => property.listings.filter(listing => listing.availability === "契約済").length > 0);
+              tempProperties = tempProperties.filter(property => property.listings.every(listing => listing.availability === "契約済"));
             }
           }
 
@@ -107,7 +107,6 @@ class ViewListings extends React.Component {
   }
 
   getUpdatedProperty(propID) {
-    console.log(propID);
     PropertyDataService.getWithChildren("?id=" + propID)
       .then(response => {
         console.log(response.data);
@@ -202,6 +201,7 @@ class ViewListings extends React.Component {
         <View style={{flexDirection: "row", paddingTop: 15}}>
           <View style={{flex: 1}}>
             <ToggleButtonGroup name="interest" type="radio" onClick={(e) => this.setParams(e, "interest")} value={this.state.search_params.interest}>
+              <ToggleButton className="selected" value="Top" variant="dark">Top</ToggleButton>
               <ToggleButton className="selected" value="Extremely" variant="dark">Extremely</ToggleButton>
               <ToggleButton className="selected" value="KindaPlus" variant="dark">Kinda+</ToggleButton>
               <ToggleButton className="selected" value="KindaMinus" variant="dark">Kinda-</ToggleButton>

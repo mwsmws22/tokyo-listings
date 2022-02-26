@@ -466,24 +466,27 @@ class AddListing extends React.Component {
                 <Form.Check checked={(this.state.current_listing.listing.availability === "契約済")} type="radio" value="契約済" name="availability" label="契約済" readOnly />
               </div>
             </Form.Group>
-            <Form.Group style={{ paddingLeft: 60 }}>
+            <Form.Group style={{ paddingLeft: 50 }}>
               <Form.Label>Property Type</Form.Label>
               <div onChange={ (e) => this.handleInput(e, "property")}>
                 <Form.Check checked={(this.state.current_listing.property.property_type === "一戸建て")} type="radio" value="一戸建て" name="property_type" label="一戸建て" readOnly />
                 <Form.Check checked={(this.state.current_listing.property.property_type === "アパート")} type="radio" value="アパート" name="property_type" label="アパート" readOnly />
               </div>
             </Form.Group>
-            <Form.Group style={{ paddingLeft: 60 }}>
+            <Form.Group style={{ paddingLeft: 50 }}>
               <Form.Label>Interest</Form.Label>
               <div onChange={ (e) => this.handleInput(e, "property")}>
                 <View style={{flexDirection: "row"}}>
                   <View>
-                    <Form.Check checked={(this.state.current_listing.property.interest === "Extremely")} type="radio" value="Extremely" name="interest" label="Extremely" readOnly />
+                    <Form.Check checked={(this.state.current_listing.property.interest === "Top")} type="radio" value="Top" name="interest" label="Top" readOnly />
                     <Form.Check checked={(this.state.current_listing.property.interest === "KindaMinus")} type="radio" value="KindaMinus" name="interest" label="Kinda-" readOnly />
                   </View>
                   <View style={{paddingLeft: 25}}>
-                    <Form.Check checked={(this.state.current_listing.property.interest === "KindaPlus")} type="radio" value="KindaPlus" name="interest" label="Kinda+" readOnly />
+                    <Form.Check checked={(this.state.current_listing.property.interest === "Extremely")} type="radio" value="Extremely" name="interest" label="Extremely" readOnly />
                     <Form.Check checked={(this.state.current_listing.property.interest === "Nah")} type="radio" value="Nah" name="interest" label="Nah" readOnly />
+                  </View>
+                  <View style={{paddingLeft: 25}}>
+                    <Form.Check checked={(this.state.current_listing.property.interest === "KindaPlus")} type="radio" value="KindaPlus" name="interest" label="Kinda+" readOnly />
                   </View>
                 </View>
               </div>
