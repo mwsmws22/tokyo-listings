@@ -1,8 +1,50 @@
 import React from 'react';
-import { Table, ListGroup, Badge } from "react-bootstrap";
+import { View } from "react-native";
+import { Table, ListGroup } from "react-bootstrap";
+import { FaImages } from "react-icons/fa";
 import { formatAddress, scrollMagic } from "../utils/util";
 import equal from 'fast-deep-equal';
 import "../styles/scrollbar.css";
+
+const cloneDeep = require('clone-deep');
+const selectedBorder = "1px solid #01ff1f"
+const unselectedBorder = "1px solid white"
+
+const unselectedStyle = {
+  borderBottom: "none"
+}
+
+const selectedStyle = {
+  borderLeft: selectedBorder,
+  borderTop: selectedBorder,
+  borderBottom: "none"
+}
+
+const imageStyle = {
+  fontSize: "20px",
+  backgroundColor:"#000033",
+  height: "100%",
+  color: "white",
+  textAlign: "center",
+  paddingTop: "7px",
+  cursor: "pointer"
+}
+
+const unselectedImagesStyle = {
+  ...imageStyle,
+  borderTop: unselectedBorder,
+  borderRight: unselectedBorder,
+  borderBottom: "none",
+  borderLeft: "none"
+}
+
+const selectedImagesStyle = {
+  ...imageStyle,
+  borderTop: selectedBorder,
+  borderRight: selectedBorder,
+  borderBottom: "none",
+  borderLeft: "none"
+}
 
 class PropertyInfo extends React.Component {
   constructor(props) {
@@ -10,6 +52,10 @@ class PropertyInfo extends React.Component {
     this.setSelectedListingID = props.setSelectedListingID.bind(this);
     this.setEditListing = this.setEditListing.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.getListItemStyle = this.getListItemStyle.bind(this);
+    this.getImageIconStyle = this.getImageIconStyle.bind(this);
+    this.dealWithBorders = this.dealWithBorders.bind(this);
+    this.getImages = this.getImages.bind(this);
     this.scroll = this.scroll.bind(this);
     this.scrollRef = React.createRef();
 
@@ -58,6 +104,39 @@ class PropertyInfo extends React.Component {
     this.setState({edit_listing: l});
   }
 
+  dealWithBorders(style, id) {
+    const lastIdx = this.state.property.listings.length - 1
+    const selectedIdx = this.state.property.listings.findIndex(l => l.id === this.state.edit_listing.id)
+
+    if (id === this.state.property.listings[lastIdx].id) {
+      style.borderBottom = unselectedBorder
+    }
+
+    if (selectedIdx !== lastIdx) {
+      if (this.state.property.listings[selectedIdx + 1].id === id) {
+        style.borderTop = selectedBorder
+      }
+    } else if (this.state.edit_listing.id === id) {
+      style.borderBottom = selectedBorder
+    }
+
+    return style
+  }
+
+  getListItemStyle(id) {
+    let style = this.state.edit_listing.id === id ? cloneDeep(selectedStyle) : cloneDeep(unselectedStyle)
+    return this.dealWithBorders(style, id)
+  }
+
+  getImageIconStyle(id) {
+    let style = this.state.edit_listing.id === id ? cloneDeep(selectedImagesStyle) : cloneDeep(unselectedImagesStyle)
+    return this.dealWithBorders(style, id)
+  }
+
+  getImages(l) {
+    window.open('images/' + l.id, "_blank")
+  }
+
   render() {
     return (
       <div style={{ marginLeft: 10, marginRight: 10, height:"100%", overflow : "hidden" }}>
@@ -97,18 +176,26 @@ class PropertyInfo extends React.Component {
         <h4 className="text-center mb-0" style={{paddingTop: 18, paddingBottom: 18}}>Listings</h4>
         <ListGroup ref={this.scrollRef} className="scrollbar" style={{height: scrollMagic(this.state.window_height, this.state.list_item_height, 488)}}>
           {this.state.property.listings.map(l =>
-            <ListGroup.Item key={l.id} variant={l.availability === "契約済" && "danger"}>
-              <div className="row justify-content-between" style={{height: this.state.list_item_height-25}}>
-                <div className="col-9">
-                  <a href={l.url} target="_blank" style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "100%"}}>
-                    <span style={{ whiteSpace: "nowrap"}}>{ l.url }</span>
-                  </a>
+            <View style={{flexDirection: "row"}}>
+              <View style={{flex: 9}}>
+                <ListGroup.Item
+                  key={l.id}
+                  variant={l.availability === "契約済" && "danger"}
+                  style={this.getListItemStyle(l.id)}
+                  onClick={() => this.setEditListing(l)}>
+                  <div onClick={() => this.setEditListing(l)} style={{height: this.state.list_item_height-25}}>
+                    <a href={l.url} target="_blank" style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "90%"}}>
+                      <span style={{ whiteSpace: "nowrap"}}>{ l.url }</span>
+                    </a>
+                  </div>
+                </ListGroup.Item>
+              </View>
+              <View style={{flex: 1}}>
+                <div style={this.getImageIconStyle(l.id)} onClick={() => this.getImages(l)}>
+                  <FaImages />
                 </div>
-                <div className="text-right" style={{paddingRight: 20}} onClick={() => this.setEditListing(l)}>
-                  <Badge pill variant={ this.state.edit_listing.id === l.id ? "success" : "dark"} style={{fontSize: "0.8rem", paddingBottom: "4px", cursor:"pointer"}}> Selected </Badge>
-                </div>
-              </div>
-            </ListGroup.Item>
+              </View>
+            </View>
           )}
         </ListGroup>
       </div>

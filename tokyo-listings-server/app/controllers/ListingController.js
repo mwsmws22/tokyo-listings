@@ -1,3 +1,4 @@
+const glob = require('glob-promise')
 const DB = require('../models/DBModel')
 const ListingService = require('../services/ListingService')
 const Utils = require('../utils/Utils')
@@ -127,4 +128,27 @@ exports.getSumaityBukkenRedirect = async (req, res, next) => {
   ListingService.getSumaityBuildingUrlFromPage(url)
     .then(bldgUrl => res.send({ bldgUrl }))
     .catch(next)
+}
+
+exports.getImages = async (req, res, next) => {
+  const { url } = req.body
+  const { ARCHIVE } = process.env
+  const { hostname } = new URL(url)
+  const serverDir = 'http://localhost:8082/tokyo_apt/'
+  const filters = [/_s1o.jpg$/]
+  const vips = [/_co.jpg$/]
+
+  if (hostname === 'suumo.jp') {
+    const urlKey = url.match(/jnc_(.*?)\//)[1]
+    glob(`${ARCHIVE}/*${urlKey}*/*o.jpg`)
+      .then(fileList => {
+        let files = fileList.filter(file => !filters.some(filter => filter.test(file)))
+        files = files.sort((a, b) => (vips.some(vip => vip.test(a)) ? -1 : 1))
+        const temp = files.map(f => serverDir + f.replace(ARCHIVE, ''))
+        return res.send(temp)
+      })
+      .catch(next)
+  } else {
+    res.send('nope')
+  }
 }

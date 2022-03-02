@@ -7,5 +7,7 @@ class PageUtils {
 }
 
 chrome.runtime.onMessage.addListener(request => {
-  PageUtils.insertUrl(request.loadUrl)
+  if (request?.loadUrl) {
+    PageUtils.insertUrl(request.loadUrl)
+  }
 })

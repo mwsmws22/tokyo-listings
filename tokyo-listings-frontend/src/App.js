@@ -1,7 +1,7 @@
 import { React, useState, useRef, useCallback } from "react";
 import { View } from "react-native";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
-import { Switch, Route } from "react-router-dom";
+import { Link, Routes, Route } from "react-router-dom";
 import { Navbar, Nav } from 'react-bootstrap';
 import AddListing from "./components/add-listing.component";
 import ViewListings from "./components/view-listings.component";
@@ -137,31 +137,31 @@ function App() {
               <Navbar.Brand style={{ cursor: "default", paddingRight: 20, paddingLeft: 5 }}>Tokyo Listings</Navbar.Brand>
               <hr class="vertical"/>
               <Nav className="m-auto">
-                <Nav.Link style={{ paddingRight: 30 }} active={tab === "view"} href="/view">View</Nav.Link>
-                <Nav.Link style={{ paddingRight: 30 }} active={tab === "add"} href="/add">Add</Nav.Link>
-                <Nav.Link style={{ paddingRight: 30 }} active={tab === "check"} href="/check">Check</Nav.Link>
-                <Nav.Link active={tab === "double"} href="/double">Double Check</Nav.Link>
+                <Nav.Link style={{ paddingRight: 30 }} active={tab === "view"} as={Link} to="/">View</Nav.Link>
+                <Nav.Link style={{ paddingRight: 30 }} active={tab === "add"} as={Link} to="add">Add</Nav.Link>
+                <Nav.Link style={{ paddingRight: 30 }} active={tab === "check"} as={Link} to="check">Check</Nav.Link>
+                <Nav.Link active={tab === "double"} as={Link} to="double">Double Check</Nav.Link>
               </Nav>
             </Navbar>
-            <Switch>
-              <Route exact path={["/", "/view"]}>
+            <Routes>
+              <Route index element={
                 <ViewListings
-                selectedPropertyID={selectedPropertyID}
-                update={updatePropertyInfo}
-                setProperties={setProperties}
-                selectProperty={selectProperty}
-                closePropertyInfo={closePropertyInfo}/>
-              </Route>
-              <Route exact path="/add">
-                <AddListing latlng={addLatLng !== null ? {lat: addLatLng.lat, lng: addLatLng.lng} : ""} setLatLng={setLatLng}/>
-              </Route>
-              <Route exact path="/check">
-                <CheckListings setProperty={setProperty}/>
-              </Route>
-              <Route exact path="/double">
-                <DoubleCheckListings setProperty={setProperty}/>
-              </Route>
-            </Switch>
+                  selectedPropertyID={selectedPropertyID}
+                  update={updatePropertyInfo}
+                  setProperties={setProperties}
+                  selectProperty={selectProperty}
+                  closePropertyInfo={closePropertyInfo}
+                />
+              } />
+              <Route path="add" element={
+                <AddListing
+                  latlng={addLatLng !== null ? {lat: addLatLng.lat, lng: addLatLng.lng} : ""}
+                  setLatLng={setLatLng}
+                />
+              } />
+              <Route path="check" element={<CheckListings setProperty={setProperty }/>} />
+              <Route path="double" element={<DoubleCheckListings setProperty={setProperty}/>} />
+            </Routes>
           </View>
         </View>
         <View style={{flex: 1}}>
