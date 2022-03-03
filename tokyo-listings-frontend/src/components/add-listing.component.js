@@ -181,10 +181,10 @@ class AddListing extends React.Component {
               this.setState({no_scraper: true})
             } else {
               this.setState({server_error: true})
-            }
 
-            console.log("SERVER ERROR: ")
-            console.log(error)
+              console.log("SERVER ERROR: ")
+              console.log(error)
+            }
           } else {
             console.log("UNKNOWN ERROR: ")
             console.log(e)

@@ -1,5 +1,6 @@
 const DB = require('../models/DBModel')
 const ListingService = require('../services/ListingService')
+const ImageService = require('../services/ImageService')
 const Utils = require('../utils/Utils')
 
 const Listing = DB.listing
@@ -126,5 +127,13 @@ exports.getSumaityBukkenRedirect = async (req, res, next) => {
 
   ListingService.getSumaityBuildingUrlFromPage(url)
     .then(bldgUrl => res.send({ bldgUrl }))
+    .catch(next)
+}
+
+exports.getImages = async (req, res, next) => {
+  const { url } = req.body
+
+  ImageService.getImagesFromUrl(url)
+    .then(output => res.send(output))
     .catch(next)
 }
