@@ -6,10 +6,12 @@ export default class RemoveArchivedListingsJob {
   static execute(scrapedElems) {
     const keys = scrapedElems.flatMap(elem => elem.listings).map(l => l.key)
     const payload = JobUtils.buildPayload(keys)
-
+    console.log(scrapedElems)
+    console.log(payload)
     return fetch(this.ENDPOINT, payload)
       .then(res => res.json())
       .then(out => {
+        console.log(out)
         const urls = out.map(res => res.url)
         return scrapedElems.flatMap(elem => {
           const hits = elem.listings.filter(l => urls.some(url => url.includes(l.key)))
