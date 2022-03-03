@@ -1,5 +1,13 @@
 let x = true
 
+const filter = {
+  url: [
+    {
+      pathContains: 'athome.co.jp'
+    }
+  ]
+}
+
 function disableBrowserAction() {
   chrome.browserAction.setIcon({ path: './icons/logo16_dark.png' })
   chrome.storage.local.set({ enabled: false })
@@ -48,7 +56,18 @@ function commandHandler(command) {
   }
 }
 
+function reloadExtension(details) {
+  console.log(details)
+}
+
 enableBrowserAction()
 
 chrome.browserAction.onClicked.addListener(updateState)
 chrome.commands.onCommand.addListener(commandHandler)
+
+// chrome.webNavigation.onHistoryStateUpdated.addListener(
+//   chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+//     chrome.tabs.sendMessage(tabs[0].id, { reload: true })
+//   })
+// )
+chrome.webNavigation.onHistoryStateUpdated.addListener(reloadExtension, filter)

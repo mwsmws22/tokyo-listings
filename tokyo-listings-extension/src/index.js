@@ -5,9 +5,14 @@ import HTMLElementUtils from './utils/HTMLElementUtils'
 StringUtils.initialize()
 HTMLElementUtils.initialize()
 
-chrome.storage.local.get('enabled', data => {
-  if (data.enabled) {
-    const sh = new ServiceHandler()
-    sh.execute()
-  }
-})
+const run = () =>
+  chrome.storage.local.get('enabled', data => {
+    if (data.enabled) {
+      const sh = new ServiceHandler()
+      sh.execute()
+    }
+  })
+
+run()
+
+// chrome.runtime.onMessage.addListener(req => req?.reload && run())
