@@ -9,6 +9,7 @@ module.exports = app => {
   router.post('/suumoBukken/', ListingController.getUpdatedSuumoBukkenUrls)
   router.post('/similarListings/', ListingController.findAllByParams)
   router.post('/sumaityRedirect/', ListingController.getSumaityBukkenRedirect)
+  router.post('/images/', ListingController.getImages)
   router.put('/:id', ListingController.update)
   router.delete('/:id', ListingController.delete)
 
