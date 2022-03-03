@@ -1,4 +1,6 @@
 const glob = require('glob-promise')
+const path = require('path')
+const Errors = require('../utils/Errors')
 
 const serverDir = 'http://localhost:8082/tokyo_apt/'
 const { ARCHIVE } = process.env
@@ -26,6 +28,23 @@ const displayAtHome = async url => {
   return files
 }
 
+const displayRealTokyoEstate = async url => {
+  const urlKey = url.match(/estate.php\?n=(.*?)$/)[1]
+
+  const fileInDir = await glob(`${ARCHIVE}/*東京R不動産*/${urlKey}*_ORIG.jpg`)
+
+  if (!fileInDir[0]) {
+    throw new Error(Errors.imagesNotFoundError)
+  }
+
+  const dir = path.dirname(fileInDir[0])
+
+  const fileList = await glob(`${dir}/*_ORIG.jpg`)
+  const files = fileList.map(f => serverDir + f.replace(ARCHIVE, ''))
+
+  return files
+}
+
 exports.getImagesFromUrl = async url => {
   const { hostname } = new URL(url)
 
@@ -34,7 +53,9 @@ exports.getImagesFromUrl = async url => {
       return displaySuumo(url)
     case 'www.athome.co.jp':
       return displayAtHome(url)
+    case 'www.realtokyoestate.co.jp':
+      return displayRealTokyoEstate(url)
     default:
-      throw new Error('no image displayer for this site')
+      throw new Error(Errors.noImageFetcher)
   }
 }
