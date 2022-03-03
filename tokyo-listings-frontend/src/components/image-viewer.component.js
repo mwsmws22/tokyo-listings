@@ -6,8 +6,9 @@ import ListingDataService from "../services/listing.service"
 function ImageViewer() {
   const [queryStarted, setQueryStarted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [noDisplayer, setNoDisplayer] = useState(false)
+  const [noFetcher, setNoFetcher] = useState(false)
   const [serverError, setServerError] = useState(false)
+  const [imagesNotFound, setImagesNotFound] = useState(false)
   const [sqlError, setSqlError] = useState(false)
   const [unknownError, setUnknownError] = useState(false)
   const [url, setUrl] = useState()
@@ -37,8 +38,10 @@ function ImageViewer() {
         if (e.response) {
           const error = e.response.data.message
 
-          if (error.includes('no image displayer for this site')) {
-            setNoDisplayer(true)
+          if (error.includes('no image fetcher')) {
+            setNoFetcher(true)
+          } else if (error.includes('images not found')) {
+            setImagesNotFound(true)
           } else {
             setServerError(true)
 
@@ -77,17 +80,19 @@ function ImageViewer() {
   return (
     <>
       {!isLoading && (
-        noDisplayer ?
-          <div>{`Currently unable to display images for this site: ${new URL(url).hostname}`}</div>
+        sqlError ?
+          <div>
+            <div>Number of listings returned from SQL query is incorrect. Must be 1.</div>
+            <div>{`listingId: ${listingId}`}</div>
+          </div>
+        : noFetcher ?
+          <div>{`Currently unable to fetch images for this site: ${new URL(url).hostname}`}</div>
+        : imagesNotFound ?
+          <div>{`Images not found for this URL: ${url}`}</div>
         : serverError ?
           <div>
             <div>Image server error. View full error Chrome Console.</div>
             <div>{`url: ${url}`}</div>
-          </div>
-        : sqlError ?
-          <div>
-            <div>Number of listings returned from SQL query is incorrect. Must be 1.</div>
-            <div>{`listingId: ${listingId}`}</div>
           </div>
         : unknownError ?
           <div>Unknown error. Hell if I know. Try checking Chrome Console.</div>
