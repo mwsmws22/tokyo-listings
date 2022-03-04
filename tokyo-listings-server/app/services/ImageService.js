@@ -6,7 +6,7 @@ const serverDir = 'http://localhost:8082/tokyo_apt/'
 const { ARCHIVE } = process.env
 
 const displaySuumo = async url => {
-  const filters = [/_s\do.jpg$/, /_tca_o.jpg$/]
+  const filters = [/_s\do.jpg$/, /_tca_o.jpg$/, /_tma_o.jpg$/]
   const vips = [/_co.jpg$/]
   const urlKey = url.match(/jnc_(.*?)\//)[1]
 

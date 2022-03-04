@@ -1,3 +1,9 @@
+const imageSites = [
+  'suumo.jp',
+  'www.athome.co.jp',
+  'www.realtokyoestate.co.jp'
+]
+
 export function removeNullProps(obj) {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null && v !== ""));
 }
@@ -43,4 +49,8 @@ export function scrollMagic(window_height, list_item_height, non_list_height) {
   if (listItems === 0) {listItems=1;}
   let listHeight = (listItems*list_item_height)+1;
   return listHeight;
+}
+
+export function checkForImages(url) {
+  return imageSites.some(i => url.includes(i))
 }
