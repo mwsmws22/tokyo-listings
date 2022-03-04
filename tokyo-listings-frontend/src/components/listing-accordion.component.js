@@ -1,11 +1,15 @@
 import React, { Component, useContext } from "react";
 import { Accordion, Card, Badge, AccordionContext, Table, useAccordionToggle } from "react-bootstrap";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { formatAddress, scrollMagic } from "../utils/util";
+import { formatAddress, scrollMagic, checkForImages } from "../utils/util";
 import equal from 'fast-deep-equal';
 import "../styles/scrollbar.css";
 
 const moment = require('moment');
+
+const openImages = (id) => {
+  window.open('images/' + id, "_blank")
+}
 
 function CustomToggle({ children, eventKey, updateCallback, onClickCallback, selected, height }) {
   const currentEventKey = useContext(AccordionContext);
@@ -26,10 +30,19 @@ function CustomToggle({ children, eventKey, updateCallback, onClickCallback, sel
             <div style={{paddingLeft: 45}}>{children[0]}</div>
           </div>
         </div>
-        { children[2] === "previous"
-        ? <div className="text-right" style={{paddingRight: 20}}>{createdAt}</div>
-        : <div className="text-right" style={{paddingRight: 20}} onClick={selectListing}>
-            <Badge pill variant={ selected ? "success" : "dark"} style={{fontSize: "0.8rem", paddingBottom: "5px"}}> Same </Badge>
+        { children[2] === "previous" ?
+            <div className="text-right" style={{paddingRight: 20}}>{createdAt}</div>
+          :
+          <div className="row">
+            {
+              checkForImages(children[1].url) &&
+                <div className="text-right" style={{paddingRight: 10}} onClick={() => openImages(children[1].id)}>
+                  <Badge pill variant="primary" style={{fontSize: "0.8rem", paddingBottom: "5px"}}> Images </Badge>
+                </div>
+            }
+            <div className="text-right" style={{paddingRight: 20}} onClick={selectListing}>
+              <Badge pill variant={ selected ? "success" : "dark"} style={{fontSize: "0.8rem", paddingBottom: "5px"}}> Same </Badge>
+            </div>
           </div>
         }
       </div>

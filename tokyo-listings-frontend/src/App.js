@@ -29,12 +29,14 @@ function App() {
     libraries
   });
 
+  const windowOnLoad = window.location.href.toString().split(window.location.host)[1].replace("/", "")
+
   const [properties, setProperties] = useState( [] );
   const [selectedListingID, setSelectedListingID] = useState(null);
   const [clickLatLng, setClickLatLng] = useState(null);
   const [addLatLng, setAddLatLng] = useState(null);
   const [selectedPropertyID, setSelectedPropertyID] = useState(-1);
-  const [tab, setTab] = useState("view");
+  const [tab, setTab] = useState(windowOnLoad);
   const [state, setState] = useState("");
   const [updatePropertyInfo, setUpdatePropertyInfo] = useState(true);
 
@@ -137,7 +139,7 @@ function App() {
               <Navbar.Brand style={{ cursor: "default", paddingRight: 20, paddingLeft: 5 }}>Tokyo Listings</Navbar.Brand>
               <hr class="vertical"/>
               <Nav className="m-auto">
-                <Nav.Link active={tab === "view"}   onClick={() => setTab("view")}   as={Link} to="/"      style={{paddingRight: 30}}>View</Nav.Link>
+                <Nav.Link active={tab === ""}       onClick={() => setTab("")}       as={Link} to="/"      style={{paddingRight: 30}}>View</Nav.Link>
                 <Nav.Link active={tab === "add"}    onClick={() => setTab("add")}    as={Link} to="add"    style={{paddingRight: 30}}>Add</Nav.Link>
                 <Nav.Link active={tab === "check"}  onClick={() => setTab("check")}  as={Link} to="check"  style={{paddingRight: 30}}>Check</Nav.Link>
                 <Nav.Link active={tab === "double"} onClick={() => setTab("double")} as={Link} to="double">Double Check</Nav.Link>
