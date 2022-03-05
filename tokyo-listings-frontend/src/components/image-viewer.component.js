@@ -22,7 +22,7 @@ function ImageViewer() {
       .then(res => {
         if (res.data.length === 1) {
           setUrl(res.data[0].url)
-          return res.data[0].url
+          return res.data[0]
         } else {
           throw new Error(`Issue with response data: ${res.data}`)
         }

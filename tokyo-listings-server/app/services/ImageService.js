@@ -80,18 +80,41 @@ const displaySumaity = async url => {
   return files
 }
 
-exports.getImagesFromUrl = async url => {
-  const { hostname } = new URL(url)
+const displayYahoo = async (url, squareM) => {
+  const htmlFiles = await glob(`${ARCHIVE}/*／${squareM}㎡*しならYahoo*.html`)
+
+  const images = htmlFiles.flatMap(f => {
+    const fileText = fs.readFileSync(f, 'utf8')
+    const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
+
+    if (urlSaved === url) {
+      const $ = cheerio.load(fileText)
+      const imageSet = new Set()
+      $('.DetailCarouselMain__image__item').each((i, elm) =>
+        imageSet.add(serverDir + elm.attribs.src.slice(2))
+      )
+      return [Array.from(imageSet)]
+    }
+    return []
+  })[0]
+
+  return images
+}
+
+exports.getImagesFromListing = async listing => {
+  const { hostname } = new URL(listing.url)
 
   switch (hostname) {
     case 'suumo.jp':
-      return displaySuumo(url)
+      return displaySuumo(listing.url)
     case 'www.athome.co.jp':
-      return displayAtHome(url)
+      return displayAtHome(listing.url)
     case 'www.realtokyoestate.co.jp':
-      return displayRealTokyoEstate(url)
+      return displayRealTokyoEstate(listing.url)
     case 'sumaity.com':
-      return displaySumaity(url)
+      return displaySumaity(listing.url)
+    case 'realestate.yahoo.co.jp':
+      return displayYahoo(listing.url, listing.square_m)
     default:
       throw new Error(Errors.noImageFetcher)
   }

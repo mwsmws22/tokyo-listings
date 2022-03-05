@@ -24,8 +24,8 @@ const getByInterest = (interest, query) => {
   return http.get(`/listing/interest/${interest}` + query);
 };
 
-const getImages = url => {
-  return http.post("/listing/images", {url: url});
+const getImages = listing => {
+  return http.post("/listing/images", {listing: listing});
 };
 
 const listingService = {
