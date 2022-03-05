@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const serveIndex = require('serve-index')
+const path = require('path')
 const DB = require('./app/models/DBModel')
 
 const corsOptions = {
@@ -27,9 +28,20 @@ const { PORT, ARCHIVE } = process.env
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use('/tokyo_apt', express.static(ARCHIVE))
+
+app.use(
+  '/tokyo_apt',
+  express.static(ARCHIVE, {
+    setHeaders: (res, requestPath) => {
+      const noExtension = !path.extname(requestPath)
+      if (noExtension) res.setHeader('Content-Type', 'image/jpeg')
+    }
+  })
+)
+
 app.use('/tokyo_apt', serveIndex(ARCHIVE))
 
+require('./app/routes/ImageRoutes')(app)
 require('./app/routes/ListingRoutes')(app)
 require('./app/routes/PropertyRoutes')(app)
 require('./app/routes/ScrapingRoutes')(app)

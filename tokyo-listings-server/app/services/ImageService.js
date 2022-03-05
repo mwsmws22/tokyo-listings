@@ -1,5 +1,7 @@
 const glob = require('glob-promise')
 const path = require('path')
+const cheerio = require('cheerio')
+const fs = require('fs')
 const Errors = require('../utils/Errors')
 
 const serverDir = 'http://localhost:8082/tokyo_apt/'
@@ -45,6 +47,35 @@ const displayRealTokyoEstate = async url => {
   return files
 }
 
+const displaySumaity = async url => {
+  const altFilters = ['周辺']
+  const urlKey = url.match(/prop_(.*?)\/$/)[1]
+
+  const fileList = await glob(`${ARCHIVE}/*スマイティ*${urlKey}*/saved_resource*`)
+  const htmlFile = (await glob(`${ARCHIVE}/*スマイティ*${urlKey}*.html`))[0]
+
+  const $ = cheerio.load(fs.readFileSync(htmlFile))
+
+  const numOfImgs = Array.from($('#thumbnailInner').eq(0).children()).filter(
+    li =>
+      !altFilters.some(af =>
+        String($(li).eq(0).children().eq(0).attr('alt')).includes(af)
+      )
+  ).length
+
+  let files = fileList.map(f => serverDir + f.replace(ARCHIVE, ''))
+  files.sort((a, b) => {
+    let aId = a.match(/saved_resource\((.*?)\)$/)
+    let bId = b.match(/saved_resource\((.*?)\)$/)
+    aId = aId ? parseInt(aId[1]) : 0
+    bId = bId ? parseInt(bId[1]) : 0
+    return aId - bId
+  })
+  files = files.slice(3).slice(0, numOfImgs)
+
+  return files
+}
+
 exports.getImagesFromUrl = async url => {
   const { hostname } = new URL(url)
 
@@ -55,6 +86,8 @@ exports.getImagesFromUrl = async url => {
       return displayAtHome(url)
     case 'www.realtokyoestate.co.jp':
       return displayRealTokyoEstate(url)
+    case 'sumaity.com':
+      return displaySumaity(url)
     default:
       throw new Error(Errors.noImageFetcher)
   }
