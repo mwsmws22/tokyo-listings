@@ -76,6 +76,34 @@ const displaySumaity = async url => {
   return files
 }
 
+const displayYahoo = async url => {
+  const urlKey = url.match(/yahoo.co.jp\/rent\/detail\/(.*?)\/$/)[1]
+
+  const fileList = await glob(`${ARCHIVE}/*スマイティ*${urlKey}*/saved_resource*`)
+  const htmlFile = (await glob(`${ARCHIVE}/*スマイティ*${urlKey}*.html`))[0]
+
+  const $ = cheerio.load(fs.readFileSync(htmlFile))
+
+  const numOfImgs = Array.from($('#thumbnailInner').eq(0).children()).filter(
+    li =>
+      !altFilters.some(af =>
+        String($(li).eq(0).children().eq(0).attr('alt')).includes(af)
+      )
+  ).length
+
+  let files = fileList.map(f => serverDir + f.replace(ARCHIVE, ''))
+  files.sort((a, b) => {
+    let aId = a.match(/saved_resource\((.*?)\)$/)
+    let bId = b.match(/saved_resource\((.*?)\)$/)
+    aId = aId ? parseInt(aId[1]) : 0
+    bId = bId ? parseInt(bId[1]) : 0
+    return aId - bId
+  })
+  files = files.slice(3).slice(0, numOfImgs)
+
+  return files
+}
+
 exports.getImagesFromUrl = async url => {
   const { hostname } = new URL(url)
 
@@ -88,6 +116,8 @@ exports.getImagesFromUrl = async url => {
       return displayRealTokyoEstate(url)
     case 'sumaity.com':
       return displaySumaity(url)
+    case 'realestate.yahoo.co.jp':
+      return displayYahoo(url)
     default:
       throw new Error(Errors.noImageFetcher)
   }
