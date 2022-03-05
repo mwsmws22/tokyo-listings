@@ -131,9 +131,9 @@ exports.getSumaityBukkenRedirect = async (req, res, next) => {
 }
 
 exports.getImages = async (req, res, next) => {
-  const { url } = req.body
+  const { listing } = req.body
 
-  ImageService.getImagesFromUrl(url)
+  ImageService.getImagesFromListing(listing)
     .then(output => res.send(output))
     .catch(next)
 }
