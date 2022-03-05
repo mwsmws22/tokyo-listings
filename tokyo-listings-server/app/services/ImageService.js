@@ -80,48 +80,41 @@ const displaySumaity = async url => {
   return files
 }
 
-const displayYahoo = async url => {
-  const urlKey = url.match(/yahoo.co.jp\/rent\/detail\/(.*?)\/$/)[1]
+const displayYahoo = async (url, squareM) => {
+  const htmlFiles = await glob(`${ARCHIVE}/*／${squareM}㎡*しならYahoo*.html`)
 
-  const fileList = await glob(`${ARCHIVE}/*スマイティ*${urlKey}*/saved_resource*`)
-  const htmlFile = (await glob(`${ARCHIVE}/*スマイティ*${urlKey}*.html`))[0]
+  const images = htmlFiles.flatMap(f => {
+    const fileText = fs.readFileSync(f, 'utf8')
+    const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
 
-  const $ = cheerio.load(fs.readFileSync(htmlFile))
-
-  const numOfImgs = Array.from($('#thumbnailInner').eq(0).children()).filter(
-    li =>
-      !altFilters.some(af =>
-        String($(li).eq(0).children().eq(0).attr('alt')).includes(af)
+    if (urlSaved === url) {
+      const $ = cheerio.load(fileText)
+      const imageSet = new Set()
+      $('.DetailCarouselMain__image__item').each((i, elm) =>
+        imageSet.add(serverDir + elm.attribs.src.slice(2))
       )
-  ).length
+      return [Array.from(imageSet)]
+    }
+    return []
+  })[0]
 
-  let files = fileList.map(f => serverDir + f.replace(ARCHIVE, ''))
-  files.sort((a, b) => {
-    let aId = a.match(/saved_resource\((.*?)\)$/)
-    let bId = b.match(/saved_resource\((.*?)\)$/)
-    aId = aId ? parseInt(aId[1]) : 0
-    bId = bId ? parseInt(bId[1]) : 0
-    return aId - bId
-  })
-  files = files.slice(3).slice(0, numOfImgs)
-
-  return files
+  return images
 }
 
-exports.getImagesFromUrl = async url => {
-  const { hostname } = new URL(url)
+exports.getImagesFromListing = async listing => {
+  const { hostname } = new URL(listing.url)
 
   switch (hostname) {
     case 'suumo.jp':
-      return displaySuumo(url)
+      return displaySuumo(listing.url)
     case 'www.athome.co.jp':
-      return displayAtHome(url)
+      return displayAtHome(listing.url)
     case 'www.realtokyoestate.co.jp':
-      return displayRealTokyoEstate(url)
+      return displayRealTokyoEstate(listing.url)
     case 'sumaity.com':
-      return displaySumaity(url)
+      return displaySumaity(listing.url)
     case 'realestate.yahoo.co.jp':
-      return displayYahoo(url)
+      return displayYahoo(listing.url, listing.square_m)
     default:
       throw new Error(Errors.noImageFetcher)
   }
