@@ -41,7 +41,6 @@ app.use(
 
 app.use('/tokyo_apt', serveIndex(ARCHIVE))
 
-require('./app/routes/ImageRoutes')(app)
 require('./app/routes/ListingRoutes')(app)
 require('./app/routes/PropertyRoutes')(app)
 require('./app/routes/ScrapingRoutes')(app)
