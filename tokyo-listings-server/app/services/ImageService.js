@@ -54,6 +54,10 @@ const displaySumaity = async url => {
   const fileList = await glob(`${ARCHIVE}/*スマイティ*${urlKey}*/saved_resource*`)
   const htmlFile = (await glob(`${ARCHIVE}/*スマイティ*${urlKey}*.html`))[0]
 
+  if (!htmlFile) {
+    throw new Error(Errors.imagesNotFoundError)
+  }
+
   const $ = cheerio.load(fs.readFileSync(htmlFile))
 
   const numOfImgs = Array.from($('#thumbnailInner').eq(0).children()).filter(
