@@ -82,23 +82,50 @@ const displaySumaity = async url => {
 
 const displayYahoo = async (url, squareM) => {
   const htmlFiles = await glob(`${ARCHIVE}/*／${squareM}㎡*しならYahoo*.html`)
+  let foundArchive = false
 
-  const images = htmlFiles.flatMap(f => {
-    const fileText = fs.readFileSync(f, 'utf8')
-    const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
-
-    if (urlSaved === url) {
-      const $ = cheerio.load(fileText)
-      const imageSet = new Set()
-      $('.DetailCarouselMain__image__item').each((i, elm) =>
-        imageSet.add(serverDir + elm.attribs.src.slice(2))
-      )
-      return [Array.from(imageSet)]
+  const getImage = async (elem, f) => {
+    let { src } = elem.attribs
+    if (!src) {
+      src = elem.attribs['data-src']?.slice(34)
+      const folder = f.fileName().replace('.html', '_files')
+      const filenames = (await glob(`${ARCHIVE + folder}/*`))
+        .map(fz => fz.fileName())
+        .filter(fn => fn.length > 50)
+      const image = filenames.find(fn => src.includes(fn))
+      if (image) {
+        return `${serverDir + folder}/${image}`
+      }
+      throw new Error('error retrieving image via data-src attr')
+    } else {
+      src = src.slice(2)
+      return serverDir + src
     }
-    return []
-  })[0]
+  }
 
-  return images
+  const images = (
+    await Promise.all(
+      htmlFiles.flatMap(async f => {
+        const fileText = fs.readFileSync(f, 'utf8')
+        const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
+        if (urlSaved === url) {
+          foundArchive = true
+          const $ = cheerio.load(fileText)
+          const elems = []
+          $('.DetailCarouselMain__image__item').each((i, elem) => elems.push(elem))
+          const imagez = await Promise.all(elems.map(elem => getImage(elem, f)))
+          return Array.from(new Set(imagez))
+        }
+        return []
+      })
+    )
+  ).flat()
+
+  if (!foundArchive) {
+    throw new Error(Errors.imagesNotFoundError)
+  } else {
+    return images
+  }
 }
 
 exports.getImagesFromListing = async listing => {
