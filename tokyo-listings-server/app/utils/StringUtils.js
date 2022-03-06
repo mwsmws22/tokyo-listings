@@ -24,3 +24,7 @@ String.prototype.remove = function remove(...args) {
 String.prototype.toManen = function toManen() {
   return parseInt(this) / 10000
 }
+
+String.prototype.fileName = function fileName() {
+  return this.split('/').pop()
+}

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View } from "react-native";
 import { Table, ListGroup } from "react-bootstrap";
-import { FaImages } from "react-icons/fa";
-import { formatAddress, scrollMagic } from "../utils/util";
+import { FaImages, FaWindowClose } from "react-icons/fa";
+import { formatAddress, scrollMagic, checkForImages } from "../utils/util";
 import equal from 'fast-deep-equal';
 import "../styles/scrollbar.css";
 
@@ -128,9 +128,14 @@ class PropertyInfo extends React.Component {
     return this.dealWithBorders(style, id)
   }
 
-  getImageIconStyle(id) {
+  getImageIconStyle(id, url) {
     let style = this.state.edit_listing.id === id ? cloneDeep(selectedImagesStyle) : cloneDeep(unselectedImagesStyle)
-    return this.dealWithBorders(style, id)
+    style = this.dealWithBorders(style, id)
+    if (!checkForImages(url)) {
+      style.backgroundColor = '	#536878'
+      style.cursor = 'not-allowed'
+    }
+    return style
   }
 
   getImages(l) {
@@ -184,15 +189,15 @@ class PropertyInfo extends React.Component {
                   style={this.getListItemStyle(l.id)}
                   onClick={() => this.setEditListing(l)}>
                   <div onClick={() => this.setEditListing(l)} style={{height: this.state.list_item_height-25}}>
-                    <a href={l.url} target="_blank" style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "90%"}}>
+                    <a href={l.url} target="_blank" style={{display: "block", textOverflow: "ellipsis", overflow: "hidden", maxWidth: "90%", width:'fit-content'}}>
                       <span style={{ whiteSpace: "nowrap"}}>{ l.url }</span>
                     </a>
                   </div>
                 </ListGroup.Item>
               </View>
               <View style={{flex: 1}}>
-                <div style={this.getImageIconStyle(l.id)} onClick={() => this.getImages(l)}>
-                  <FaImages />
+                <div style={this.getImageIconStyle(l.id, l.url)} onClick={() => this.getImages(l)}>
+                  { checkForImages(l.url) ? <FaImages /> : <FaWindowClose /> }
                 </div>
               </View>
             </View>
