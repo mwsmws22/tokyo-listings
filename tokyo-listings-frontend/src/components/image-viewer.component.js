@@ -3,6 +3,9 @@ import { useParams }  from "react-router-dom"
 import ImageMasonry  from "react-image-masonry"
 import ListingDataService from "../services/listing.service"
 
+const imageStyle = { cursor: "pointer" }
+const imageStyleDisabled = { pointerEvents: "none" }
+
 function ImageViewer() {
   const [queryStarted, setQueryStarted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -100,7 +103,7 @@ function ImageViewer() {
         <div style={{margin:'1%'}}>
           <ImageMasonry numCols={5}>
             {photos.map((pUrl, i) =>
-              <div key={i} onClick={(e) => onClick(e, pUrl)} style={{cursor: "pointer"}}>
+              <div key={i} onClick={(e) => onClick(e, pUrl)} style={url.includes('homes.co.jp') ? imageStyleDisabled : imageStyle}>
                 <img src={pUrl} />
               </div>
             )}
