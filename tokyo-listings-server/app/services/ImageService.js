@@ -128,6 +128,31 @@ const displayYahoo = async (url, squareM) => {
   }
 }
 
+const displayTomigaya = async url => {
+  const tomigayaMost = await glob(`${ARCHIVE}/*賃貸専門*.html`)
+  const tokyoDesigners = await glob(`${ARCHIVE}/*東京デザイナーズ生活*.html`)
+  const sousakuKukan = await glob(`${ARCHIVE}/*創作空間*.html`)
+  const htmlFiles = [...tomigayaMost, ...tokyoDesigners, ...sousakuKukan]
+
+  const images = (
+    await Promise.all(
+      htmlFiles.flatMap(async f => {
+        const fileText = fs.readFileSync(f, 'utf8')
+        const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
+        if (urlSaved === url) {
+          const folder = f.replace('.html', '_files').fileName()
+          const imagez = await glob(`${ARCHIVE}/${folder}/*_??.jpg`)
+          const imagesMapped = imagez.map(i => i.replace(ARCHIVE, serverDir))
+          return imagesMapped
+        }
+        return []
+      })
+    )
+  ).flat()
+
+  return images
+}
+
 exports.getImagesFromListing = async listing => {
   const { hostname } = new URL(listing.url)
 
@@ -142,6 +167,18 @@ exports.getImagesFromListing = async listing => {
       return displaySumaity(listing.url)
     case 'realestate.yahoo.co.jp':
       return displayYahoo(listing.url, listing.square_m)
+    case 'tomigaya.jp':
+      return displayTomigaya(listing.url)
+    case 'tokyo-designers.com':
+      return displayTomigaya(listing.url)
+    case 'east-and-west.jp':
+      return displayTomigaya(listing.url)
+    case 'aoyama-fudousan.com':
+      return displayTomigaya(listing.url)
+    case 'www.sousaku-kukan.com':
+      return displayTomigaya(listing.url)
+    case 'kagurazaka-fudousan.com':
+      return displayTomigaya(listing.url)
     default:
       throw new Error(Errors.noImageFetcher)
   }
