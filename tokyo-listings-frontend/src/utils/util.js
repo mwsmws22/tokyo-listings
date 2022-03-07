@@ -3,7 +3,13 @@ const imageSites = [
   'www.athome.co.jp',
   'www.realtokyoestate.co.jp',
   'sumaity.com',
-  'realestate.yahoo.co.jp'
+  'realestate.yahoo.co.jp',
+  'tomigaya.jp',
+  'tokyo-designers.com',
+  'east-and-west.jp',
+  'aoyama-fudousan.com',
+  'www.sousaku-kukan.com',
+  'kagurazaka-fudousan.com'
 ]
 
 export function removeNullProps(obj) {
