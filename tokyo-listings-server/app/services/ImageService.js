@@ -168,7 +168,7 @@ const displayLifullHomes = async (url, squareM) => {
       htmlFiles.flatMap(async f => {
         const fileText = fs.readFileSync(f, 'utf8')
         const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
-        if (urlSaved === url) {
+        if (urlSaved.includes(url)) {
           foundArchive = true
           const folder = f
             .fileName()
