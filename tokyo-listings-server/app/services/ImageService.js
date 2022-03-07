@@ -133,6 +133,7 @@ const displayTomigaya = async url => {
   const tokyoDesigners = await glob(`${ARCHIVE}/*東京デザイナーズ生活*.html`)
   const sousakuKukan = await glob(`${ARCHIVE}/*創作空間*.html`)
   const htmlFiles = [...tomigayaMost, ...tokyoDesigners, ...sousakuKukan]
+  let foundArchive = false
 
   const images = (
     await Promise.all(
@@ -140,6 +141,7 @@ const displayTomigaya = async url => {
         const fileText = fs.readFileSync(f, 'utf8')
         const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
         if (urlSaved === url) {
+          foundArchive = true
           const folder = f.replace('.html', '_files').fileName()
           const imagez = await glob(`${ARCHIVE}/${folder}/*_??.jpg`)
           const imagesMapped = imagez.map(i => i.replace(ARCHIVE, serverDir))
@@ -150,7 +152,43 @@ const displayTomigaya = async url => {
     )
   ).flat()
 
-  return images
+  if (!foundArchive) {
+    throw new Error(Errors.imagesNotFoundError)
+  } else {
+    return images
+  }
+}
+
+const displayLifullHomes = async (url, squareM) => {
+  const htmlFiles = await glob(`${ARCHIVE}/【ホームズ】*${squareM}㎡*.html`)
+  let foundArchive = false
+
+  const images = (
+    await Promise.all(
+      htmlFiles.flatMap(async f => {
+        const fileText = fs.readFileSync(f, 'utf8')
+        const urlSaved = fileText.match(/saved from url=.*\)(.*?)\s-->/)[1]
+        if (urlSaved === url) {
+          foundArchive = true
+          const folder = f
+            .fileName()
+            .replace('.html', '_files')
+            .replace('[', '*')
+            .replace(']', '*')
+          const imagez = await glob(`${ARCHIVE}${folder}/image*.php`)
+          const imagesMapped = imagez.map(i => i.replace(ARCHIVE, serverDir))
+          return imagesMapped
+        }
+        return []
+      })
+    )
+  ).flat()
+
+  if (!foundArchive) {
+    throw new Error(Errors.imagesNotFoundError)
+  } else {
+    return images
+  }
 }
 
 exports.getImagesFromListing = async listing => {
@@ -179,6 +217,8 @@ exports.getImagesFromListing = async listing => {
       return displayTomigaya(listing.url)
     case 'kagurazaka-fudousan.com':
       return displayTomigaya(listing.url)
+    case 'www.homes.co.jp':
+      return displayLifullHomes(listing.url, listing.square_m)
     default:
       throw new Error(Errors.noImageFetcher)
   }
