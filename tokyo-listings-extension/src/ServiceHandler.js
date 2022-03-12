@@ -22,7 +22,7 @@ export default class ServiceHandler {
   loaderFactory(url) {
     if (url.includes('realestate.yahoo.co.jp/rent/search')) {
       this.loader = new LoaderYahoo()
-    } else if (url.includes('sumaity.com/chintai/area_list')) {
+    } else if (url.includes('sumaity.com/chintai/') && url.includes('list.php')) {
       this.loader = new LoaderSumaity()
     } else if (url.includes('sumaity.com/chintai') && url.includes('bldg')) {
       this.loader = new LoaderSumaityBukken()
