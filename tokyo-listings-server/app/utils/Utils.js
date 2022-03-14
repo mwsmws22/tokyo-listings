@@ -59,3 +59,21 @@ exports.axiosOptions = {
     'Content-Type': 'application/json'
   }
 }
+
+exports.formatAddress = p => {
+  let address = p.prefecture + p.municipality + p.town
+
+  if (p.district) {
+    address += `${p.district}丁目`
+  }
+  if (p.block) {
+    address += p.block
+    if (p.house_number) {
+      address += `-${p.house_number}`
+    }
+  } else if (p.house_number) {
+    address += p.house_number
+  }
+
+  return address
+}

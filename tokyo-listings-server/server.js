@@ -44,6 +44,7 @@ app.use('/tokyo_apt', serveIndex(ARCHIVE))
 require('./app/routes/ListingRoutes')(app)
 require('./app/routes/PropertyRoutes')(app)
 require('./app/routes/ScrapingRoutes')(app)
+require('./app/routes/OneOffRoutes')(app)
 
 app.use((err, req, res, next) => res.status(500).json({ message: err.stack }))
 
