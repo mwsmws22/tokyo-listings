@@ -28,3 +28,13 @@ String.prototype.toManen = function toManen() {
 String.prototype.fileName = function fileName() {
   return this.split('/').pop()
 }
+
+// standardizes a few specific japanese characters
+String.prototype.jp = function jp() {
+  return this.replace(/ヶ/g, 'ケ').replace(/ノ/g, '之')
+}
+
+// reverse of the jp() function
+String.prototype.reverseJp = function reverseJp() {
+  return this.replace(/ケ/g, 'ヶ').replace(/之/g, 'ノ')
+}
