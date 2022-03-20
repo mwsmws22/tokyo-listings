@@ -22,6 +22,7 @@ DB.sequelize.sync()
 
 require('dotenv').config()
 require('./app/utils/StringUtils')
+require('./app/utils/ArrayUtils')
 
 const { PORT, ARCHIVE } = process.env
 

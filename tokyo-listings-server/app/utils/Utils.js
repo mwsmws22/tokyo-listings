@@ -77,3 +77,11 @@ exports.formatAddress = p => {
 
   return address
 }
+
+exports.checkAxiosRes = res => {
+  if (res.status !== 200) {
+    throw new Error(`Bad status code: ${res.status}`)
+  } else {
+    return res.data
+  }
+}

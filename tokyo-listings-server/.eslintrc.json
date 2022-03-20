@@ -36,7 +36,7 @@
     "no-extend-native": [
       "error",
       {
-        "exceptions": ["String"]
+        "exceptions": ["String", "Array"]
       }
     ],
     "no-param-reassign": [
