@@ -54,7 +54,7 @@ exports.getSuumoParamsHierarchy = async () => {
   const suumoParams = { cities: {} }
 
   await Promise.all(
-    cities.slice(0, 5).map(async ({ sc, cityName }) => {
+    cities.map(async ({ sc, cityName }) => {
       delay += DELAY_INC
 
       const cityEntry = { sc }
@@ -114,23 +114,25 @@ exports.getSimilarListingsFromSearchResults = async data => {
   let delay = 0
 
   return Promise.all(
-    data.map(async ({ url, sqrM }) => {
-      const listings = []
+    data.flatMap(async ({ url, sqrM }) => {
+      // const listings = []
       delay += DELAY_INC
-
-      await new Promise(resolve => setTimeout(resolve, delay))
+      // const morePages = true
+      return new Promise(resolve => setTimeout(resolve, delay))
         .then(() => axios.get(url, Utils.axiosOptions))
         .then(Utils.checkAxiosRes)
         .then(html => {
           const $ = cheerio.load(html)
-          return $('[name=sc]')
-            .get()
-            .map(elem => {
-              const sc = $(elem).attr('value')
-              const cityName = $(elem).next().children().eq(0).text()
-              return { sc, cityName }
-            })
+          const pages = $('ol.pagination-parts')
+            .eq(0)
+            .children()
+            .each((index, element) => element.text())
+          return { url, pages, sqrM }
         })
+      //
+      // while (morePages) {
+      //
+      // }
     })
   )
 }
