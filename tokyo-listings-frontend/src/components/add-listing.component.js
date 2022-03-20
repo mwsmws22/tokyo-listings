@@ -5,7 +5,7 @@ import ListingDataService from "../services/listing.service";
 import PropertyDataService from "../services/property.service";
 import ScrapingService from "../services/scraping.service";
 import { ListingAccordion } from "./listing-accordion.component";
-import { removeNullProps, isUrlValid, formatAddress } from "../utils/util";
+import { removeNullProps, isUrlValid, formatAddress, checkForImages } from "../utils/util";
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import Geocode from "react-geocode";
 import equal from 'fast-deep-equal';
@@ -60,6 +60,7 @@ class AddListing extends React.Component {
     this.checkProperty = this.checkProperty.bind(this);
     this.selectExistingProperty = this.selectExistingProperty.bind(this);
     this.scrapeUrl = this.scrapeUrl.bind(this);
+    this.openPrevImages = this.openPrevImages.bind(this);
     this.setLatLng = props.setLatLng.bind(this);
     this.urlInput = React.createRef();
     this.overlay = React.createRef();
@@ -79,6 +80,11 @@ class AddListing extends React.Component {
       hideOverlay: false,
       checkDB: true
     }
+  }
+
+  openPrevImages() {
+    const listingId = this.state.previous_listings[0].listing.id
+    window.open('images/' + listingId, "_blank")
   }
 
   checkProperty() {
@@ -494,7 +500,10 @@ class AddListing extends React.Component {
           </View>
           <div className="text-center" style={{paddingTop: 5}}>
             <Button disabled={this.state.listing_exists} onMouseDown={this.handleClick} onClick={this.saveListing} bg="dark" variant="dark">Submit</Button>{' '}
-            <Button disabled={this.state.listing_exists} onMouseDown={this.handleClick} onClick={this.viewOnMap} bg="dark" variant="dark">Set Coordinates</Button>
+            <Button disabled={this.state.listing_exists} onMouseDown={this.handleClick} onClick={this.viewOnMap} bg="dark" variant="dark">Set Coordinates</Button>{' '}
+            { this.state.show_previous && checkForImages(this.state.previous_listings[0].listing.url) && (
+              <Button onMouseDown={this.handleClick} onClick={this.openPrevImages} bg="dark" variant="dark">Previous Images</Button>
+            )}
           </div>
         </Form>
         { this.state.show_previous &&
