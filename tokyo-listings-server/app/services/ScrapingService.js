@@ -974,6 +974,61 @@ const parseJKHome = async (url, html) => {
 
   return output
 }
+const parseJKHomeNew = async (url, html) => {
+  const $ = cheerio.load(html)
+  const output = cloneDeep(dataStruct)
+
+  output.listing.url = url
+  output.listing.availability = '募集中'
+  output.listing.monthly_rent = $('dd.price_text').children().eq(0).text()
+  output.listing.square_m = $('th:contains("面積") + td')
+    .eq(0)
+    .text()
+    .remove('㎡', '\n', ' ', '-')
+  output.listing.security_deposit = $('th:contains("敷金/礼金/保証金") + td')
+    .text()
+    .remove('\n', ' ', 'ヶ月')
+    .split('/')[0]
+  output.listing.reikin = $('th:contains("敷金/礼金/保証金") + td')
+    .text()
+    .remove('\n', ' ', 'ヶ月')
+    .split('/')[1]
+
+  const propertyType = $('th:contains("種別/構造") + td')
+    .text()
+    .split('/')[0]
+    .remove('\n', ' ')
+
+  if (propertyType === 'マンション') {
+    output.property.property_type = 'アパート'
+  } else if (propertyType === '戸建て' || propertyType === 'テラス') {
+    output.property.property_type = '一戸建て'
+  }
+
+  let address = $('th:contains("所在地") + td').text().remove('\n', ' ')
+  address = await Utils.parseAddress(address)
+  output.property = Utils.updateFields(output.property, address)
+
+  const stationMatches = $('th:contains("交通") + td')
+    .text()
+    .matchAll(/「(.*?)分/g)
+
+  Array.from(stationMatches).forEach(match => {
+    if (match[1].indexOf('バス') === -1) {
+      const tempStation = `${match[1].match(/(.*?)」/)[1]}駅`
+      const tempWalkTime = match[1].match(/」*(\d+)/)[1]
+
+      if (output.listing.closest_station === '') {
+        output.listing.closest_station = tempStation
+        output.listing.walking_time = tempWalkTime
+      } else if (parseFloat(output.listing.walking_time) > parseFloat(tempWalkTime)) {
+        output.listing.closest_station = tempStation
+        output.listing.walking_time = tempWalkTime
+      }
+    }
+  })
+  return output
+}
 const parseJoylifestyle = async (url, html) => {
   const $ = cheerio.load(html)
   const output = cloneDeep(dataStruct)
@@ -2175,6 +2230,8 @@ exports.scrape = async (url, hostname, html) => {
       return parseHousesTokyo(url, html)
     case 'www.jkhome.com':
       return parseJKHome(url, html)
+    case 'www.jkhome.jp':
+      return parseJKHomeNew(url, html)
     case 'joylifestyle.jp':
       return parseJoylifestyle(url, html)
     case 'www.kencorp.co.jp':
