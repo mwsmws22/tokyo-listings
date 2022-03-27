@@ -9,6 +9,7 @@ import CheckListings from "./components/check-listings.component";
 import PropertyInfo from "./components/property-info.component";
 import EditProperty from "./components/edit-property.component";
 import DoubleCheckListings from "./components/double-check-listings.component";
+import SuumoSearcher from "./components/suumo-searcher.component";
 import { FaTimes } from "react-icons/fa";
 import './App.css';
 
@@ -161,8 +162,9 @@ function App() {
                   setLatLng={setLatLng}
                 />
               } />
-              <Route path="check" element={<CheckListings setProperty={setProperty }/>} />
+              <Route path="check" element={<CheckListings setProperty={setProperty}/>} />
               <Route path="double" element={<DoubleCheckListings setProperty={setProperty}/>} />
+              <Route path="suumo" element={<SuumoSearcher setProperty={setProperty}/>} />
             </Routes>
           </View>
         </View>
