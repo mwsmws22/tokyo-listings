@@ -192,7 +192,7 @@ exports.findSuumoSimilarListings = ({ property, filteredListings }) => {
     .flatMap(l => {
       const addressFormatted = l.address.convertHalfWidth()
       const match = addressFormatted.match(/(\d)$/)
-      if (match[1]) {
+      if (match && match[1]) {
         const district = parseInt(match[1])
         if (district === property.district) {
           return [l]
