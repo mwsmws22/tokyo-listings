@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const axios = require('axios')
+const { JSDOM } = require('jsdom')
 const Utils = require('../utils/Utils')
 const Errors = require('../utils/Errors')
 
@@ -32,6 +33,31 @@ function SuumoUrl() {
     const upperBound = SUUMO_SQUARE_M_BOUNDS.filter(b => b > maxx)[0]
     this.url += `&mb=${lowerBound}&mt=${upperBound}`
   }
+}
+
+const getSuumoListings = html => {
+  const dom = new JSDOM(html)
+
+  const uls = Array.from(
+    dom.window.document.getElementById('js-bukkenList').children
+  ).filter(elem => (elem.tagName === 'UL' ? elem : elem.remove()))
+
+  const containerUl = uls[0]
+
+  uls.slice(1).forEach(ul => {
+    Array.from(ul.children).forEach(div => containerUl.appendChild(div))
+    ul.remove()
+  })
+
+  return Array.from(containerUl.children)
+    .map(li =>
+      Array.from(li.querySelectorAll('tbody')).map(tb => ({
+        address: li.querySelector('.cassetteitem_detail-col1').textContent,
+        key: tb.querySelector('.js-cassette_link_href').href.match(/jnc_(.*?)\//)[1],
+        square_m: tb.querySelector('.cassetteitem_menseki').textContent.remove('m2')
+      }))
+    )
+    .flat()
 }
 
 exports.getSuumoParamsHierarchy = async () => {
@@ -82,57 +108,111 @@ exports.getSuumoParamsHierarchy = async () => {
   return suumoParams
 }
 
-exports.getSuumoSearchUrlsForAllProperties = async properties =>
-  properties.map(property => {
-    const suumoUrl = new SuumoUrl()
+exports.getSuumoSearchUrlsForProperty = async property => {
+  const suumoUrl = new SuumoUrl()
+  const sqrM = new Set()
 
-    const sqrM = new Set()
-    property.listings.forEach(l => l.square_m && sqrM.add(l.square_m))
-    suumoUrl.squareM(Math.min(...sqrM), Math.max(...sqrM))
+  property.listings.forEach(l => l.square_m && sqrM.add(l.square_m))
+  suumoUrl.squareM(Math.min(...sqrM), Math.max(...sqrM))
 
-    suumoUrl.sc(SUUMO_REGION_CODES.cities[property.municipality].sc)
+  suumoUrl.sc(SUUMO_REGION_CODES.cities[property.municipality].sc)
 
-    let town = SUUMO_REGION_CODES.cities[property.municipality].towns[property.town.jp()]
+  let town = SUUMO_REGION_CODES.cities[property.municipality].towns[property.town.jp()]
 
-    if (town) {
-      suumoUrl.oz(town.oz)
-      return { url: suumoUrl.url, sqrM: Array.from(sqrM) }
+  if (town) {
+    suumoUrl.oz(town.oz)
+    return { url: suumoUrl.url, property }
+  }
+
+  town = SUUMO_REGION_CODES.cities[property.municipality].towns[property.town.reverseJp()]
+
+  if (town) {
+    suumoUrl.oz(town.oz)
+    return { url: suumoUrl.url, property }
+  }
+
+  throw new Error(Errors.unableToBuildSuumoUrl)
+}
+
+exports.getSuumoListingsFromSearchResults = async ({ url, property }) => {
+  const listings = []
+
+  const [html, maxPages] = await axios
+    .get(url, Utils.axiosOptions)
+    .then(Utils.checkAxiosRes)
+    .then(html1 => {
+      const $ = cheerio.load(html1)
+      const maxPages1 = Array.from($('ol.pagination-parts').eq(0).children())
+        .flatMap(elem => {
+          const text = $(elem).text()
+          if (text && text !== String.fromCharCode(160) && text !== '...') {
+            return [parseInt(text)]
+          }
+          return []
+        })
+        .last()
+      return [html1, maxPages1]
+    })
+
+  if (maxPages) {
+    listings.push(getSuumoListings(html))
+
+    if (maxPages >= 2) {
+      await Promise.all(
+        Utils.range(2, maxPages).map(p =>
+          axios
+            .get(`${url}&page=${p}`, Utils.axiosOptions)
+            .then(Utils.checkAxiosRes)
+            .then(html1 => listings.push(getSuumoListings(html1)))
+        )
+      )
     }
+  }
 
-    town =
-      SUUMO_REGION_CODES.cities[property.municipality].towns[property.town.reverseJp()]
+  return { property, listings: listings.flat() }
+}
 
-    if (town) {
-      suumoUrl.oz(town.oz)
-      return { url: suumoUrl.url, sqrM: Array.from(sqrM) }
-    }
+exports.removeSuumoArchivedListings = ({ property, listings }) => {
+  const filteredListings = listings.filter(
+    l =>
+      !property.listings
+        .filter(pl => pl.url.includes('suumo'))
+        .some(pl => pl.url.includes(l.key))
+  )
+  console.log(`listings removed: ${listings.length - filteredListings.length}`)
+  return { property, filteredListings }
+}
 
-    throw new Error(Errors.unableToBuildSuumoUrl)
+exports.findSuumoSimilarListings = ({ property, filteredListings }) => {
+  let similarListings = filteredListings
+    .filter(l =>
+      property.listings.some(pl => parseFloat(pl.square_m) === parseFloat(l.square_m))
+    )
+    .flatMap(l => {
+      const addressFormatted = l.address.convertHalfWidth()
+      const match = addressFormatted.match(/(\d)$/)
+      if (match[1]) {
+        const district = parseInt(match[1])
+        if (district === property.district) {
+          return [l]
+        }
+        return []
+      }
+      return [l]
+    })
+
+  similarListings = similarListings.map(l => {
+    const addressFormatted = l.address.convertHalfWidth()
+    const match = addressFormatted.match(/(\d)$/)
+    const value = match ? match[1] : null
+    return [{ ...l, addressFormatted, value }]
   })
 
-exports.getSimilarListingsFromSearchResults = async data => {
-  let delay = 0
-
-  return Promise.all(
-    data.flatMap(async ({ url, sqrM }) => {
-      // const listings = []
-      delay += DELAY_INC
-      // const morePages = true
-      return new Promise(resolve => setTimeout(resolve, delay))
-        .then(() => axios.get(url, Utils.axiosOptions))
-        .then(Utils.checkAxiosRes)
-        .then(html => {
-          const $ = cheerio.load(html)
-          const pages = $('ol.pagination-parts')
-            .eq(0)
-            .children()
-            .each((index, element) => element.text())
-          return { url, pages, sqrM }
-        })
-      //
-      // while (morePages) {
-      //
-      // }
-    })
-  )
+  if (similarListings.length > 0) {
+    return {
+      property,
+      similarListings
+    }
+  }
+  return null
 }

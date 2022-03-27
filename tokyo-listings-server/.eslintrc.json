@@ -59,6 +59,7 @@
         "object": true,
         "array": false
       }
-    ]
+    ],
+    "no-unused-vars": "warn"
   }
 }
