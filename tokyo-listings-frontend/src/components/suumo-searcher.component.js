@@ -81,7 +81,7 @@ class SuumoSearcher extends React.Component {
       if (this.state.interest !== e.target.value) {
         this.setState({
           interest: e.target.value,
-          listings: [],
+          similarListings: [],
           checkCount: 0,
           totalCheckCount: 0,
           selectedListing: null
