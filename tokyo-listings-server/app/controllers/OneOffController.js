@@ -23,7 +23,7 @@ exports.getSuumoSearchUrlsForAllProperties = async (req, res, next) => {
         [Op.eq]: '東京都'
       },
       interest: {
-        [Op.eq]: 'Extremely'
+        [Op.eq]: req.params.interest
       }
     },
     include: [
@@ -47,6 +47,35 @@ exports.getSuumoSearchUrlsForAllProperties = async (req, res, next) => {
       return results
     })
     .reduce((prev, curr) => prev.then(curr), Promise.resolve([]))
+    .then(results => {
+      res.header('Content-Type', 'application/json')
+      return res.send(JSON.stringify(results, null, 4))
+    })
+    .catch(next)
+}
+
+exports.getSuumoSearchUrlsForProperty = async (req, res, next) => {
+  const property = await Property.findOne({
+    where: {
+      id: {
+        [Op.eq]: req.params.propId
+      }
+    },
+    include: [
+      {
+        model: Listing
+      }
+    ],
+    order: [
+      ['id', 'ASC'],
+      [{ model: Listing, as: 'listings' }, 'availability', 'ASC']
+    ]
+  })
+
+  await OneOffService.getSuumoSearchUrlsForProperty(property)
+    .then(OneOffService.getSuumoListingsFromSearchResults)
+    .then(OneOffService.removeSuumoArchivedListings)
+    .then(OneOffService.findSuumoSimilarListings)
     .then(results => {
       res.header('Content-Type', 'application/json')
       return res.send(JSON.stringify(results, null, 4))

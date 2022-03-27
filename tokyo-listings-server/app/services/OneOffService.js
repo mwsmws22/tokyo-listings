@@ -9,7 +9,7 @@ const SUUMO_REGION_CODES = require('../resources/SuumoRegionCodes.json')
 const SUUMO_CITIES_URL = `https://suumo.jp/chintai/tokyo/city/`
 const SUUMO_TOWNS_URL = `https://suumo.jp/jj/chintai/kensaku/FR301FB002/?ar=030&bs=040&ta=13&sc=`
 
-const DELAY_INC = 1000
+const DELAY_INC = 500
 
 function SuumoUrl() {
   const SUUMO_SQUARE_M_BOUNDS = [
@@ -136,6 +136,7 @@ exports.getSuumoSearchUrlsForProperty = async property => {
 
 exports.getSuumoListingsFromSearchResults = async ({ url, property }) => {
   const listings = []
+  let delay = 0
 
   const [html, maxPages] = await axios
     .get(url, Utils.axiosOptions)
@@ -159,12 +160,13 @@ exports.getSuumoListingsFromSearchResults = async ({ url, property }) => {
 
     if (maxPages >= 2) {
       await Promise.all(
-        Utils.range(2, maxPages).map(p =>
-          axios
-            .get(`${url}&page=${p}`, Utils.axiosOptions)
+        Utils.range(2, maxPages).map(p => {
+          delay += DELAY_INC
+          return new Promise(resolve => setTimeout(resolve, delay))
+            .then(() => axios.get(`${url}&page=${p}`, Utils.axiosOptions))
             .then(Utils.checkAxiosRes)
             .then(html1 => listings.push(getSuumoListings(html1)))
-        )
+        })
       )
     }
   }
@@ -179,7 +181,6 @@ exports.removeSuumoArchivedListings = ({ property, listings }) => {
         .filter(pl => pl.url.includes('suumo'))
         .some(pl => pl.url.includes(l.key))
   )
-  console.log(`listings removed: ${listings.length - filteredListings.length}`)
   return { property, filteredListings }
 }
 
@@ -202,10 +203,9 @@ exports.findSuumoSimilarListings = ({ property, filteredListings }) => {
     })
 
   similarListings = similarListings.map(l => {
-    const addressFormatted = l.address.convertHalfWidth()
-    const match = addressFormatted.match(/(\d)$/)
-    const value = match ? match[1] : null
-    return [{ ...l, addressFormatted, value }]
+    const { key, listingElem, ...rest } = l
+    const url = `https://suumo.jp/chintai/jnc_${key}/`
+    return { ...rest, url }
   })
 
   if (similarListings.length > 0) {
