@@ -1,3 +1,6 @@
 Array.prototype.last = function last() {
-  return this[this.length - 1]
+  if (this.length > 0) {
+    return this[this.length - 1]
+  }
+  return null
 }

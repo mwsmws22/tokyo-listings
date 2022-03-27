@@ -21,6 +21,7 @@
     "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
     "jp-address-parser": "^1.1.9",
+    "jsdom": "^19.0.0",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.5.1",
