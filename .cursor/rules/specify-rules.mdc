@@ -1,0 +1,37 @@
+---
+description: Project Development Guidelines
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# tokyo-listings Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2026-03-28
+
+## Active Technologies
+
+- TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager + Next.js (App Router), Tamagui, tRPC, TanStack Query, Jotai, Hono, (001-tokyo-listings-baseline)
+
+## Project Structure
+
+```text
+apps/web/
+apps/api/
+packages/db/
+tests/
+```
+
+## Commands
+
+bun run test && bun run lint
+
+## Code Style
+
+TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager: Follow standard conventions
+
+## Recent Changes
+
+- 001-tokyo-listings-baseline: Added TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager + Next.js (App Router), Tamagui, tRPC, TanStack Query, Jotai, Hono,
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
