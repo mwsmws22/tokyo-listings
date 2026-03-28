@@ -1,0 +1,22 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/trpc-server": "^0.3.4",
+    "@trpc/server": "^11.1.0",
+    "@tokyo-listings/db": "workspace:*",
+    "better-auth": "^1.2.0",
+    "drizzle-orm": "^0.40.1",
+    "hono": "^4.7.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.3"
+  }
+}

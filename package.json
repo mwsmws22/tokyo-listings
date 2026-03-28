@@ -1,0 +1,17 @@
+{
+  "name": "tokyo-listings",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "echo \"Wire dev servers in Phase 2+\"",
+    "build": "echo \"Wire workspace builds in Phase 2+\"",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "test": "echo \"No tests configured yet\"",
+    "typecheck": "tsc -b && bun run --cwd apps/web typecheck"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "typescript": "^5.7.3"
+  }
+}

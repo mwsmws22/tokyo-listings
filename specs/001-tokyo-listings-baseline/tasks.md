@@ -31,16 +31,16 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Purpose**: Monorepo skeleton, tooling, Docker **Postgres**, and workspace layout per `plan.md`.
 
-- [ ] T001 Create root `package.json` with Bun workspaces `["apps/*","packages/*"]` and shared scripts placeholders
-- [ ] T002 [P] Add `biome.json` at repository root with TypeScript/React formatting rules
-- [ ] T003 [P] Add `.env.example` at repository root listing `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, SMTP vars, `GOOGLE_MAPS_*` keys
-- [ ] T004 [P] Extend root `.gitignore` for `node_modules`, `.env*`, Next.js, Docker, and Drizzle artifacts
-- [ ] T005 Create `docker/docker-compose.yml` with `postgres:16` service, named volume, and published port `5432`
-- [ ] T006 [P] Add `docker/Dockerfile.api` stub for `apps/api` multi-stage build
-- [ ] T007 [P] Add `docker/Dockerfile.web` stub for `apps/web` Next.js standalone output
-- [ ] T008 Create `packages/db/package.json` and `packages/db/tsconfig.json`
-- [ ] T009 Create `apps/api/package.json` and `apps/api/tsconfig.json` with Hono, tRPC, Drizzle, Better Auth dependencies
-- [ ] T010 Create `apps/web/package.json` and `apps/web/tsconfig.json` with Next.js 15, Tamagui, TanStack Query, tRPC client, Jotai
+- [X] T001 Create root `package.json` with Bun workspaces `["apps/*","packages/*"]` and shared scripts placeholders
+- [X] T002 [P] Add `biome.json` at repository root with TypeScript/React formatting rules
+- [X] T003 [P] Add `.env.example` at repository root listing `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, SMTP vars, `GOOGLE_MAPS_*` keys
+- [X] T004 [P] Extend root `.gitignore` for `node_modules`, `.env*`, Next.js, Docker, and Drizzle artifacts
+- [X] T005 Create `docker/docker-compose.yml` with `postgres:16` service, named volume, and published port `5432`
+- [X] T006 [P] Add `docker/Dockerfile.api` stub for `apps/api` multi-stage build
+- [X] T007 [P] Add `docker/Dockerfile.web` stub for `apps/web` Next.js standalone output
+- [X] T008 Create `packages/db/package.json` and `packages/db/tsconfig.json`
+- [X] T009 Create `apps/api/package.json` and `apps/api/tsconfig.json` with Hono, tRPC, Drizzle, Better Auth dependencies
+- [X] T010 Create `apps/web/package.json` and `apps/web/tsconfig.json` with Next.js 15, Tamagui, TanStack Query, tRPC client, Jotai
 
 ---
 

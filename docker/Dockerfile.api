@@ -1,0 +1,25 @@
+# Multi-stage API image — build context: repository root (see Phase 8 compose wiring)
+# syntax=docker/dockerfile:1
+
+FROM oven/bun:1 AS base
+WORKDIR /app
+
+FROM base AS deps
+COPY package.json ./
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY packages/db/package.json ./packages/db/
+RUN bun install
+
+FROM deps AS build
+COPY . .
+# RUN bun run build --filter api  # enable when apps/api has a build step
+
+FROM oven/bun:1 AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/apps/api ./apps/api
+COPY --from=build /app/packages/db ./packages/db
+COPY package.json ./
+# CMD ["bun", "run", "apps/api/src/index.ts"]  # align with Phase 2 entry
