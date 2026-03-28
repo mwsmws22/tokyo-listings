@@ -49,4 +49,9 @@ Do **not** run `bun install` (or other package-manager installs) from automated 
 
 Then continue with lint, typecheck, or other tasks.
 
+## Local dev ports
+
+- **Web** (Next.js): `3000` by default.
+- **API** (Hono): **`4001`** by default (`PORT` in `apps/api`, `API_DEV_ORIGIN` / Next rewrites default to `http://localhost:4001`). Do not use `8787` for this project.
+
 <!-- MANUAL ADDITIONS END -->

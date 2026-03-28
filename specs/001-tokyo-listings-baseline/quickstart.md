@@ -17,6 +17,7 @@ variables:
 | Variable | Purpose |
 |----------|---------|
 | `DATABASE_URL` | Postgres connection string |
+| `API_DEV_ORIGIN` | Local API origin for Next rewrites (default `http://localhost:4001`) |
 | `BETTER_AUTH_SECRET` | Long random secret for session cookies |
 | `BETTER_AUTH_URL` | Public URL of the app (e.g. `http://localhost:3000`) |
 | SMTP vars | Verification and password reset email |
@@ -32,9 +33,11 @@ docker compose up --build
 
 ## 4. Migrations
 
+From the repository root (with `DATABASE_URL` set, e.g. from `.env.example`):
+
 ```bash
-# After implementation — example:
-bun run db:migrate
+bun run db:generate   # when schema changes — creates/updates packages/db/migrations/
+bun run db:migrate    # apply migrations to Postgres
 ```
 
 ## 5. Run tests / lint
@@ -47,7 +50,7 @@ bun run test
 ## 6. Open app
 
 - Web: `http://localhost:3000` (or port chosen in compose)
-- API health: path defined in implementation (e.g. `/api/health`)
+- API (local dev): `http://localhost:4001` by default (`PORT` / `API_DEV_ORIGIN`); health at `GET /health`
 
 ## Agents / automation
 

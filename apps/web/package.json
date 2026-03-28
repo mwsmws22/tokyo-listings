@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "bun ./node_modules/next/dist/bin/next dev",
+    "build": "bun ./node_modules/next/dist/bin/next build",
+    "start": "bun ./node_modules/next/dist/bin/next start",
     "typecheck": "bun ../../node_modules/typescript/lib/tsc.js --noEmit"
   },
   "dependencies": {
@@ -18,7 +18,7 @@
     "next": "^15.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-native-web": "^0.19.13",
+    "react-native-web": "^0.20.0",
     "tamagui": "^1.125.8"
   },
   "devDependencies": {

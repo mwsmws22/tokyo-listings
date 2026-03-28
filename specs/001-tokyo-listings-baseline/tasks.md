@@ -48,28 +48,22 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Purpose**: **Drizzle schema**, **Hono API** with **Better Auth** + **tRPC**, **Next.js** shell with **Tamagui** + **tRPC provider**—required before any user story UI.
 
-### Phase 2 — install unblock (resolved)
+### Phase 2 — verification (complete)
 
 **Date**: 2026-03-29
 
-**Status**: Operator confirmed **`bun install` completed successfully** at the repo root (workspace symlinks / prior `EACCES` / `root`-owned nested `node_modules` issues addressed).
+**Status**: Phase 2 checks run in dev: **lint**, **typecheck**, **Drizzle generate + migrate** against Docker Postgres, **API smoke** (`/health`, `/api/auth/get-session`, `GET /trpc/health`), **`next build`** for `apps/web`. Root scripts use **`bun ./node_modules/...`** for Biome, TypeScript, Drizzle Kit, and Next so a legacy system `node` (e.g. v12) does not break CLI tools.
 
-**Remaining verification** (operator on dev machine with **Bun + Node 22** on `PATH`; agent policy: do **not** run `bun install` in agent sessions — ask the operator — see `.cursor/rules/specify-rules.mdc`):
-
-1. `bun run lint` and `bun run typecheck` (fix any errors).
-2. **T014**: from repo root, `bun run --cwd packages/db db:generate` so `packages/db/migrations/` exists; then `bun run --cwd packages/db db:migrate` against Docker Postgres (with `DATABASE_URL` set).
-3. Smoke-test: API `GET /health`, Better Auth under `/api/auth/*` (via Next rewrite), tRPC `/trpc`; web loads with Tamagui + tRPC providers.
-
-If nested `node_modules` break again: fix ownership or remove those trees, then operator runs `bun install` again (never use `sudo` for routine installs).
+**Operator**: If dependencies change, run `bun install` at the repo root (agents do not run it — see `.cursor/rules/specify-rules.mdc`).
 
 ---
 
-**Progress** (implementation in tree; **static checks + DB migrate + smoke tests** still to confirm on operator host):
+**Progress** (implementation verified):
 
 - [X] T011 Add Drizzle `listing` and `property` tables in `packages/db/src/schema/listings.ts` per `data-model.md` (include `userId`, `sourceUrl`, rent JPY, lat/lng, geocode status)
 - [X] T012 Add Better Auth tables in `packages/db/src/schema/auth.ts` (or follow Better Auth + Drizzle generator output) and export from `packages/db/src/schema/index.ts`
 - [X] T013 Create `packages/db/src/index.ts` exporting schema types and table objects for `apps/api`
-- [ ] T014 Add `packages/db/drizzle.config.ts` and generate initial migration under `packages/db/migrations/` — **`drizzle.config.ts` exists; `migrations/` not generated yet** — operator: `bun run --cwd packages/db db:generate` then migrate
+- [X] T014 Add `packages/db/drizzle.config.ts` and generate initial migration under `packages/db/migrations/` — initial SQL under `packages/db/migrations/`; use `DATABASE_URL=... bun run db:migrate` from repo root (or `--cwd packages/db`)
 - [X] T015 Implement PostgreSQL connection helper in `apps/api/src/lib/db.ts` using Drizzle `drizzle-orm/node-postgres` (or `postgres.js`) with `DATABASE_URL`
 - [X] T016 Implement structured logger in `apps/api/src/lib/logger.ts` (pino or compatible; no secret logging)
 - [X] T017 Configure Better Auth in `apps/api/src/lib/auth.ts` with Drizzle adapter, email/password, verification, and reset hooks using SMTP env vars
@@ -83,17 +77,17 @@ If nested `node_modules` break again: fix ownership or remove those trees, then 
 - [X] T025 Add `apps/web/next.config.ts` with `rewrites()` to forward `/api` and `/trpc` to `apps/api` during local dev (port from env)
 - [X] T026 Add Tamagui compiler config `apps/web/tamagui.config.ts` and wrap `apps/web/src/app/layout.tsx` with Tamagui + tRPC providers
 
-**Phase 2 — still to test** (operator; `bun install` already confirmed):
+**Phase 2 — verification checklist** (done in dev):
 
-- [X] Install / lockfile: `bun install` at repo root (confirmed by operator).
-- [ ] Static checks: root `bun run lint`, `bun run typecheck` (and fix React 19 peer warnings if they break the build).
-- [ ] DB: generate migration (**T014**), run against Docker Postgres, confirm tables (`user`, `session`, `account`, `verification`, `listing`, `property`, enums).
-- [ ] API: `PORT=8787`, `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` — `GET /health` = `{ ok: true }`; spot-check CORS origin vs `BETTER_AUTH_URL`.
-- [ ] Auth: hit `/api/auth/*` through Next rewrite (or direct API); SMTP optional — without `SMTP_HOST`, emails are skipped but routes should still load.
-- [ ] Web: `API_DEV_ORIGIN` rewrite; home page renders Tamagui shell; tRPC client instantiates (empty `AppRouter` ok).
-- Optional: sign-up/sign-in end-to-end waits for **US1**; Phase 2 checkpoint is “stack runs,” not full auth UX.
+- [X] Install / lockfile: `bun install` at repo root.
+- [X] Static checks: `bun run lint`, `bun run typecheck`.
+- [X] DB: migration generated and applied; tables `user`, `session`, `account`, `verification`, `listing`, `property`; enum `geocode_status`.
+- [X] API: `GET /health` → `{ "ok": true }`; `GET /api/auth/get-session` → `null` without cookies (200); `GET /trpc/health` → tRPC JSON with `{ ok: true }` (default **`PORT=4001`** / **`API_DEV_ORIGIN=http://localhost:4001`**).
+- [X] CORS: `OPTIONS` / responses include `Access-Control-Allow-Credentials` and `Vary: Origin` for `BETTER_AUTH_URL` origin.
+- [X] Web: `bun run build` in `apps/web` succeeds (Tamagui + Next); optional warning: `react-native-web` 0.19.x vs React 19 — upgrade to `react-native-web@^0.20` when convenient to silence legacy `react-dom` import warnings.
+- Optional: sign-up/sign-in E2E is **US1**; Phase 2 checkpoint is “stack runs.”
 
-**Checkpoint**: API boots with `/health`, auth routes respond, web renders a blank authenticated shell page (optional stub route) — unblock US1. **Lint / typecheck / migrate / smoke not yet validated** — complete the checklist above on the dev host.
+**Checkpoint**: API boots with `/health`, auth routes respond, tRPC exposes `health` query, web production build passes — **unblock US1**.
 
 ---
 

@@ -32,7 +32,7 @@ registerAuthRoutes(app);
 
 registerTrpc(app);
 
-const port = Number(process.env.PORT ?? "8787");
+const port = Number(process.env.PORT ?? "4001");
 
 log.info({ port, webOrigin }, "api listening");
 

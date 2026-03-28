@@ -1,7 +1,7 @@
 import { withTamagui } from "@tamagui/next-plugin";
 import type { NextConfig } from "next";
 
-const apiOrigin = process.env.API_DEV_ORIGIN ?? "http://localhost:8787";
+const apiOrigin = process.env.API_DEV_ORIGIN ?? "http://localhost:4001";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
