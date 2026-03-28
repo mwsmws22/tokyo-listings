@@ -32,8 +32,7 @@ Drizzle ORM, Better Auth, Biome, Vitest; Google Maps JS + Geocoding APIs
 **Testing**: Vitest (unit + domain), Playwright optional smoke later; integration tests against
 Postgres in CI profile
 
-**Target Platform**: Linux containers (Docker) on operator server; local dev macOS/Windows with
-Docker Desktop
+**Target Platform**: Linux containers (Docker) on operator server. Local dev is SSH based in Cursor, so you can develop, test, and run freely on my server.
 
 **Project Type**: Multi-package web application (web UI + HTTP API)
 
