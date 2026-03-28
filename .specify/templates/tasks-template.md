@@ -65,8 +65,10 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 Setup database schema and migrations framework
 - [ ] T005 [P] Implement authentication/authorization framework
 - [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
+- [ ] T007 Create base models/entities that all stories depend on, including shared validation
+      for listing or domain fields (integrity; not only UI)
+- [ ] T008 Configure error handling and structured logging (no secrets in log fields;
+      constitution observability rules)
 - [ ] T009 Setup environment configuration management
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

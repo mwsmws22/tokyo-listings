@@ -5,6 +5,15 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
+## Constitution Alignment *(mandatory)*
+
+This specification MUST remain consistent with `.specify/memory/constitution.md`: listing
+data integrity and provenance where relevant; documented contracts for APIs and shared
+schemas; test-first discipline for domain logic unless an exception is recorded in the
+plan; integration or contract tests at system edges; structured observability without secret
+leakage; and Tokyo listings domain conventions (geography, units, bilingual labels) when the
+feature is user-facing or data-defining.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--

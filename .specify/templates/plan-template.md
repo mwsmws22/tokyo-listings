@@ -31,7 +31,20 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify alignment with `.specify/memory/constitution.md` (Tokyo Listings):
+
+- [ ] **Data integrity**: Rules affecting price, availability, or location are not UI-only;
+  source and last-updated semantics are covered if data is ingested or synchronized.
+- [ ] **Contracts**: New or changed HTTP, CLI, or schema surfaces have documented contracts
+  in-repo or under `specs/[###-feature-name]/`.
+- [ ] **Test-first**: Domain logic (pricing, search, geography, ingestion) has a test-first
+  plan or a justified exception in Complexity Tracking below.
+- [ ] **Integration**: External integrations, migrations affecting listing queries, and
+  cross-module journeys have planned integration or contract tests.
+- [ ] **Observability**: Errors and significant state transitions use structured logging;
+  secrets never logged.
+- [ ] **Domain/product**: Tokyo geography and JP/EN labeling conventions are stated; units
+  (e.g., JPY, ㎡) are consistent for the feature surface.
 
 ## Project Structure
 
