@@ -41,4 +41,12 @@ This repo is developed **over SSH**: Cursor (IDE and agent) runs in **Remote-SSH
 
 When running commands, testing, or reasoning about paths and tooling, **assume Linux** (shell, package managers, file paths, process model). Prefer standard POSIX/Linux conventions unless the project explicitly documents otherwise.
 
+## Dependency installs (agents)
+
+Do **not** run `bun install` (or other package-manager installs) from automated agent sessions. If dependencies are missing, the lockfile changed, or installs need to run after permission fixes, **ask the repository owner** to run this at the repo root:
+
+`bun install`
+
+Then continue with lint, typecheck, or other tasks.
+
 <!-- MANUAL ADDITIONS END -->

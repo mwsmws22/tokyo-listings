@@ -1,5 +1,5 @@
-import { initTRPC, TRPCError } from "@trpc/server";
-import type { TRPCContext } from "./context.ts";
+import { TRPCError, initTRPC } from "@trpc/server";
+import type { TRPCContext } from "./context";
 
 const t = initTRPC.context<TRPCContext>().create();
 
@@ -16,4 +16,4 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
       userId: ctx.userId,
     },
   });
-});
+}) as typeof publicProcedure;

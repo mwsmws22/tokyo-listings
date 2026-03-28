@@ -1,5 +1,5 @@
-import type { NextConfig } from "next";
 import { withTamagui } from "@tamagui/next-plugin";
+import type { NextConfig } from "next";
 
 const apiOrigin = process.env.API_DEV_ORIGIN ?? "http://localhost:8787";
 
@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withTamagui(nextConfig, {
+export default withTamagui({
   config: "./tamagui.config.ts",
   components: ["tamagui"],
-});
+})(nextConfig);

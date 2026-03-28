@@ -1,6 +1,6 @@
+import { schema } from "@tokyo-listings/db";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { schema } from "@tokyo-listings/db";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {

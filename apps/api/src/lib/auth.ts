@@ -1,14 +1,9 @@
+import { account, session, user, verification } from "@tokyo-listings/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import {
-  account,
-  session,
-  user,
-  verification,
-} from "@tokyo-listings/db";
-import { db } from "./db.ts";
-import { createMailer } from "./email.ts";
-import { createLogger } from "./logger.ts";
+import { db } from "./db";
+import { createMailer } from "./email";
+import { createLogger } from "./logger";
 
 const logger = createLogger();
 const mailer = createMailer(logger);
@@ -24,8 +19,7 @@ function requireAuthSecret(): string {
   return "dev-only-better-auth-secret-min-32-chars-long!";
 }
 
-const baseURL =
-  process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+const baseURL = process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
 
 export const auth = betterAuth({
   baseURL,

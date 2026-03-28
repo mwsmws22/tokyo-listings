@@ -1,5 +1,5 @@
 import type { Hono } from "hono";
-import { auth } from "../lib/auth.ts";
+import { auth } from "../lib/auth";
 
 export function registerAuthRoutes(app: Hono) {
   app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));

@@ -3,18 +3,14 @@ import {
   index,
   integer,
   pgEnum,
+  pgTable,
   text,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth.ts";
+import { user } from "./auth";
 
-export const geocodeStatusEnum = pgEnum("geocode_status", [
-  "pending",
-  "ok",
-  "failed",
-  "manual",
-]);
+export const geocodeStatusEnum = pgEnum("geocode_status", ["pending", "ok", "failed", "manual"]);
 
 export const property = pgTable(
   "property",
@@ -24,12 +20,8 @@ export const property = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     label: text("label"),
-    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
   },
   (t) => [index("property_user_id_idx").on(t.userId)],
 );
@@ -57,12 +49,8 @@ export const listing = pgTable(
       withTimezone: true,
       mode: "date",
     }),
-    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
   },
   (t) => [
     index("listing_user_id_idx").on(t.userId),

@@ -1,14 +1,13 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { createLogger } from "./lib/logger.ts";
-import { registerAuthRoutes } from "./routes/auth.ts";
-import { registerTrpc } from "./routes/trpc.ts";
+import { createLogger } from "./lib/logger";
+import { registerAuthRoutes } from "./routes/auth";
+import { registerTrpc } from "./routes/trpc";
 
 const log = createLogger();
 
-const webOrigin =
-  process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+const webOrigin = process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
 
 const app = new Hono();
 

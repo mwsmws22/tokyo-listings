@@ -1,6 +1,9 @@
-import * as schema from "./schema/index.ts";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import * as schema from "./schema/index";
 
-export * from "./schema/index.ts";
+export type AppDatabase = PostgresJsDatabase<typeof schema>;
+
+export * from "./schema/index";
 
 export { schema };
 

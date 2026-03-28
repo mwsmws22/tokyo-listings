@@ -1,12 +1,11 @@
-import { auth } from "../lib/auth.ts";
-import { db } from "../lib/db.ts";
+import type { AppDatabase } from "@tokyo-listings/db";
+import { auth } from "../lib/auth";
+import { db } from "../lib/db";
 
-type SessionPayload = NonNullable<
-  Awaited<ReturnType<typeof auth.api.getSession>>
->;
+type SessionPayload = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 
 export type TRPCContext = {
-  db: typeof db;
+  db: AppDatabase;
   session: SessionPayload["session"] | null;
   user: SessionPayload["user"] | null;
   userId: string | null;

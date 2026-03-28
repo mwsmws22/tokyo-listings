@@ -49,6 +49,12 @@ bun run test
 - Web: `http://localhost:3000` (or port chosen in compose)
 - API health: path defined in implementation (e.g. `/api/health`)
 
+## Agents / automation
+
+Do **not** run `bun install` from unattended automation. When dependencies or the lockfile change, the operator should run at the repository root:
+
+`bun install`
+
 ## Notes
 
 - **Do not** commit real API keys.
