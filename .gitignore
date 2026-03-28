@@ -44,3 +44,4 @@ compose.override.yaml
 
 # Misc
 .vercel
+.idea

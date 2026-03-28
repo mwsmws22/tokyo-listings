@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "echo \"Wire dev servers in Phase 2+\"",
+    "dev": "echo \"Run API: bun run --cwd apps/api dev | Web: bun run --cwd apps/web dev\"",
     "build": "echo \"Wire workspace builds in Phase 2+\"",
     "lint": "biome check .",
     "format": "biome format --write .",

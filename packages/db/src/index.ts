@@ -1,2 +1,7 @@
-/** Drizzle schema and DB helpers — populated in Phase 2+ */
-export {};
+import * as schema from "./schema/index.ts";
+
+export * from "./schema/index.ts";
+
+export { schema };
+
+export type { InferInsertModel, InferSelectModel } from "drizzle-orm";
