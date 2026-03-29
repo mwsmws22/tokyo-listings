@@ -1,25 +1,28 @@
-# Multi-stage API image — build context: repository root (see Phase 8 compose wiring)
+# Multi-stage API image — build context: repository root (`docker compose` uses `context: ..`).
 # syntax=docker/dockerfile:1
 
-FROM oven/bun:1 AS base
+FROM oven/bun:1.2 AS deps
 WORKDIR /app
 
-FROM base AS deps
-COPY package.json ./
+COPY package.json bun.lock ./
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 COPY packages/db/package.json ./packages/db/
-RUN bun install
+RUN bun install --frozen-lockfile
 
-FROM deps AS build
+FROM deps AS src
 COPY . .
-# RUN bun run build --filter api  # enable when apps/api has a build step
 
-FROM oven/bun:1 AS runner
+FROM oven/bun:1.2 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/apps/api ./apps/api
-COPY --from=build /app/packages/db ./packages/db
-COPY package.json ./
-# CMD ["bun", "run", "apps/api/src/index.ts"]  # align with Phase 2 entry
+
+COPY --from=src /app/node_modules ./node_modules
+COPY --from=src /app/package.json /app/bun.lock ./
+COPY --from=src /app/apps/api ./apps/api
+COPY --from=src /app/packages/db ./packages/db
+COPY --from=src /app/docker/api-entrypoint.sh /usr/local/bin/api-entrypoint.sh
+RUN chmod +x /usr/local/bin/api-entrypoint.sh
+
+EXPOSE 4001
+ENTRYPOINT ["/usr/local/bin/api-entrypoint.sh"]

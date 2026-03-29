@@ -26,10 +26,16 @@ Use **one** file at the repo root: copy `.env.template` → `.env` and set value
 
 ## 3. Start infrastructure
 
+**Postgres only** (from repo root; Compose file lives under `docker/`):
+
 ```bash
-docker compose up -d postgres
-# After implementation:
-docker compose up --build
+docker compose -f docker/docker-compose.yml up -d postgres
+```
+
+**Full stack** (Postgres + API + Web) — see [`docker/README.md`](../../docker/README.md) for ports, `BETTER_AUTH_URL`, rebuild rules for `NEXT_PUBLIC_*`, and smoke checks:
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
 ```
 
 ## 4. Migrations
@@ -60,7 +66,7 @@ The web app uses **Uniwind** with **Tailwind v4** and the **[Rosé Pine for Tail
 ### Local dev: API + web (auth)
 
 1. Copy `.env.template` to `.env` at the repo root and set secrets (including `NEXT_PUBLIC_*` so the Better Auth client matches `BETTER_AUTH_URL`; Next inherits them from the process env when using `bun run dev:web`).
-2. Start Postgres (`docker compose up -d postgres`) and run migrations (`bun run db:migrate`).
+2. Start Postgres (`docker compose -f docker/docker-compose.yml up -d postgres`) and run migrations (`bun run db:migrate`).
 3. From the **repository root**, terminal A — API: `bun run dev:api` (`--env-file=.env` is relative to cwd).
 4. From the **repository root**, terminal B — Web: `bun run dev:web` (ensure `API_DEV_ORIGIN` matches `http://localhost:<API_LISTEN_PORT>` for rewrites)
 
