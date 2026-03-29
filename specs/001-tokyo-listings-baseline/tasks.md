@@ -35,7 +35,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 - [X] T001 Create root `package.json` with Bun workspaces `["apps/*","packages/*"]` and shared scripts placeholders
 - [X] T002 [P] Add `biome.json` at repository root with TypeScript/React formatting rules
-- [X] T003 [P] Add `.env.example` at repository root listing `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, SMTP vars, `GOOGLE_MAPS_*` keys
+- [X] T003 [P] Add `.env.template` at repository root listing `DATABASE_URL`, `API_LISTEN_PORT`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, SMTP vars, `GOOGLE_MAPS_*` keys (operators copy to `.env`)
 - [X] T004 [P] Extend root `.gitignore` for `node_modules`, `.env*`, Next.js, Docker, and Drizzle artifacts
 - [X] T005 Create `docker/docker-compose.yml` with `postgres:16` service, named volume, and published port `5432`
 - [X] T006 [P] Add `docker/Dockerfile.api` stub for `apps/api` multi-stage build
@@ -56,7 +56,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Status**: Phase 2 checks run in dev: **lint**, **typecheck**, **Drizzle generate + migrate** against Docker Postgres, **API smoke** (`/health`, `/api/auth/get-session`, `GET /trpc/health`), **`next build`** for `apps/web`. Root scripts use **`bun ./node_modules/...`** for Biome, TypeScript, Drizzle Kit, and Next so a legacy system `node` (e.g. v12) does not break CLI tools.
 
-**Operator**: If dependencies change, run `bun install` at the repo root (agents do not run it — see `.cursor/rules/specify-rules.mdc`).
+**Dependencies**: If `package.json` or `bun.lock` changes, run `bun install` at the repo root (agents should run it — see `.cursor/rules/specify-rules.mdc`).
 
 ---
 
@@ -84,7 +84,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 - [X] Install / lockfile: `bun install` at repo root.
 - [X] Static checks: `bun run lint`, `bun run typecheck`.
 - [X] DB: migration generated and applied; tables `user`, `session`, `account`, `verification`, `listing`, `property`; enum `geocode_status`.
-- [X] API: `GET /health` → `{ "ok": true }`; `GET /api/auth/get-session` → `null` without cookies (200); `GET /trpc/health` → tRPC JSON with `{ ok: true }` (default **`PORT=4001`** / **`API_DEV_ORIGIN=http://localhost:4001`**).
+- [X] API: `GET /health` → `{ "ok": true }`; `GET /api/auth/get-session` → `null` without cookies (200); `GET /trpc/health` → tRPC JSON with `{ ok: true }` (default **`API_LISTEN_PORT=4001`** / **`API_DEV_ORIGIN=http://localhost:4001`**).
 - [X] CORS: `OPTIONS` / responses include `Access-Control-Allow-Credentials` and `Vary: Origin` for `BETTER_AUTH_URL` origin.
 - [X] Web: `bun run build` in `apps/web` succeeds (Tamagui + Next); optional warning: `react-native-web` 0.19.x vs React 19 — upgrade to `react-native-web@^0.20` when convenient to silence legacy `react-dom` import warnings.
 - Optional: sign-up/sign-in E2E is **US1**; Phase 2 checkpoint is “stack runs.”

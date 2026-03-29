@@ -6,11 +6,11 @@ alwaysApply: true
 
 # tokyo-listings Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-28
+Auto-generated from all feature plans. Last updated: 2026-03-29
 
 ## Active Technologies
 
-- TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager + Next.js (App Router), Tamagui, tRPC, TanStack Query, Jotai, Hono, (001-tokyo-listings-baseline)
+- TypeScript (strict), Node.js 22 LTS for Next.js; **Bun 1.2.x** (e.g. 1.2.23) for package manager + Next.js (App Router), Tamagui, tRPC, TanStack Query, Jotai, Hono, (001-tokyo-listings-baseline). Avoid **Bun 1.3.11** for day-to-day installs on this repo — see **Bun / `bun install`** below.
 
 ## Project Structure
 
@@ -41,17 +41,24 @@ This repo is developed **over SSH**: Cursor (IDE and agent) runs in **Remote-SSH
 
 When running commands, testing, or reasoning about paths and tooling, **assume Linux** (shell, package managers, file paths, process model). Prefer standard POSIX/Linux conventions unless the project explicitly documents otherwise.
 
+## Bun / `bun install`
+
+Tracking: [Bun issue #23969 — install performance regression (1.3.x vs 1.2.x)](https://github.com/oven-sh/bun/issues/23969#issuecomment-4149520781). This project intentionally uses **Bun 1.2.23** (or another **1.2.x**) so `bun install` stays fast and does not hang; upgrade Bun only after verifying the issue is resolved.
+
 ## Dependency installs (agents)
 
-Do **not** run `bun install` (or other package-manager installs) from automated agent sessions. If dependencies are missing, the lockfile changed, or installs need to run after permission fixes, **ask the repository owner** to run this at the repo root:
+When `package.json` or `bun.lock` changes, dependencies are missing, or tasks need installed packages, **run `bun install` at the repository root** yourself, then continue with lint, typecheck, tests, or builds. Do not defer installs to the developer unless the environment truly cannot run Bun (e.g. no binary on PATH).
 
-`bun install`
+## Environment files (Speckit / agents)
 
-Then continue with lint, typecheck, or other tasks.
+- **`.env.template`** (repo root, committed): canonical list of variables, comments, and safe placeholder values. Update this whenever the env contract changes (new keys, renames, Docker/Bun needs).
+- **`.env`** (repo root, gitignored): operator’s real values for local dev and scripts (`bun --env-file=.env`). When adding or renaming variables, **update both** so `.env` stays in sync on this machine (new keys with empty defaults or placeholders as appropriate). Do not commit secrets.
+- Copy onboarding: `cp .env.template .env` then fill secrets.
+- Prefer **one** root `.env`; avoid per-app `.env` files unless a tool forces it.
 
 ## Local dev ports
 
 - **Web** (Next.js): `3000` by default.
-- **API** (Hono): **`4001`** by default (`PORT` in `apps/api`, `API_DEV_ORIGIN` / Next rewrites default to `http://localhost:4001`). Do not use `8787` for this project.
+- **API** (Hono): **`4001`** by default (`API_LISTEN_PORT` in root `.env`, `API_DEV_ORIGIN` / Next rewrites default to `http://localhost:4001`). Do not use `8787` for this project.
 
 <!-- MANUAL ADDITIONS END -->

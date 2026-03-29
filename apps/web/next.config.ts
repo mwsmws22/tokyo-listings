@@ -17,4 +17,8 @@ const nextConfig: NextConfig = {
 export default withTamagui({
   config: "./tamagui.config.ts",
   components: ["tamagui"],
+  // App Router: required so the compiler resolves `tamagui.config.ts` correctly (avoids "Missing theme displayName" / ProxyWorm).
+  appDir: true,
+  // Static extraction + webpack can break against some dependency trees in dev; runtime styles are fine for local work.
+  disableExtraction: process.env.NODE_ENV === "development",
 })(nextConfig);

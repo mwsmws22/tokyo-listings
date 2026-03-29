@@ -3,14 +3,15 @@
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "echo \"API: PORT=4001 bun run --cwd apps/api dev | Web: bun run --cwd apps/web dev\"",
+    "dev:api": "bun run --cwd apps/api --env-file ../../.env dev",
+    "dev:web": "bun run --cwd apps/web --env-file ../../.env dev",
     "build": "echo \"Wire workspace builds in Phase 2+\"",
     "lint": "bun ./node_modules/@biomejs/biome/bin/biome check .",
     "format": "bun ./node_modules/@biomejs/biome/bin/biome format --write .",
     "test": "echo \"No tests configured yet\"",
     "typecheck": "bun ./node_modules/typescript/lib/tsc.js -b && bun ./node_modules/typescript/lib/tsc.js --noEmit -p apps/web/tsconfig.json",
-    "db:generate": "bun run --cwd packages/db db:generate",
-    "db:migrate": "bun run --cwd packages/db db:migrate"
+    "db:generate": "bun run --cwd packages/db --env-file ../../.env db:generate",
+    "db:migrate": "bun run --cwd packages/db --env-file ../../.env db:migrate"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
