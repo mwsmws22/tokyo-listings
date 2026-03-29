@@ -11,6 +11,8 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Organization**: Phases follow user stories **US1 → US5** (spec priorities). Setup and foundational work must complete before user stories.
 
+**Runtime policy**: Development may use **local Bun + Next** for fast iteration. **Docker Compose** is a **first-class path**: after **US1**, the repo must support **postgres + api + web** in Compose, and new features should remain verifiable in containers (see Phase 4). Do not treat Docker as end-of-project polish only.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -46,7 +48,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ## Phase 2: Foundational (blocking prerequisites)
 
-**Purpose**: **Drizzle schema**, **Hono API** with **Better Auth** + **tRPC**, **Next.js** shell with **Tamagui** + **tRPC provider**—required before any user story UI.
+**Purpose**: **Drizzle schema**, **Hono API** with **Better Auth** + **tRPC**, **Next.js** shell with **Tamagui** + **tRPC provider**—required before any user story UI. Verify against **Docker Postgres** (`docker compose`); host Postgres is optional.
 
 ### Phase 2 — verification (complete)
 
@@ -110,11 +112,26 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ---
 
-## Phase 4: User Story 2 — Map-first shell (Priority: P2)
+## Phase 4: Docker — full stack Compose (blocking before US2)
+
+**Purpose**: **First-class container runtime** for **postgres + api + web** so every later phase can be validated in Docker, not only via local `bun`. Local dev on the host remains supported; this phase adds the **required** Compose wiring and production-oriented Dockerfiles. **Complete before User Story 2 (map).**
+
+**Independent test**: From a clean machine with Docker: `docker compose` brings up DB + API + web; `GET` health on API, open web origin in browser, complete login/register smoke (same-origin cookies / `BETTER_AUTH_URL` documented for container hostnames/ports).
+
+- [ ] T059 Extend `docker/docker-compose.yml` (or root `compose.yaml`) with **`api`** and **`web`** services, shared env / `env_file`, `depends_on` **`postgres`** with **`condition: service_healthy`**, published ports (align API **4001**, web **3000** with `plan.md` / quickstart), and networking so the browser hits the **web** service while API is reachable for health checks and (if needed) direct debugging
+- [ ] T064 [P] Replace stub **`docker/Dockerfile.api`** with a multi-stage image that builds/installs the monorepo workspace and runs the API entrypoint (`apps/api`); ensure `DATABASE_URL` and auth env are overridable at runtime
+- [ ] T065 [P] Replace stub **`docker/Dockerfile.web`** with a multi-stage image that builds Next (`apps/web` standalone output per Next docs) and runs with correct **`NEXT_PUBLIC_*`** / server env for API rewrites or internal service URL inside the compose network
+- [ ] T066 Add **`docker/README.md`** (or a dedicated section in `quickstart.md` if preferred) documenting: `docker compose up --build`, required env files for Compose, how **`BETTER_AUTH_URL`** matches the **published web URL**, and a short smoke checklist (health + auth)
+
+**Checkpoint**: Full stack runs in Docker; quickstart documents both **host `bun`** workflow and **Compose** workflow.
+
+---
+
+## Phase 5: User Story 2 — Map-first shell (Priority: P2)
 
 **Goal**: Signed-in user sees interactive **Google Map** centered on Tokyo, pan/zoom, empty state (no pins required).
 
-**Independent test**: Open `/map` as signed-in user; pan/zoom works; empty state visible with zero listings.
+**Independent test**: Open `/map` as signed-in user; pan/zoom works; empty state visible with zero listings. **Re-verify** map + auth in Docker after implementation (same Compose from Phase 4).
 
 - [ ] T035 [US2] Create Jotai atoms in `apps/web/src/state/mapViewport.ts` for center, zoom, and map ready flag
 - [ ] T036 [US2] Implement `apps/web/src/components/MapShell.tsx` loading Maps JavaScript API using `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` and rendering a full-height map
@@ -126,7 +143,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ---
 
-## Phase 5: User Story 3 — Own listings on the map (Priority: P3)
+## Phase 6: User Story 3 — Own listings on the map (Priority: P3)
 
 **Goal**: CRUD listings scoped by `userId`; server-side geocode; pins on map; manual pin adjust persists lat/lng.
 
@@ -145,7 +162,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ---
 
-## Phase 6: User Story 4 — Find and narrow listings (Priority: P4)
+## Phase 7: User Story 4 — Find and narrow listings (Priority: P4)
 
 **Goal**: Combined filters: rent range, station distance cap, interest/tag — server-side filtering; UI drives query input.
 
@@ -160,7 +177,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ---
 
-## Phase 7: User Story 5 — Listing ingestion and deduplication (Priority: P5)
+## Phase 8: User Story 5 — Listing ingestion and deduplication (Priority: P5)
 
 **Goal**: Ingest from at least one listing URL with **Cheerio**; reject duplicate URLs per user; merge listings under one `property`.
 
@@ -177,16 +194,15 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ---
 
-## Phase 8: Polish & cross-cutting concerns
+## Phase 9: Polish & cross-cutting concerns
 
-**Purpose**: Documentation, Docker wiring for **api + web + postgres**, CI lint/typecheck, contract doc sync.
+**Purpose**: Documentation, CI lint/typecheck, contract doc sync. **Docker full-stack work is Phase 4, not here.**
 
 - [ ] T058 Add root `README.md` linking `.specify/memory/constitution.md` and `specs/001-tokyo-listings-baseline/spec.md`
-- [ ] T059 [P] Extend `docker/docker-compose.yml` (or root `compose.yaml`) with `api` and `web` services, env files, and dependency on `postgres`
-- [ ] T060 [P] Add root script `lint` running `biome check .` and `typecheck` running `tsc -b` across workspaces
+- [X] T060 [P] Add root script `lint` running `biome check .` and `typecheck` running `tsc -b` across workspaces — **done** in root `package.json` (`lint`, `typecheck`)
 - [ ] T061 Add `.github/workflows/ci.yml` installing Bun, caching, running `bun install`, `bun run lint`, `bun run typecheck`
 - [ ] T062 Update `specs/001-tokyo-listings-baseline/contracts/trpc-procedures.md` to match final router procedure names
-- [ ] T063 Final pass on `specs/001-tokyo-listings-baseline/quickstart.md` for exact commands (`bun install`, compose up, migrate)
+- [ ] T063 Final pass on `specs/001-tokyo-listings-baseline/quickstart.md` for exact commands (`bun install`, compose up, migrate) and parity with **`docker/README.md`**
 
 ---
 
@@ -194,14 +210,14 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ### Phase dependencies
 
-- **Phase 1** → **Phase 2** → **US1** → **US2** → **US3** → **US4** → **US5** → **Polish**
-- **US2** depends on **US1** (authenticated routing and session)
-- **US3+** depend on **US2** only for map components/paths (can mock map briefly if needed, not recommended)
+- **Phase 1** → **Phase 2** → **US1 (Phase 3)** → **Phase 4 (Docker full stack)** → **US2** → **US3** → **US4** → **US5** → **Polish (Phase 9)**
+- **US2** depends on **US1** and **Phase 4** (Compose must run api + web + postgres before map work proceeds as the default gate)
+- **US3+** depend on **US2** for map components/paths (can mock map briefly if needed, not recommended)
 
 ### User story dependencies
 
 - **US1**: After Phase 2 only
-- **US2**: After US1
+- **US2**: After US1 **and Phase 4 (Docker)**
 - **US3**: After US2 (uses map surface)
 - **US4**: After US3 (needs listings)
 - **US5**: After US3 (needs listings/property schema); merge UI needs `property` router
@@ -211,7 +227,8 @@ description: "Task list for Tokyo Listings baseline implementation"
 - **Phase 1**: T002–T004, T006–T007 in parallel after T001
 - **US1**: T028 and T029 in parallel after T027
 - **US1**: T033 parallelizable after T032
-- **Polish**: T059 and T060 in parallel after T058
+- **Phase 4**: T064 and T065 in parallel after T059 defines compose service names and build contexts
+- **Polish**: T060 and T061 in parallel after T058
 
 ---
 
@@ -231,21 +248,24 @@ Task: "apps/web/src/app/(auth)/register/page.tsx"
 
 1. Complete Phase 1 and Phase 2 (T001–T026)
 2. Complete US1 (T027–T034) — **stop** and validate auth flows on real SMTP/staging
-3. Then US2 map shell
+3. Complete **Phase 4** (T059–T066) — **full-stack Docker** before map work
+4. Then US2 map shell
 
 ### Incremental delivery
 
 1. US1 → secure product shell
-2. US2 → trust map integration
-3. US3 → core product value (listings + pins)
-4. US4 → power-user filtering
-5. US5 → parity with legacy scraping/dedupe spirit
-6. Polish → production-like Docker + CI
+2. **Phase 4** → Docker parity for api + web + postgres
+3. US2 → trust map integration
+4. US3 → core product value (listings + pins)
+5. US4 → power-user filtering
+6. US5 → parity with legacy scraping/dedupe spirit
+7. Polish → README, CI, contracts (Docker already done in Phase 4)
 
 ---
 
 ## Notes
 
-- **IDs**: T001–T063 (63 tasks). Renumber if inserting tasks; keep chronological order.
+- **IDs**: T001–T063 plus **T064–T066** (Docker phase). Renumber if inserting more; keep chronological order.
 - **Security**: Never log passwords, tokens, or raw `DATABASE_URL` in `apps/api` logging.
 - **Contracts**: When routers stabilize, mirror exports for `AppRouter` in `packages/api-types` if introduced later (optional; not required above).
+- **Docker vs host**: Prefer verifying new features in **both** host `bun` and **Compose** after Phase 4; Phase 4 is the explicit gate before US2.
