@@ -1,6 +1,7 @@
 import { Providers } from "@/components/Providers";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Tokyo Listings",
@@ -12,7 +13,6 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  // suppressHydrationWarning on html/body: browser extensions (e.g. Dark Reader) mutate the DOM before React hydrates.
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>

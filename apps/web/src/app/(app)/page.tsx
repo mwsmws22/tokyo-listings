@@ -1,16 +1,14 @@
 "use client";
 
-import { Text, YStack } from "tamagui";
+import { Text, View } from "react-native";
 
 export default function HomePage() {
   return (
-    <YStack padding="$4" flex={1} backgroundColor="$background">
-      <Text fontSize="$8" fontWeight="700">
-        Tokyo Listings
-      </Text>
-      <Text color="$color10" marginTop="$2">
+    <View className="flex-1 gap-2 bg-rose-pine-base p-4">
+      <Text className="text-3xl font-bold text-rose-pine-text">Tokyo Listings</Text>
+      <Text className="text-rose-pine-muted">
         You are signed in. Map and listings flows follow in later milestones.
       </Text>
-    </YStack>
+    </View>
   );
 }

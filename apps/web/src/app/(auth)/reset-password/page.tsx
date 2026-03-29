@@ -4,7 +4,10 @@ import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Button, Input, Paragraph, Text, YStack } from "tamagui";
+import { Pressable, Text, TextInput, View } from "react-native";
+
+const inputClass =
+  "rounded-lg border border-rose-pine-highlight-med bg-rose-pine-surface px-3 py-3 text-rose-pine-text";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -45,63 +48,63 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <YStack gap="$3" width="100%">
-        <Text fontSize="$8" fontWeight="700">
-          Invalid link
-        </Text>
-        <Paragraph color="$color10">
+      <View className="w-full gap-3">
+        <Text className="text-3xl font-bold text-rose-pine-text">Invalid link</Text>
+        <Text className="text-rose-pine-muted">
           This reset link is missing a token. Request a new link from the forgot password page.
-        </Paragraph>
+        </Text>
         <Link href="/forgot-password">
-          <Text color="$blue10" textDecorationLine="underline">
-            Forgot password
-          </Text>
+          <Text className="text-rose-pine-foam underline">Forgot password</Text>
         </Link>
-      </YStack>
+      </View>
     );
   }
 
   return (
-    <YStack gap="$3" width="100%">
-      <Text fontSize="$8" fontWeight="700">
-        Set a new password
-      </Text>
-      <Paragraph color="$color10" fontSize="$3">
-        Choose a new password for your account.
-      </Paragraph>
-      <YStack gap="$3">
-        <YStack gap="$2">
-          <Text fontWeight="600">New password</Text>
-          <Input
+    <View className="w-full gap-3">
+      <Text className="text-3xl font-bold text-rose-pine-text">Set a new password</Text>
+      <Text className="text-sm text-rose-pine-muted">Choose a new password for your account.</Text>
+      <View className="gap-3">
+        <View className="gap-2">
+          <Text className="font-semibold text-rose-pine-text">New password</Text>
+          <TextInput
             autoComplete="new-password"
+            className={inputClass}
             placeholder="At least 8 characters"
+            placeholderTextColor="var(--color-rose-pine-muted)"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            size="$4"
           />
-        </YStack>
-        <YStack gap="$2">
-          <Text fontWeight="600">Confirm password</Text>
-          <Input
+        </View>
+        <View className="gap-2">
+          <Text className="font-semibold text-rose-pine-text">Confirm password</Text>
+          <TextInput
             autoComplete="new-password"
+            className={inputClass}
             placeholder="Repeat password"
+            placeholderTextColor="var(--color-rose-pine-muted)"
             secureTextEntry
             value={confirm}
             onChangeText={setConfirm}
-            size="$4"
           />
-        </YStack>
+        </View>
         {error ? (
-          <Paragraph color="$red10" role="alert">
+          <Text className="text-rose-pine-love" role="alert">
             {error}
-          </Paragraph>
+          </Text>
         ) : null}
-        <Button size="$4" disabled={pending} onPress={() => void handleReset()}>
-          {pending ? "Updating…" : "Update password"}
-        </Button>
-      </YStack>
-    </YStack>
+        <Pressable
+          className="items-center rounded-lg bg-rose-pine-highlight-med px-4 py-3 active:opacity-80 disabled:opacity-50"
+          disabled={pending}
+          onPress={() => void handleReset()}
+        >
+          <Text className="font-semibold text-rose-pine-text">
+            {pending ? "Updating…" : "Update password"}
+          </Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -109,9 +112,9 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <Text color="$color10" padding="$4">
-          Loading…
-        </Text>
+        <View className="p-4">
+          <Text className="text-rose-pine-muted">Loading…</Text>
+        </View>
       }
     >
       <ResetPasswordForm />

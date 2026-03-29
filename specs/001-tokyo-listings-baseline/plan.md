@@ -15,7 +15,7 @@ then **user-scoped listings** with geocoding and manual pins, then **filters**, 
 ingestion / dedupe / merge** parity with the legacy app’s described behavior. **T4-aligned**
 tooling with **self-hosted PostgreSQL** and **Docker**—no dependency on Cloudflare Workers, D1, or
 Cloudflare-only hosting. Split **Next.js** (`apps/web`) and **Hono + tRPC + Drizzle + Better Auth**
-(`apps/api`) behind one Docker Compose stack; **Tamagui** with **Rosé Pine** themes (`rose-pine`, `rose-pine-moon`, `rose-pine-dawn` via `@tamagui/theme-builder`; hex values from [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/); no Tailwind), **tRPC**, **TanStack Query**, **Jotai**,
+(`apps/api`) behind one Docker Compose stack; **Next.js** UI with **Uniwind** + **Tailwind CSS v4** and the **[Rosé Pine for Tailwind](https://github.com/rose-pine/tailwind-css)** theme (vendored `rose-pine-tailwind-v4`; default variant **Moon** in `globals.css`), **tRPC**, **TanStack Query**, **Jotai**,
 **Bun** (tooling), **Biome** lint/format. Legacy repo remains **read-only reference**; extensions,
 bat files, and DB backups are out of scope.
 
@@ -24,7 +24,7 @@ bat files, and DB backups are out of scope.
 **Language/Version**: TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager
 and scripts; API service may run on Node or Bun (pin in Docker and CI)
 
-**Primary Dependencies**: Next.js (App Router), Tamagui (**`createThemes`**, Rosé Pine themes from [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/)), tRPC, TanStack Query, Jotai, Hono,
+**Primary Dependencies**: Next.js (App Router), **Uniwind**, **Tailwind CSS v4**, **Rosé Pine** ([rose-pine/tailwind-css](https://github.com/rose-pine/tailwind-css)), **React Native** primitives (`react-native` + `react-native-web` via `@expo/next-adapter`), tRPC, TanStack Query, Jotai, Hono,
 Drizzle ORM, Better Auth, Biome, Vitest; Google Maps JS + Geocoding APIs
 
 **Storage**: PostgreSQL 16 (self-hosted / Docker), Drizzle migrations
@@ -83,7 +83,7 @@ specs/001-tokyo-listings-baseline/
 
 ```text
 apps/
-├── web/                  # Next.js + Tamagui (Rosé Pine Moon dark theme) + tRPC client + maps
+├── web/                  # Next.js + Uniwind/Tailwind + Rosé Pine + tRPC client + maps
 └── api/                  # Hono + tRPC + Drizzle + Better Auth
 
 packages/
@@ -102,18 +102,16 @@ tests/
 
 **Structure Decision**: **Split** `web` and `api` so **Hono** remains the HTTP/tRPC boundary
 (satisfying T4 backend expectations) while **Next.js** ships the UI. Shared **Drizzle** schema in
-`packages/db` avoids drift. **Expo/Solito** omitted until a mobile milestone; **Jotai** stays in
-`apps/web` only.
+`packages/db` avoids drift. The web app uses **`@expo/next-adapter`** + **Uniwind** for React Native primitives on the web (not a full Expo app); native iOS/Android is out of scope until a deliberate milestone. **Jotai** stays in `apps/web` only.
 
-### UI styling: Tamagui with Rosé Pine Moon (no Tailwind)
+### UI styling: Uniwind + Tailwind v4 + Rosé Pine
 
-**Decision**: **Tamagui only** for styling; **no Tailwind** dependency.
+**Decision**: **Uniwind** ([docs](https://docs.uniwind.dev/)) applies **Tailwind v4** utilities to **React Native** `View` / `Text` / `TextInput` / `Pressable` via `className`. **PostCSS** uses `uniwind-plugin-next/postcss` + `@tailwindcss/postcss`. **Next.js** config wraps with **`withUniwind`** from `uniwind-plugin-next` and **`withExpo`** from `@expo/next-adapter` (Webpack; Turbopack not supported by the Uniwind Next plugin per upstream).
 
-- **Tamagui**: component primitives, forms, layouts, and theme tokens (`$background`, `$color`, `$borderColor`, scales, accents).
-- **Rosé Pine**: three themes — **`rose-pine`**, **`rose-pine-moon`**, **`rose-pine-dawn`** — are generated with **`createThemes`** (`@tamagui/theme-builder`) from 12-step palettes whose hex values match the official ingredients at [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/); see `apps/web/src/themes/rose-pine-themes.ts` and [Tamagui ThemeBuilder](https://tamagui.dev/docs/guides/theme-builder).
-- **Default theme**: `TamaguiProvider` uses **`defaultTheme="rose-pine-moon"`** unless overridden.
+- **Rosé Pine**: vendor the **`rose-pine-tailwind-v4`** CSS files from [rose-pine/tailwind-css](https://github.com/rose-pine/tailwind-css) under `apps/web/src/styles/rose-pine-tailwind-v4/` and import one variant in `apps/web/src/app/globals.css` after `@import "tailwindcss"` and `@import "uniwind"` (e.g. **`rose-pine-moon.css`**; alternatives **`rose-pine-pine.css`**, **`rose-pine-dawn.css`** per upstream README).
+- **Color utilities**: `bg-rose-pine-base`, `text-rose-pine-text`, `border-rose-pine-highlight-med`, etc., as defined by the imported `@theme` block.
 
-**Rationale**: One styling system (Tamagui); palettes are maintained as data aligned with the Rosé Pine project, not Tailwind CSS.
+**Rationale**: Tailwind + Rosé Pine is the published palette path; Uniwind keeps styling in `className` on RN primitives without Tamagui. Official ingredient hex values remain documented at [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/).
 
 ## Complexity Tracking
 

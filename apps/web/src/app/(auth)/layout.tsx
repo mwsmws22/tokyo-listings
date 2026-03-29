@@ -1,20 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { YStack } from "tamagui";
+import { View } from "react-native";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <YStack
-      flex={1}
-      backgroundColor="$background"
-      justifyContent="center"
-      alignItems="center"
-      padding="$4"
-    >
-      <YStack width="100%" maxWidth={420} gap="$4">
-        {children}
-      </YStack>
-    </YStack>
+    <View className="min-h-screen flex-1 items-center justify-center bg-rose-pine-base p-4">
+      <View className="w-full max-w-[420px] gap-4">{children}</View>
+    </View>
   );
 }

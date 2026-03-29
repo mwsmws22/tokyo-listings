@@ -38,13 +38,13 @@ validate in CI.
 
 **Decision**:
 
-- **Tamagui** for cross-platform-ready UI primitives (web-first; **Expo + Solito** out of v1), including **theme tokens**. **Rosé Pine** (`rose-pine`, `rose-pine-moon`, `rose-pine-dawn`) comes from **`createThemes`** in `apps/web/src/themes/rose-pine-themes.ts` (hex values from [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/)) — **no Tailwind** in the dependency tree.
+- **Uniwind** + **Tailwind CSS v4** + **[Rosé Pine for Tailwind](https://github.com/rose-pine/tailwind-css)** for UI: React Native primitives (`View`, `Text`, `TextInput`, `Pressable`) with `className` utilities; **`uniwind-plugin-next`** + **`@expo/next-adapter`** integrate with Next.js (Webpack). Rosé Pine **`@theme`** CSS is vendored under `apps/web/src/styles/rose-pine-tailwind-v4/` (switch variant via `globals.css` imports). **Cross-platform**: web-first; native iOS/Android via the same RN primitives is possible later but **not** a v1 goal.
 - **tRPC** + **TanStack Query** for typed client/server data flow.
 - **Jotai** for client-only UI state (map viewport, transient filter UI), not server cache.
 
-**Rationale**: Matches T4; avoids Redux boilerplate; TanStack Query covers server state. A single styling stack (Tamagui) keeps Next.js simpler; Rosé Pine hex values are **vendored as data** from the Tailwind package’s documented palette, not as a second CSS pipeline.
+**Rationale**: Matches T4; avoids Redux boilerplate; TanStack Query covers server state. Rosé Pine ships first-class Tailwind v4 theme files; Uniwind applies Tailwind to RN components without a second styling paradigm (e.g. Tamagui tokens).
 
-**Alternatives considered**: REST + OpenAPI only—rejected for end-to-end typing with Drizzle models. **Tailwind v4 + Rosé Pine CSS**—rejected here to avoid dual styling systems; Tamagui tokens carry the same palette instead.
+**Alternatives considered**: REST + OpenAPI only—rejected for end-to-end typing with Drizzle models. **Tamagui-only Rosé Pine**—replaced by Uniwind + Tailwind for this baseline to align with the official Rosé Pine Tailwind package and reduce bespoke theme plumbing.
 
 ---
 
@@ -120,7 +120,7 @@ direction.
 
 ## 9. Linting & formatting
 
-**Decision**: **Biome** (or **ESLint 9 flat + Prettier** if Biome conflicts with Tamagui)—default
+**Decision**: **Biome** (or **ESLint 9 flat + Prettier** if Biome conflicts with a required tool)—default
 **Biome** for monorepo speed; **TypeScript** `strict`; CI runs `biome check` and `tsc --noEmit`.
 
 **Rationale**: FR-12 in spec; Bun ecosystem friendly.

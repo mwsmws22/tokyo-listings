@@ -1,11 +1,12 @@
-import { withTamagui } from "@tamagui/next-plugin";
+import { withExpo } from "@expo/next-adapter";
 import type { NextConfig } from "next";
+import { withUniwind } from "uniwind-plugin-next";
 
 const apiOrigin = process.env.API_DEV_ORIGIN ?? "http://localhost:4001";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["tamagui", "@tamagui/core", "@tamagui/config"],
+  transpilePackages: ["react-native", "react-native-web"],
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
@@ -14,11 +15,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withTamagui({
-  config: "./tamagui.config.ts",
-  components: ["tamagui"],
-  // App Router: required so the compiler resolves `tamagui.config.ts` correctly (avoids "Missing theme displayName" / ProxyWorm).
-  appDir: true,
-  // Static extraction + webpack can break against some dependency trees in dev; runtime styles are fine for local work.
-  disableExtraction: process.env.NODE_ENV === "development",
-})(nextConfig);
+export default withUniwind(withExpo(nextConfig), {
+  cssEntryFile: "./src/app/globals.css",
+});

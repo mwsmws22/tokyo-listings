@@ -3,7 +3,10 @@
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useState } from "react";
-import { Button, Input, Paragraph, Text, YStack } from "tamagui";
+import { Pressable, Text, TextInput, View } from "react-native";
+
+const inputClass =
+  "rounded-lg border border-rose-pine-highlight-med bg-rose-pine-surface px-3 py-3 text-rose-pine-text";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -29,56 +32,59 @@ export default function ForgotPasswordPage() {
 
   if (done) {
     return (
-      <YStack gap="$3" width="100%">
-        <Text fontSize="$8" fontWeight="700">
-          Check your email
-        </Text>
-        <Paragraph color="$color10">
+      <View className="w-full gap-3">
+        <Text className="text-3xl font-bold text-rose-pine-text">Check your email</Text>
+        <Text className="text-rose-pine-muted">
           If an account exists for that address, we sent a link to reset your password.
-        </Paragraph>
+        </Text>
         <Link href="/login">
-          <Text color="$blue10" textDecorationLine="underline">
-            Back to sign in
-          </Text>
+          <Text className="text-rose-pine-foam underline">Back to sign in</Text>
         </Link>
-      </YStack>
+      </View>
     );
   }
 
   return (
-    <YStack gap="$3" width="100%">
-      <Text fontSize="$8" fontWeight="700">
-        Forgot password
-      </Text>
-      <Paragraph color="$color10" fontSize="$3">
-        Enter your email and we&apos;ll send a reset link.{" "}
+    <View className="w-full gap-3">
+      <Text className="text-3xl font-bold text-rose-pine-text">Forgot password</Text>
+      <View className="flex-row flex-wrap gap-1">
+        <Text className="text-sm text-rose-pine-muted">
+          Enter your email and we&apos;ll send a reset link.
+        </Text>
         <Link href="/login">
-          <Text color="$blue10" textDecorationLine="underline">
-            Sign in
-          </Text>
+          <Text className="text-sm text-rose-pine-foam underline">Sign in</Text>
         </Link>
-      </Paragraph>
-      <YStack gap="$3">
-        <YStack gap="$2">
-          <Text fontWeight="600">Email</Text>
-          <Input
+      </View>
+      <View className="gap-3">
+        <View className="gap-2">
+          <Text className="font-semibold text-rose-pine-text">Email</Text>
+          <TextInput
+            autoCapitalize="none"
             autoComplete="email"
+            className={inputClass}
             inputMode="email"
+            keyboardType="email-address"
             placeholder="you@example.com"
+            placeholderTextColor="var(--color-rose-pine-muted)"
             value={email}
             onChangeText={setEmail}
-            size="$4"
           />
-        </YStack>
+        </View>
         {error ? (
-          <Paragraph color="$red10" role="alert">
+          <Text className="text-rose-pine-love" role="alert">
             {error}
-          </Paragraph>
+          </Text>
         ) : null}
-        <Button size="$4" disabled={pending} onPress={() => void handleRequest()}>
-          {pending ? "Sending…" : "Send reset link"}
-        </Button>
-      </YStack>
-    </YStack>
+        <Pressable
+          className="items-center rounded-lg bg-rose-pine-highlight-med px-4 py-3 active:opacity-80 disabled:opacity-50"
+          disabled={pending}
+          onPress={() => void handleRequest()}
+        >
+          <Text className="font-semibold text-rose-pine-text">
+            {pending ? "Sending…" : "Send reset link"}
+          </Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }

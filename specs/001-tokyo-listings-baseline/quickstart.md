@@ -53,9 +53,9 @@ bun run test
 - Web: `http://localhost:3000` (Next.js default)
 - API (local dev): `http://localhost:4001` by default (`API_LISTEN_PORT` / `API_DEV_ORIGIN`); health at `GET /health`
 
-### Styling (Tamagui / Rosé Pine)
+### Styling (Uniwind / Tailwind / Rosé Pine)
 
-The web app uses **Tamagui only** (no Tailwind). Themes are generated with **`createThemes`** from `@tamagui/theme-builder` (see [Creating Themes with Tamagui](https://tamagui.dev/docs/guides/theme-builder)). **`rosePineThemes`** in `apps/web/src/themes/rose-pine-themes.ts` defines three variants — **`rose-pine`**, **`rose-pine-moon`**, **`rose-pine-dawn`** — from the official palette at [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/). They are merged in `apps/web/tamagui.config.ts`; **`TamaguiProvider`** defaults to **`rose-pine-moon`**.
+The web app uses **Uniwind** with **Tailwind v4** and the **[Rosé Pine for Tailwind](https://github.com/rose-pine/tailwind-css)** theme files (`rose-pine-tailwind-v4`). Entry CSS: `apps/web/src/app/globals.css` (`@import "tailwindcss"`, `@import "uniwind"`, then one variant such as `rose-pine-moon.css`). Components use React Native primitives with **`className`** (e.g. `bg-rose-pine-base`, `text-rose-pine-text`). Running **`bun run dev:web`** generates `apps/web/uniwind-types.d.ts` for editor support. **Note:** `uniwind-plugin-next` targets **Webpack**; Turbopack is not supported upstream.
 
 ### Local dev: API + web (auth)
 
