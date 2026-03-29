@@ -111,7 +111,7 @@ tests/
 - **Rosé Pine**: vendor the **`rose-pine-tailwind-v4`** CSS files from [rose-pine/tailwind-css](https://github.com/rose-pine/tailwind-css) under `apps/web/src/styles/rose-pine-tailwind-v4/` and import one variant in `apps/web/src/app/globals.css` after `@import "tailwindcss"` and `@import "uniwind"` (e.g. **`rose-pine-moon.css`**; alternatives **`rose-pine-pine.css`**, **`rose-pine-dawn.css`** per upstream README).
 - **Color utilities**: `bg-rose-pine-base`, `text-rose-pine-text`, `border-rose-pine-highlight-med`, etc., as defined by the imported `@theme` block.
 
-**Rationale**: Tailwind + Rosé Pine is the published palette path; Uniwind keeps styling in `className` on RN primitives without Tamagui. Official ingredient hex values remain documented at [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/).
+**Rationale**: Tailwind + Rosé Pine is the published palette path; Uniwind keeps styling in `className` on RN primitives in one stack. Official ingredient hex values remain documented at [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/).
 
 ## Complexity Tracking
 

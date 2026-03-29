@@ -77,7 +77,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 - [X] T023 Mount tRPC in `apps/api/src/routes/trpc.ts` at `/trpc` using `@hono/trpc-server` and wire in `apps/api/src/index.ts`
 - [X] T024 Create TanStack Query + tRPC client in `apps/web/src/lib/trpc/Provider.tsx` and `apps/web/src/lib/trpc/client.ts` pointing at public API URL
 - [X] T025 Add `apps/web/next.config.ts` with `rewrites()` to forward `/api` and `/trpc` to `apps/api` during local dev (port from env)
-- [X] T026 Add `apps/web/postcss.config.mjs`, `apps/web/src/app/globals.css` (`tailwindcss` + `uniwind` + Rosé Pine import from `src/styles/rose-pine-tailwind-v4/`), `withUniwind`/`withExpo` in `apps/web/next.config.ts`, and wrap `apps/web/src/app/layout.tsx` with global CSS import + tRPC `Providers` (no Tamagui)
+- [X] T026 Add `apps/web/postcss.config.mjs`, `apps/web/src/app/globals.css` (`tailwindcss` + `uniwind` + Rosé Pine import from `src/styles/rose-pine-tailwind-v4/`), `withUniwind`/`withExpo` in `apps/web/next.config.ts`, and wrap `apps/web/src/app/layout.tsx` with global CSS import + tRPC `Providers`
 
 **Phase 2 — verification checklist** (done in dev):
 

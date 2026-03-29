@@ -42,9 +42,9 @@ validate in CI.
 - **tRPC** + **TanStack Query** for typed client/server data flow.
 - **Jotai** for client-only UI state (map viewport, transient filter UI), not server cache.
 
-**Rationale**: Matches T4; avoids Redux boilerplate; TanStack Query covers server state. Rosé Pine ships first-class Tailwind v4 theme files; Uniwind applies Tailwind to RN components without a second styling paradigm (e.g. Tamagui tokens).
+**Rationale**: Matches T4; avoids Redux boilerplate; TanStack Query covers server state. Rosé Pine ships first-class Tailwind v4 theme files; Uniwind applies Tailwind to RN components without a second styling paradigm beyond Tailwind utilities.
 
-**Alternatives considered**: REST + OpenAPI only—rejected for end-to-end typing with Drizzle models. **Tamagui-only Rosé Pine**—replaced by Uniwind + Tailwind for this baseline to align with the official Rosé Pine Tailwind package and reduce bespoke theme plumbing.
+**Alternatives considered**: REST + OpenAPI only—rejected for end-to-end typing with Drizzle models. A separate component styling layer with hand-mapped Rosé Pine tokens—rejected in favor of Uniwind + Tailwind for this baseline to align with the official Rosé Pine Tailwind package and reduce bespoke theme plumbing.
 
 ---
 
