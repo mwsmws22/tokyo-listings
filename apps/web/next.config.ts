@@ -9,10 +9,10 @@ const monorepoRoot = path.join(__dirname, "../..");
 
 const apiOrigin = process.env.API_DEV_ORIGIN ?? "http://localhost:4001";
 
-/** Single root `.env` key; exposed to the browser bundle under Next’s `NEXT_PUBLIC_*` names. */
-const googleMapsPublicEnv = {
-  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY ?? "",
-  NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: process.env.GOOGLE_MAPS_MAP_ID ?? "",
+/** Inlined into the client bundle via `env` (same names as root `.env`). */
+const googleMapsEnv = {
+  GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY ?? "",
+  GOOGLE_MAPS_MAP_ID: process.env.GOOGLE_MAPS_MAP_ID ?? "",
 };
 
 const nextConfig: NextConfig = {
@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: monorepoRoot,
   reactStrictMode: true,
   transpilePackages: ["react-native", "react-native-web"],
-  env: googleMapsPublicEnv,
+  env: googleMapsEnv,
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },

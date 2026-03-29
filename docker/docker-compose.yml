@@ -48,8 +48,6 @@ services:
       args:
         API_DEV_ORIGIN: http://api:4001
         NEXT_PUBLIC_BETTER_AUTH_URL: ${NEXT_PUBLIC_BETTER_AUTH_URL:-http://localhost:3000}
-        GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
-        GOOGLE_MAPS_MAP_ID: ${GOOGLE_MAPS_MAP_ID:-}
     ports:
       - "${WEB_PUBLISH_PORT:-3000}:3000"
     env_file:
