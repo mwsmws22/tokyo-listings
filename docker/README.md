@@ -1,10 +1,21 @@
 # Docker — full stack (Postgres + API + Web)
 
-Run from the **repository root** so Compose resolves `env_file` paths and variable substitution against the root `.env`:
+Run from the **repository root** so Compose loads the root `.env` for **`${VAR}` substitution** in this file (build args like `NEXT_PUBLIC_*`).
+
+**Preferred** (uses root `compose.yaml`):
+
+```bash
+docker compose up --build
+```
+
+Equivalent:
 
 ```bash
 docker compose -f docker/docker-compose.yml up --build
 ```
+
+If you run Compose from another working directory, pass the env file explicitly:  
+`docker compose --env-file /path/to/tokyo-listings/.env -f docker/docker-compose.yml up --build`
 
 ## Prerequisites
 
@@ -25,8 +36,8 @@ Override the web bind with `WEB_PUBLISH_PORT` (e.g. `WEB_PUBLISH_PORT=3001`). Ov
 ## Environment and Better Auth URL
 
 - **`BETTER_AUTH_URL`** must equal the **browser origin** users open (scheme + host + port), e.g. `http://localhost:3000` when you publish the web service on port 3000. The API uses it for CORS; the Better Auth client uses **`NEXT_PUBLIC_BETTER_AUTH_URL`** with the **same value**.
-- **`NEXT_PUBLIC_*` variables** are fixed at **web image build time**. After changing them in `.env`, rebuild the web image:  
-  `docker compose -f docker/docker-compose.yml build web --no-cache`
+- **`NEXT_PUBLIC_*` variables** (including **`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`**) are inlined at **web image build time**. They must be present in root `.env` when you **build**, and you must run Compose from the repo root (or use `--env-file`) so `${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}` is not empty. After changing them, rebuild:  
+  `docker compose build web --no-cache` then `docker compose up -d`
 - Inside the Compose network, the Next server proxies `/api` and `/trpc` to **`http://api:4001`**; that value is baked in at build via `API_DEV_ORIGIN` (see `docker/Dockerfile.web`).
 
 ## Database migrations

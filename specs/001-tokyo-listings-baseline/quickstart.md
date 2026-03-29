@@ -26,17 +26,19 @@ Use **one** file at the repo root: copy `.env.template` → `.env` and set value
 
 ## 3. Start infrastructure
 
-**Postgres only** (from repo root; Compose file lives under `docker/`):
+**Postgres only** (from repo root):
 
 ```bash
-docker compose -f docker/docker-compose.yml up -d postgres
+docker compose up -d postgres
 ```
 
-**Full stack** (Postgres + API + Web) — see [`docker/README.md`](../../docker/README.md) for ports, `BETTER_AUTH_URL`, rebuild rules for `NEXT_PUBLIC_*`, and smoke checks:
+**Full stack** (Postgres + API + Web) — run from repo root so `.env` is used for **`NEXT_PUBLIC_*` build args** (see [`docker/README.md`](../../docker/README.md)):
 
 ```bash
-docker compose -f docker/docker-compose.yml up --build
+docker compose up --build
 ```
+
+(`compose.yaml` at the repo root includes `docker/docker-compose.yml`; you can still use `-f docker/docker-compose.yml` if you prefer.)
 
 ## 4. Migrations
 

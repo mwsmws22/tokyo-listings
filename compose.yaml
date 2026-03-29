@@ -1,0 +1,10 @@
+# Run all Docker Compose commands from the **repository root** (`tokyo-listings/`)
+# so the root `.env` is used for `${VAR}` substitution (including `NEXT_PUBLIC_*` build args).
+#
+#   docker compose up --build
+#
+# If you use `-f docker/docker-compose.yml` instead, run from this directory or pass
+# `--env-file .env` explicitly.
+
+include:
+  - docker/docker-compose.yml
