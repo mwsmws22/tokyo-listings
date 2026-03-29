@@ -22,7 +22,7 @@ export const listingRouter = router({
     const userId = requireUserId(ctx.userId);
 
     const coords = await geocodeAddress(input.addressText);
-    const hasKey = Boolean(process.env.GOOGLE_MAPS_API_KEY?.trim());
+    const hasKey = Boolean(process.env.GOOGLE_MAPS_API_KEY_SERVER?.trim());
 
     const [row] = await ctx.db
       .insert(listing)

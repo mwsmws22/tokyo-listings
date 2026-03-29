@@ -9,9 +9,9 @@ const monorepoRoot = path.join(__dirname, "../..");
 
 const apiOrigin = process.env.API_DEV_ORIGIN ?? "http://localhost:4001";
 
-/** Inlined into the client bundle via `env` (same names as root `.env`). */
+/** Inlined into the client bundle via `env` (from root `.env`). */
 const googleMapsEnv = {
-  GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY ?? "",
+  GOOGLE_MAPS_API_KEY_CLIENT: process.env.GOOGLE_MAPS_API_KEY_CLIENT ?? "",
   GOOGLE_MAPS_MAP_ID: process.env.GOOGLE_MAPS_MAP_ID ?? "",
 };
 

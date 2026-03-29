@@ -1,5 +1,5 @@
 /**
- * Server-side geocoding via Google Geocoding API (`GOOGLE_MAPS_API_KEY`).
+ * Server-side geocoding via Google Geocoding API (`GOOGLE_MAPS_API_KEY_SERVER`).
  */
 
 export type GeocodeResult = {
@@ -8,7 +8,7 @@ export type GeocodeResult = {
 };
 
 export async function geocodeAddress(address: string): Promise<GeocodeResult | null> {
-  const key = process.env.GOOGLE_MAPS_API_KEY;
+  const key = process.env.GOOGLE_MAPS_API_KEY_SERVER;
   if (!key?.trim()) {
     return null;
   }

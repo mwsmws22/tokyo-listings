@@ -15,7 +15,7 @@ FROM deps AS builder
 COPY . .
 
 # Next.js loads `.env` from the app directory (`apps/web`), not the monorepo root. Copy root `.env`
-# when present (requires `!.env` in `.dockerignore`) so `GOOGLE_MAPS_*` are available during `next build`.
+# when present (requires `!.env` in `.dockerignore`) so `GOOGLE_MAPS_API_KEY_CLIENT` / `GOOGLE_MAPS_MAP_ID` are available during `next build`.
 RUN if [ -f /app/.env ]; then cp /app/.env /app/apps/web/.env; fi
 
 # Baked into `next.config` rewrites — use the Compose service name so the web container proxies to the API.

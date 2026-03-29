@@ -13,7 +13,7 @@ export function MapShell({ children }: { children?: ReactNode }) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const setMapReady = useSetAtom(mapReadyAtom);
 
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY_CLIENT;
 
   useEffect(() => {
     if (!apiKey) {
@@ -68,7 +68,7 @@ export function MapShell({ children }: { children?: ReactNode }) {
     return (
       <View className="flex-1 items-center justify-center bg-rose-pine-base p-4">
         <Text className="text-center text-rose-pine-love">
-          GOOGLE_MAPS_API_KEY is not set. Add it to the root .env file.
+          GOOGLE_MAPS_API_KEY_CLIENT is not set. Add it to the root .env file.
         </Text>
       </View>
     );
