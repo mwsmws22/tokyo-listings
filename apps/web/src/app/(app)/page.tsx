@@ -9,7 +9,7 @@ export default function HomePage() {
         Tokyo Listings
       </Text>
       <Text color="$color10" marginTop="$2">
-        Baseline shell (Phase 2) — auth and listings API wired; sign-in flows land in US1.
+        You are signed in. Map and listings flows follow in later milestones.
       </Text>
     </YStack>
   );

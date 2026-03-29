@@ -5,6 +5,7 @@ export type TransactionalMail = {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 };
 
 export function createMailer(logger: Logger) {
@@ -39,6 +40,7 @@ export function createMailer(logger: Logger) {
         to: mail.to,
         subject: mail.subject,
         text: mail.text,
+        ...(mail.html ? { html: mail.html } : {}),
       });
     },
   };

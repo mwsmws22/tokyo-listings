@@ -97,14 +97,14 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Independent test**: Two accounts cannot see each other’s data once listings exist (verified in US3); for US1 alone, confirm protected routes redirect and sign-out clears session.
 
-- [ ] T027 [US1] Add Better Auth client utilities in `apps/web/src/lib/auth-client.ts` (signIn, signUp, signOut, session hooks)
-- [ ] T028 [P] [US1] Implement `apps/web/src/app/(auth)/login/page.tsx` with email/password form and error display
-- [ ] T029 [P] [US1] Implement `apps/web/src/app/(auth)/register/page.tsx` with validation messages
-- [ ] T030 [US1] Add `apps/web/src/app/(app)/layout.tsx` that redirects unauthenticated users to `/login` using session from Better Auth client
-- [ ] T031 [US1] Add `apps/web/src/components/AuthToolbar.tsx` with current user email and **Sign out** action
-- [ ] T032 [US1] Configure verification and password-reset email content in `apps/api/src/lib/auth.ts` (templates or hooks) and env-driven SMTP
-- [ ] T033 [P] [US1] Add `apps/web/src/app/(auth)/forgot-password/page.tsx` and `apps/web/src/app/(auth)/reset-password/page.tsx` wired to Better Auth flows
-- [ ] T034 [US1] Update `specs/001-tokyo-listings-baseline/quickstart.md` with actual dev ports, cookie same-site notes, and env var table
+- [X] T027 [US1] Add Better Auth client utilities in `apps/web/src/lib/auth-client.ts` (signIn, signUp, signOut, session hooks)
+- [X] T028 [P] [US1] Implement `apps/web/src/app/(auth)/login/page.tsx` with email/password form and error display
+- [X] T029 [P] [US1] Implement `apps/web/src/app/(auth)/register/page.tsx` with validation messages
+- [X] T030 [US1] Add `apps/web/src/app/(app)/layout.tsx` that redirects unauthenticated users to `/login` using session from Better Auth client
+- [X] T031 [US1] Add `apps/web/src/components/AuthToolbar.tsx` with current user email and **Sign out** action
+- [X] T032 [US1] Configure verification and password-reset email content in `apps/api/src/lib/auth.ts` (templates or hooks) and env-driven SMTP
+- [X] T033 [P] [US1] Add `apps/web/src/app/(auth)/forgot-password/page.tsx` and `apps/web/src/app/(auth)/reset-password/page.tsx` wired to Better Auth flows
+- [X] T034 [US1] Update `specs/001-tokyo-listings-baseline/quickstart.md` with actual dev ports, cookie same-site notes, and env var table
 
 **Checkpoint**: Manual walkthrough: register → verify (if enabled) → login → access protected page → logout → blocked.
 
