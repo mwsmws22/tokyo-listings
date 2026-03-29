@@ -149,14 +149,14 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Independent test**: User A creates listing with address → pin appears → drag pin → refresh persists; User B never sees A’s listings.
 
-- [ ] T040 [US3] Implement `listing` tRPC router in `apps/api/src/trpc/routers/listing.ts` with `create`, `list`, `getById`, `update`, `delete` enforcing `ctx.userId` on all queries
-- [ ] T041 [P] [US3] Add Zod schemas in `packages/validators/src/listing.ts` for create/update/list filters (initially optional filter fields)
-- [ ] T042 [US3] Implement `map` tRPC router in `apps/api/src/trpc/routers/map.ts` with `geocode` calling Google Geocoding API using server-side key in `apps/api/src/lib/geocoding.ts`
-- [ ] T043 [US3] Register `listing` and `map` routers in `apps/api/src/trpc/router.ts` and export updated `AppRouter` type
-- [ ] T044 [US3] Build `apps/web/src/components/ListingForm.tsx` for create/edit (title, monthly rent JPY, address text) calling `listing.create` / `update`
-- [ ] T045 [US3] Build `apps/web/src/components/ListingMarkers.tsx` plotting markers from `listing.list` results onto `MapShell`
-- [ ] T046 [US3] Add `apps/web/src/app/(app)/listings/page.tsx` combining list panel + map + form entry point
-- [ ] T047 [US3] Add `apps/web/src/components/PinAdjustControls.tsx` to drag marker and save lat/lng via `listing.update` when user overrides geocode
+- [X] T040 [US3] Implement `listing` tRPC router in `apps/api/src/trpc/routers/listing.ts` with `create`, `list`, `getById`, `update`, `delete` enforcing `ctx.userId` on all queries
+- [X] T041 [P] [US3] Add Zod schemas in `packages/validators/src/listing.ts` for create/update/list filters (initially optional filter fields)
+- [X] T042 [US3] Implement `map` tRPC router in `apps/api/src/trpc/routers/map.ts` with `geocode` calling Google Geocoding API using server-side key in `apps/api/src/lib/geocoding.ts`
+- [X] T043 [US3] Register `listing` and `map` routers in `apps/api/src/trpc/router.ts` and export updated `AppRouter` type
+- [X] T044 [US3] Build `apps/web/src/components/ListingForm.tsx` for create/edit (title, monthly rent JPY, address text) calling `listing.create` / `update`
+- [X] T045 [US3] Build `apps/web/src/components/ListingMarkers.tsx` plotting markers from `listing.list` results onto `MapShell`
+- [X] T046 [US3] Add `apps/web/src/app/(app)/listings/page.tsx` combining list panel + map + form entry point
+- [X] T047 [US3] Add `apps/web/src/components/PinAdjustControls.tsx` to drag marker and save lat/lng via `listing.update` when user overrides geocode
 
 **Checkpoint**: Two test accounts validate isolation (cross-check `listing.list` and map pins).
 

@@ -36,6 +36,13 @@ export function AuthToolbar({ email }: Props) {
         <Pressable
           accessibilityRole="button"
           className="rounded-lg px-2 py-1 active:opacity-70"
+          onPress={() => router.push("/listings")}
+        >
+          <Text className="text-sm text-rose-pine-foam">Listings</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          className="rounded-lg px-2 py-1 active:opacity-70"
           onPress={() => router.push("/map")}
         >
           <Text className="text-sm text-rose-pine-foam">Map</Text>

@@ -22,7 +22,8 @@ Use **one** file at the repo root: copy `.env.template` → `.env` and set value
 | `BETTER_AUTH_URL` | Public URL of the **web** app (e.g. `http://localhost:3000`). Must match the origin in the browser. |
 | `NEXT_PUBLIC_BETTER_AUTH_URL` | Same value as `BETTER_AUTH_URL` for the Better Auth **client** (`apps/web`). |
 | SMTP vars | Verification and password reset email (optional in dev; without `SMTP_HOST`, mail is skipped) |
-| `GOOGLE_MAPS_*` | Map + geocoding keys (restricted per Google guidance) |
+| `GOOGLE_MAPS_API_KEY` | One key for Maps JavaScript API + Geocoding API (see `next.config.ts` for client exposure) |
+| `GOOGLE_MAPS_MAP_ID` | Optional Map ID for cloud map styling |
 
 ## 3. Start infrastructure
 

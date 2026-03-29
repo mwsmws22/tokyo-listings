@@ -1,15 +1,16 @@
 "use client";
 
+import { MapInstanceProvider } from "@/components/map/MapInstanceContext";
 import { defaultMapCenter, defaultMapZoom } from "@/content/labels";
 import { mapReadyAtom } from "@/state/mapViewport";
 import { importLibrary, setOptions } from "@googlemaps/js-api-loader";
 import { useSetAtom } from "jotai";
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 
-export function MapShell() {
+export function MapShell({ children }: { children?: ReactNode }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
   const setMapReady = useSetAtom(mapReadyAtom);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -34,7 +35,7 @@ export function MapShell() {
       }
 
       const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
-      const map = new GoogleMap(el, {
+      const mapInstance = new GoogleMap(el, {
         center: { lat: defaultMapCenter.lat, lng: defaultMapCenter.lng },
         zoom: defaultMapZoom,
         ...(mapId ? { mapId } : {}),
@@ -42,9 +43,9 @@ export function MapShell() {
         streetViewControl: true,
         fullscreenControl: true,
       });
-      mapRef.current = map;
+      setMap(mapInstance);
 
-      idleListener = map.addListener("idle", () => {
+      idleListener = mapInstance.addListener("idle", () => {
         setMapReady(true);
       });
     })().catch((err: unknown) => {
@@ -54,7 +55,7 @@ export function MapShell() {
     return () => {
       cancelled = true;
       idleListener?.remove();
-      mapRef.current = null;
+      setMap(null);
       setMapReady(false);
       const el = containerRef.current;
       if (el) {
@@ -67,19 +68,22 @@ export function MapShell() {
     return (
       <View className="flex-1 items-center justify-center bg-rose-pine-base p-4">
         <Text className="text-center text-rose-pine-love">
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set. Add it to the root .env file.
+          GOOGLE_MAPS_API_KEY is not set. Add it to the root .env file.
         </Text>
       </View>
     );
   }
 
   return (
-    <View className="relative min-h-0 flex-1">
-      <div
-        ref={containerRef}
-        className="absolute inset-0 h-full w-full bg-rose-pine-surface"
-        aria-label="Interactive map"
-      />
-    </View>
+    <MapInstanceProvider map={map}>
+      <View className="relative min-h-0 flex-1">
+        <div
+          ref={containerRef}
+          className="absolute inset-0 h-full w-full bg-rose-pine-surface"
+          aria-label="Interactive map"
+        />
+        {children}
+      </View>
+    </MapInstanceProvider>
   );
 }

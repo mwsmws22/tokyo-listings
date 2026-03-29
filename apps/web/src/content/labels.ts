@@ -15,6 +15,13 @@ export const units = {
   sqm: "㎡",
 } as const;
 
+export const listingsPageLabels = {
+  headingEn: "Listings",
+  headingJp: "物件",
+  sidebarHintEn: "Create or edit a listing, then view it on the map.",
+  sidebarHintJp: "物件を作成・編集して地図で確認できます。",
+} as const;
+
 export const mapLabels = {
   titleEn: "Map",
   titleJp: "地図",

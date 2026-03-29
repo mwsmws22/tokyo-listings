@@ -13,6 +13,7 @@
     "@hono/trpc-server": "^0.3.4",
     "@trpc/server": "^11.1.0",
     "@tokyo-listings/db": "workspace:*",
+    "@tokyo-listings/validators": "workspace:*",
     "better-auth": "^1.2.0",
     "drizzle-orm": "^0.40.1",
     "hono": "^4.7.0",

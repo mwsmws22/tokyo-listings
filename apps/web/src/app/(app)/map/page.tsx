@@ -15,8 +15,9 @@ export default function MapPage() {
         </Text>
       </View>
       <View className="relative min-h-0 flex-1">
-        <MapShell />
-        <MapEmptyState />
+        <MapShell>
+          <MapEmptyState />
+        </MapShell>
       </View>
     </View>
   );
