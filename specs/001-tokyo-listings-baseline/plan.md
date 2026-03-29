@@ -15,7 +15,7 @@ then **user-scoped listings** with geocoding and manual pins, then **filters**, 
 ingestion / dedupe / merge** parity with the legacy app’s described behavior. **T4-aligned**
 tooling with **self-hosted PostgreSQL** and **Docker**—no dependency on Cloudflare Workers, D1, or
 Cloudflare-only hosting. Split **Next.js** (`apps/web`) and **Hono + tRPC + Drizzle + Better Auth**
-(`apps/api`) behind one Docker Compose stack; **Tamagui**, **tRPC**, **TanStack Query**, **Jotai**,
+(`apps/api`) behind one Docker Compose stack; **Tamagui** with **Rosé Pine** themes (`rose-pine`, `rose-pine-moon`, `rose-pine-dawn` via `@tamagui/theme-builder`; hex values from [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/); no Tailwind), **tRPC**, **TanStack Query**, **Jotai**,
 **Bun** (tooling), **Biome** lint/format. Legacy repo remains **read-only reference**; extensions,
 bat files, and DB backups are out of scope.
 
@@ -24,7 +24,7 @@ bat files, and DB backups are out of scope.
 **Language/Version**: TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager
 and scripts; API service may run on Node or Bun (pin in Docker and CI)
 
-**Primary Dependencies**: Next.js (App Router), Tamagui, tRPC, TanStack Query, Jotai, Hono,
+**Primary Dependencies**: Next.js (App Router), Tamagui (**`createThemes`**, Rosé Pine themes from [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/)), tRPC, TanStack Query, Jotai, Hono,
 Drizzle ORM, Better Auth, Biome, Vitest; Google Maps JS + Geocoding APIs
 
 **Storage**: PostgreSQL 16 (self-hosted / Docker), Drizzle migrations
@@ -83,7 +83,7 @@ specs/001-tokyo-listings-baseline/
 
 ```text
 apps/
-├── web/                  # Next.js + Tamagui + tRPC client + maps
+├── web/                  # Next.js + Tamagui (Rosé Pine Moon dark theme) + tRPC client + maps
 └── api/                  # Hono + tRPC + Drizzle + Better Auth
 
 packages/
@@ -104,6 +104,16 @@ tests/
 (satisfying T4 backend expectations) while **Next.js** ships the UI. Shared **Drizzle** schema in
 `packages/db` avoids drift. **Expo/Solito** omitted until a mobile milestone; **Jotai** stays in
 `apps/web` only.
+
+### UI styling: Tamagui with Rosé Pine Moon (no Tailwind)
+
+**Decision**: **Tamagui only** for styling; **no Tailwind** dependency.
+
+- **Tamagui**: component primitives, forms, layouts, and theme tokens (`$background`, `$color`, `$borderColor`, scales, accents).
+- **Rosé Pine**: three themes — **`rose-pine`**, **`rose-pine-moon`**, **`rose-pine-dawn`** — are generated with **`createThemes`** (`@tamagui/theme-builder`) from 12-step palettes whose hex values match the official ingredients at [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/); see `apps/web/src/themes/rose-pine-themes.ts` and [Tamagui ThemeBuilder](https://tamagui.dev/docs/guides/theme-builder).
+- **Default theme**: `TamaguiProvider` uses **`defaultTheme="rose-pine-moon"`** unless overridden.
+
+**Rationale**: One styling system (Tamagui); palettes are maintained as data aligned with the Rosé Pine project, not Tailwind CSS.
 
 ## Complexity Tracking
 

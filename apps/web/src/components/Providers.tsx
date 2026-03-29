@@ -7,7 +7,9 @@ import config from "../../tamagui.config";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <TrpcProvider>
-      <TamaguiProvider config={config}>{children}</TamaguiProvider>
+      <TamaguiProvider config={config} defaultTheme="rose-pine-moon">
+        {children}
+      </TamaguiProvider>
     </TrpcProvider>
   );
 }

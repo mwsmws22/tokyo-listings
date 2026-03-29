@@ -12,9 +12,10 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
+  // suppressHydrationWarning on html/body: browser extensions (e.g. Dark Reader) mutate the DOM before React hydrates.
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

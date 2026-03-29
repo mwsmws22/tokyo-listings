@@ -53,6 +53,10 @@ bun run test
 - Web: `http://localhost:3000` (Next.js default)
 - API (local dev): `http://localhost:4001` by default (`API_LISTEN_PORT` / `API_DEV_ORIGIN`); health at `GET /health`
 
+### Styling (Tamagui / Rosé Pine)
+
+The web app uses **Tamagui only** (no Tailwind). Themes are generated with **`createThemes`** from `@tamagui/theme-builder` (see [Creating Themes with Tamagui](https://tamagui.dev/docs/guides/theme-builder)). **`rosePineThemes`** in `apps/web/src/themes/rose-pine-themes.ts` defines three variants — **`rose-pine`**, **`rose-pine-moon`**, **`rose-pine-dawn`** — from the official palette at [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/). They are merged in `apps/web/tamagui.config.ts`; **`TamaguiProvider`** defaults to **`rose-pine-moon`**.
+
 ### Local dev: API + web (auth)
 
 1. Copy `.env.template` to `.env` at the repo root and set secrets (including `NEXT_PUBLIC_*` so the Better Auth client matches `BETTER_AUTH_URL`; Next inherits them from the process env when using `bun run dev:web`).

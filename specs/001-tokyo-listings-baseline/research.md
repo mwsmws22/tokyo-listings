@@ -38,13 +38,13 @@ validate in CI.
 
 **Decision**:
 
-- **Tamagui** for cross-platform-ready UI primitives (web-first; **Expo + Solito** out of v1).
+- **Tamagui** for cross-platform-ready UI primitives (web-first; **Expo + Solito** out of v1), including **theme tokens**. **Rosé Pine** (`rose-pine`, `rose-pine-moon`, `rose-pine-dawn`) comes from **`createThemes`** in `apps/web/src/themes/rose-pine-themes.ts` (hex values from [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/)) — **no Tailwind** in the dependency tree.
 - **tRPC** + **TanStack Query** for typed client/server data flow.
 - **Jotai** for client-only UI state (map viewport, transient filter UI), not server cache.
 
-**Rationale**: Matches T4; avoids Redux boilerplate; TanStack Query covers server state.
+**Rationale**: Matches T4; avoids Redux boilerplate; TanStack Query covers server state. A single styling stack (Tamagui) keeps Next.js simpler; Rosé Pine hex values are **vendored as data** from the Tailwind package’s documented palette, not as a second CSS pipeline.
 
-**Alternatives considered**: REST + OpenAPI only—rejected for end-to-end typing with Drizzle models.
+**Alternatives considered**: REST + OpenAPI only—rejected for end-to-end typing with Drizzle models. **Tailwind v4 + Rosé Pine CSS**—rejected here to avoid dual styling systems; Tamagui tokens carry the same palette instead.
 
 ---
 

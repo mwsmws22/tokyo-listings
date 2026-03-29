@@ -112,6 +112,22 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ---
 
+## Phase 3.5: Rosé Pine Moon — Tamagui theme (UI chrome)
+
+**Purpose**: Apply **[Rosé Pine Moon](https://github.com/rose-pine/tailwind-css)** colors to Tamagui’s **dark** theme only (`plan.md` — **no Tailwind**). **Complete before Phase 4 web Docker image** and **before US2** so the map shell inherits cohesive surfaces via `$background` / `$color` / accents.
+
+**Independent test**: `bun run dev:web` — UI uses dark Rosé Pine surfaces; `bun run build` in `apps/web` succeeds.
+
+- [X] T067 Add `apps/web/src/themes/rose-pine-themes.ts`: **`createThemes`** from `@tamagui/theme-builder`, three 12-step palettes from [rosepinetheme.com/palette/ingredients](https://rosepinetheme.com/palette/ingredients/), export **`rosePineThemes`** (`rose-pine`, `rose-pine-moon`, `rose-pine-dawn`) + optional `themes/index.ts` re-export
+- [X] T068 [P] In `apps/web/tamagui.config.ts`, merge **`rosePineThemes`** into `defaultConfig.themes` (no manual `dark` override)
+- [X] T069 Set **`defaultTheme="rose-pine-moon"`** on `TamaguiProvider` in `apps/web/src/components/Providers.tsx`
+- [ ] T070 Run **`bun run typecheck`** and **`bun run build`** for `apps/web` after theme merge; fix any Tamagui theme typing issues
+- [X] T071 Add a short **Styling** subsection to `specs/001-tokyo-listings-baseline/quickstart.md`: Tamagui-only, theme-builder + three theme names, file pointers (`rose-pine-themes.ts`, `tamagui.config.ts`)
+
+**Checkpoint**: Visual smoke + production build green; Docker Phase 4 needs no Tailwind/PostCSS wiring for this palette.
+
+---
+
 ## Phase 4: Docker — full stack Compose (blocking before US2)
 
 **Purpose**: **First-class container runtime** for **postgres + api + web** so every later phase can be validated in Docker, not only via local `bun`. Local dev on the host remains supported; this phase adds the **required** Compose wiring and production-oriented Dockerfiles. **Complete before User Story 2 (map).**
@@ -210,14 +226,15 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ### Phase dependencies
 
-- **Phase 1** → **Phase 2** → **US1 (Phase 3)** → **Phase 4 (Docker full stack)** → **US2** → **US3** → **US4** → **US5** → **Polish (Phase 9)**
-- **US2** depends on **US1** and **Phase 4** (Compose must run api + web + postgres before map work proceeds as the default gate)
+- **Phase 1** → **Phase 2** → **US1 (Phase 3)** → **Phase 3.5 (Tamagui Rosé Pine Moon)** → **Phase 4 (Docker full stack)** → **US2** → **US3** → **US4** → **US5** → **Polish (Phase 9)**
+- **Phase 3.5** is **blocking before Phase 4** so the default web theme is settled before container smoke; may start after Phase 3 (US1) is done
+- **US2** depends on **US1**, **Phase 3.5**, and **Phase 4** (Compose must run api + web + postgres before map work proceeds as the default gate)
 - **US3+** depend on **US2** for map components/paths (can mock map briefly if needed, not recommended)
 
 ### User story dependencies
 
 - **US1**: After Phase 2 only
-- **US2**: After US1 **and Phase 4 (Docker)**
+- **US2**: After US1, **Phase 3.5**, and **Phase 4 (Docker)**
 - **US3**: After US2 (uses map surface)
 - **US4**: After US3 (needs listings)
 - **US5**: After US3 (needs listings/property schema); merge UI needs `property` router
@@ -248,8 +265,9 @@ Task: "apps/web/src/app/(auth)/register/page.tsx"
 
 1. Complete Phase 1 and Phase 2 (T001–T026)
 2. Complete US1 (T027–T034) — **stop** and validate auth flows on real SMTP/staging
-3. Complete **Phase 4** (T059–T066) — **full-stack Docker** before map work
-4. Then US2 map shell
+3. Complete **Phase 3.5** (T067–T071) — Tamagui Rosé Pine Moon theme
+4. Complete **Phase 4** (T059–T066) — **full-stack Docker** before map work
+5. Then US2 map shell
 
 ### Incremental delivery
 
@@ -265,7 +283,7 @@ Task: "apps/web/src/app/(auth)/register/page.tsx"
 
 ## Notes
 
-- **IDs**: T001–T063 plus **T064–T066** (Docker phase). Renumber if inserting more; keep chronological order.
+- **IDs**: T001–T063 plus **T064–T066** (Docker phase) and **T067–T071** (Tamagui Rosé Pine Moon). Renumber if inserting more; keep chronological order.
 - **Security**: Never log passwords, tokens, or raw `DATABASE_URL` in `apps/api` logging.
 - **Contracts**: When routers stabilize, mirror exports for `AppRouter` in `packages/api-types` if introduced later (optional; not required above).
 - **Docker vs host**: Prefer verifying new features in **both** host `bun` and **Compose** after Phase 4; Phase 4 is the explicit gate before US2.

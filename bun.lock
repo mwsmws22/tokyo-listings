@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 1,
   "workspaces": {
     "": {
       "name": "tokyo-listings",
@@ -38,6 +37,7 @@
       "dependencies": {
         "@tamagui/config": "^1.144.4",
         "@tamagui/next-plugin": "^1.144.4",
+        "@tamagui/theme-builder": "^1.144.4",
         "@tanstack/react-query": "^5.66.0",
         "@trpc/client": "^11.1.0",
         "@trpc/react-query": "^11.1.0",
