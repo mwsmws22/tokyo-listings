@@ -23,6 +23,13 @@ If you run Compose from another working directory, pass the env file explicitly:
 - A root `.env` file (`cp .env.template .env` and fill values). Compose loads `../.env` relative to `docker/docker-compose.yml`, which resolves to the repo root when this file lives under `docker/`.
 - **`BETTER_AUTH_SECRET`**: must be **non-empty** in root `.env` for the API container (the image runs with `NODE_ENV=production`). Compose passes it via `env_file`; it is not overridden by empty shell interpolation. To generate one: `openssl rand -hex 32` → paste into `.env`.
 
+### Postgres data (persists across restarts)
+
+- The compose file declares a **named volume** `postgres_data` → on disk Docker stores it as **`<project>_postgres_data`** (e.g. `tokyo-listings_postgres_data` when the project name is `tokyo-listings`).
+- **`docker compose down`** stops and removes **containers** only; the volume **stays**, so your DB survives the next `docker compose up`.
+- **`docker compose down -v`** also removes volumes — **wipes the database**. Only use when you intend to delete all Postgres data.
+- If you previously used another project name (e.g. `-p docker` or an old compose from the `docker/` directory only), you may have a **different** volume (`docker_postgres_data`). Use **one** workflow consistently (repo root + `compose.yaml`) so you attach to the same volume every time.
+
 ## Ports
 
 | Service    | Default host port | Container |

@@ -25,6 +25,16 @@ tests/
 
 bun run test && bun run lint
 
+## Docker Compose (primary integration check)
+
+After implementing or changing features that touch **API, web, DB, or Dockerfiles**, **verify the full stack** unless blocked (e.g. missing secrets only the operator can add):
+
+1. From the **repository root**: `docker compose build` (or `docker compose build --no-cache` when images must not use stale layers) then `docker compose up -d`.
+2. Root **`.env`** must exist with at least **`BETTER_AUTH_SECRET`**, **`GOOGLE_MAPS_API_KEY`** (maps + geocode), and DB/auth URLs as in **`.env.template`**. If a required secret is missing, say so and stop short of claiming Compose is green.
+3. Quick smoke: `GET http://localhost:4001/health`, open **`http://localhost:3000`** (login/map/listings as relevant).
+
+Do **not** start a second Compose project on the same host ports (5432 / 4001 / 3000); bring any older stack down first. Postgres data persists in the **`tokyo-listings_postgres_data`** volume unless `docker compose down -v` is used.
+
 ## Code Style
 
 TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager: Follow standard conventions
