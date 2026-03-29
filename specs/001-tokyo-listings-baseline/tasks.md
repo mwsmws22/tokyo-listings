@@ -133,11 +133,11 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Independent test**: Open `/map` as signed-in user; pan/zoom works; empty state visible with zero listings. **Re-verify** map + auth in Docker after implementation (same Compose from Phase 4).
 
-- [ ] T035 [US2] Create Jotai atoms in `apps/web/src/state/mapViewport.ts` for center, zoom, and map ready flag
-- [ ] T036 [US2] Implement `apps/web/src/components/MapShell.tsx` loading Maps JavaScript API using `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` and rendering a full-height map
-- [ ] T037 [US2] Add `apps/web/src/app/(app)/map/page.tsx` composing `MapShell` with default center near Tokyo Station and zoom level per `labels.ts`
-- [ ] T038 [US2] Add `apps/web/src/components/MapEmptyState.tsx` explaining no listings yet with link to add listing (link target can be stub until US3)
-- [ ] T039 [US2] Add `apps/web/src/content/labels.ts` for consistent JP/EN strings and **JPY / ㎡** unit hints per constitution
+- [X] T035 [US2] Create Jotai atoms in `apps/web/src/state/mapViewport.ts` for center, zoom, and map ready flag
+- [X] T036 [US2] Implement `apps/web/src/components/MapShell.tsx` loading Maps JavaScript API using `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` and rendering a full-height map
+- [X] T037 [US2] Add `apps/web/src/app/(app)/map/page.tsx` composing `MapShell` with default center near Tokyo Station and zoom level per `labels.ts`
+- [X] T038 [US2] Add `apps/web/src/components/MapEmptyState.tsx` explaining no listings yet with link to add listing (link target can be stub until US3)
+- [X] T039 [US2] Add `apps/web/src/content/labels.ts` for consistent JP/EN strings and **JPY / ㎡** unit hints per constitution
 
 **Checkpoint**: Map loads without console errors; empty state shows when no listings.
 

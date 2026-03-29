@@ -23,11 +23,27 @@ export function AuthToolbar({ email }: Props) {
   }
 
   return (
-    <View className="flex-row items-center justify-between border-b border-rose-pine-highlight-med bg-rose-pine-base px-4 py-3">
-      <Text className="text-sm font-semibold text-rose-pine-text">{email}</Text>
-      <Pressable className="rounded-lg px-3 py-2 active:opacity-70" onPress={onSignOut}>
-        <Text className="text-sm text-rose-pine-foam">Sign out</Text>
-      </Pressable>
+    <View className="flex-row flex-wrap items-center justify-between gap-2 border-b border-rose-pine-highlight-med bg-rose-pine-base px-4 py-3">
+      <Text className="max-w-[40%] shrink text-sm font-semibold text-rose-pine-text">{email}</Text>
+      <View className="flex-row items-center gap-2">
+        <Pressable
+          accessibilityRole="button"
+          className="rounded-lg px-2 py-1 active:opacity-70"
+          onPress={() => router.push("/")}
+        >
+          <Text className="text-sm text-rose-pine-foam">Home</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          className="rounded-lg px-2 py-1 active:opacity-70"
+          onPress={() => router.push("/map")}
+        >
+          <Text className="text-sm text-rose-pine-foam">Map</Text>
+        </Pressable>
+        <Pressable className="rounded-lg px-3 py-2 active:opacity-70" onPress={onSignOut}>
+          <Text className="text-sm text-rose-pine-foam">Sign out</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
