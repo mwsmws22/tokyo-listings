@@ -10,7 +10,7 @@ Auto-generated from all feature plans. Last updated: 2026-03-29
 
 ## Active Technologies
 
-- TypeScript (strict), Node.js 22 LTS for Next.js; **Bun 1.2.x** (e.g. 1.2.23) for package manager + Next.js (App Router), Tamagui, tRPC, TanStack Query, Jotai, Hono, (001-tokyo-listings-baseline). Avoid **Bun 1.3.11** for day-to-day installs on this repo — see **Bun / `bun install`** below.
+- TypeScript (strict), Node.js 22 LTS for Next.js; **Bun 1.2.x** (e.g. 1.2.23) for package manager + Next.js (App Router), **Uniwind** + **Tailwind v4** + **[Rosé Pine for Tailwind](https://github.com/rose-pine/tailwind-css)** (`react-native` + `react-native-web` + `@expo/next-adapter`), tRPC, TanStack Query, Jotai, Hono, (001-tokyo-listings-baseline). Avoid **Bun 1.3.11** for day-to-day installs on this repo — see **Bun / `bun install`** below.
 
 ## Project Structure
 
@@ -31,7 +31,7 @@ TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager: Fo
 
 ## Recent Changes
 
-- 001-tokyo-listings-baseline: Added TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager + Next.js (App Router), Tamagui, tRPC, TanStack Query, Jotai, Hono,
+- 001-tokyo-listings-baseline: TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x; Next.js (App Router), Uniwind + Tailwind + Rosé Pine, tRPC, TanStack Query, Jotai, Hono,
 
 <!-- MANUAL ADDITIONS START -->
 
