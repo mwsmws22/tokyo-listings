@@ -36,9 +36,9 @@ export function AuthToolbar({ email }: Props) {
         <Pressable
           accessibilityRole="button"
           className="rounded-lg px-2 py-1 active:opacity-70"
-          onPress={() => router.push("/listings")}
+          onPress={() => router.push("/listings/add")}
         >
-          <Text className="text-sm text-rose-pine-foam">Listings</Text>
+          <Text className="text-sm text-rose-pine-foam">Add listing</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"

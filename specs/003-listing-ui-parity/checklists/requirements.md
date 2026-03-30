@@ -33,3 +33,5 @@
 
 - Validation pass 1 completed with all items passing.
 - POC scope is intentionally bounded to browse/add/select/detail parity; scraping automation remains explicitly out of scope.
+- 2026-03-29 implementation validation: `bun run lint`, `bun run typecheck`, `docker compose ps`, and API health (`GET /health`) pass.
+- Manual browser walkthrough is still recommended for full quickstart UX (filter combinations, add-page route leave/return reset, and dual-surface map/detail behavior).

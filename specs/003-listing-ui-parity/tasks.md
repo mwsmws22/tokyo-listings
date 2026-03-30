@@ -18,9 +18,9 @@
 
 **Purpose**: Glossary and shared constants so labels and enums stay consistent across web and validators.
 
-- [ ] T001 Create bilingual listing field label map in `apps/web/src/content/listing-fields.ts` aligned with `specs/003-listing-ui-parity/data-model.md`
-- [ ] T002 [P] Add shared availability/property-type/interest string constants (or Zod enums) in `packages/validators/src/listing.ts` or new `packages/validators/src/listing-enums.ts`
-- [ ] T003 [P] Add display helpers for rent (JPY) and area (㎡) in `apps/web/src/lib/listing-display.ts` for consistent list/detail formatting
+- [x] T001 Create bilingual listing field label map in `apps/web/src/content/listing-fields.ts` aligned with `specs/003-listing-ui-parity/data-model.md`
+- [x] T002 [P] Add shared availability/property-type/interest string constants (or Zod enums) in `packages/validators/src/listing.ts` or new `packages/validators/src/listing-enums.ts`
+- [x] T003 [P] Add display helpers for rent (JPY) and area (㎡) in `apps/web/src/lib/listing-display.ts` for consistent list/detail formatting
 
 ---
 
@@ -30,14 +30,14 @@
 
 **⚠️ CRITICAL**: No user story work until this phase completes.
 
-- [ ] T004 Extend Drizzle `listing` and `property` column definitions in `packages/db/src/schema/listings.ts` per `specs/003-listing-ui-parity/data-model.md`
-- [ ] T005 Generate and commit Drizzle migration under `packages/db/` for new columns; verify `drizzle.config.ts` and local apply path
-- [ ] T006 Extend Zod `listingCreateSchema`, `listingUpdateSchema`, and `listingListSchema` in `packages/validators/src/listing.ts` for parity fields and filter inputs per `specs/003-listing-ui-parity/contracts/listing-trpc.md`
-- [ ] T007 Write failing Vitest tests in `tests/unit/listing-filters.test.ts` for pure filter composition, then implement matching logic in `apps/api/src/lib/listing-filters.ts`
-- [ ] T008 Update `listing.list` in `apps/api/src/trpc/routers/listing.ts` to accept filter DTO, join `property` when needed, and apply AND semantics server-side
-- [ ] T009 Update `listing.create` and `listing.update` in `apps/api/src/trpc/routers/listing.ts` to persist parity fields and create/update linked `property` rows when structured address fields are provided
-- [ ] T010 Update `listing.getById` in `apps/api/src/trpc/routers/listing.ts` to return listing plus joined property fields for the detail panel
-- [ ] T011 Run `bun run typecheck` from repository root and fix any `AppRouter` inference issues in `apps/web/src/types/trpc.ts` indirectly via router types
+- [x] T004 Extend Drizzle `listing` and `property` column definitions in `packages/db/src/schema/listings.ts` per `specs/003-listing-ui-parity/data-model.md`
+- [x] T005 Generate and commit Drizzle migration under `packages/db/` for new columns; verify `drizzle.config.ts` and local apply path
+- [x] T006 Extend Zod `listingCreateSchema`, `listingUpdateSchema`, and `listingListSchema` in `packages/validators/src/listing.ts` for parity fields and filter inputs per `specs/003-listing-ui-parity/contracts/listing-trpc.md`
+- [x] T007 Write failing Vitest tests in `tests/unit/listing-filters.test.ts` for pure filter composition, then implement matching logic in `apps/api/src/lib/listing-filters.ts`
+- [x] T008 Update `listing.list` in `apps/api/src/trpc/routers/listing.ts` to accept filter DTO, join `property` when needed, and apply AND semantics server-side
+- [x] T009 Update `listing.create` and `listing.update` in `apps/api/src/trpc/routers/listing.ts` to persist parity fields and create/update linked `property` rows when structured address fields are provided
+- [x] T010 Update `listing.getById` in `apps/api/src/trpc/routers/listing.ts` to return listing plus joined property fields for the detail panel
+- [x] T011 Run `bun run typecheck` from repository root and fix any `AppRouter` inference issues in `apps/web/src/types/trpc.ts` indirectly via router types
 
 **Checkpoint**: API supports filtered list + rich create/update + joined get; web types infer new shape.
 
@@ -49,11 +49,11 @@
 
 **Independent Test**: Seed multiple listings; toggle filters and address segments; verify only matching rows appear and empty state works when nothing matches.
 
-- [ ] T012 [US1] Replace placeholder content in `apps/web/src/app/(app)/page.tsx` with a three-region responsive shell: left column (filters), middle column (list), optional right region placeholder for later detail panel integration
-- [ ] T013 [P] [US1] Implement filter controls component in `apps/web/src/components/home/HomeListingFilters.tsx` (property type, availability, interest toggles; prefecture through block text inputs) wired to local state
-- [ ] T014 [P] [US1] Implement scrollable results list component in `apps/web/src/components/home/HomeListingList.tsx` showing summary columns comparable to legacy (rent, area, fees, station/walk)
-- [ ] T015 [US1] Connect `trpc.listing.list.useQuery` in `apps/web/src/app/(app)/page.tsx` (or a colocated hook file `apps/web/src/hooks/useFilteredListings.ts`) passing filter DTO derived from `HomeListingFilters` state
-- [ ] T016 [US1] Add empty-state and loading UI in `apps/web/src/components/home/HomeListingList.tsx` when no rows match or query is pending
+- [x] T012 [US1] Replace placeholder content in `apps/web/src/app/(app)/page.tsx` with a three-region responsive shell: left column (filters), middle column (list), optional right region placeholder for later detail panel integration
+- [x] T013 [P] [US1] Implement filter controls component in `apps/web/src/components/home/HomeListingFilters.tsx` (property type, availability, interest toggles; prefecture through block text inputs) wired to local state
+- [x] T014 [P] [US1] Implement scrollable results list component in `apps/web/src/components/home/HomeListingList.tsx` showing summary columns comparable to legacy (rent, area, fees, station/walk)
+- [x] T015 [US1] Connect `trpc.listing.list.useQuery` in `apps/web/src/app/(app)/page.tsx` (or a colocated hook file `apps/web/src/hooks/useFilteredListings.ts`) passing filter DTO derived from `HomeListingFilters` state
+- [x] T016 [US1] Add empty-state and loading UI in `apps/web/src/components/home/HomeListingList.tsx` when no rows match or query is pending
 
 **Checkpoint**: Home browse + filter works end-to-end against the API without map zoom requirements.
 
@@ -65,12 +65,12 @@
 
 **Independent Test**: Submit valid/invalid data; verify validation messages; submit multiple times; navigate away and back to confirm history reset.
 
-- [ ] T017 [US2] Create route file `apps/web/src/app/(app)/listings/add/page.tsx` rendering the add flow only (no duplicate home list)
-- [ ] T018 [P] [US2] Implement parity form UI in `apps/web/src/components/listing/ListingFormParity.tsx` with fields from `specs/003-listing-ui-parity/data-model.md` (listing URL optional; no scraping calls)
-- [ ] T019 [US2] Wire `trpc.listing.create.useMutation` in `ListingFormParity.tsx` to send expanded create DTO matching `packages/validators/src/listing.ts`
-- [ ] T020 [US2] Maintain recent submission history in React state in `apps/web/src/app/(app)/listings/add/page.tsx` (newest first), cleared on unmount via `useEffect` cleanup when navigating away
-- [ ] T021 [US2] Render recent history list in `apps/web/src/app/(app)/listings/add/page.tsx` using compact rows that can be tapped for selection in US3
-- [ ] T022 [US2] Add submit debounce or disabled state on `ListingFormParity.tsx` primary action to prevent duplicate creates from rapid clicks
+- [x] T017 [US2] Create route file `apps/web/src/app/(app)/listings/add/page.tsx` rendering the add flow only (no duplicate home list)
+- [x] T018 [P] [US2] Implement parity form UI in `apps/web/src/components/listing/ListingFormParity.tsx` with fields from `specs/003-listing-ui-parity/data-model.md` (listing URL optional; no scraping calls)
+- [x] T019 [US2] Wire `trpc.listing.create.useMutation` in `ListingFormParity.tsx` to send expanded create DTO matching `packages/validators/src/listing.ts`
+- [x] T020 [US2] Maintain recent submission history in React state in `apps/web/src/app/(app)/listings/add/page.tsx` (newest first), cleared on unmount via `useEffect` cleanup when navigating away
+- [x] T021 [US2] Render recent history list in `apps/web/src/app/(app)/listings/add/page.tsx` using compact rows that can be tapped for selection in US3
+- [x] T022 [US2] Add submit debounce or disabled state on `ListingFormParity.tsx` primary action to prevent duplicate creates from rapid clicks
 
 **Checkpoint**: Add page works independently; recent history behavior matches spec FR-005/FR-006.
 
@@ -82,12 +82,12 @@
 
 **Independent Test**: Select listings with and without coordinates; verify zoom behavior and placeholder when location missing; switch selection repeatedly.
 
-- [ ] T023 [US3] Extract or compose shared map + detail layout in `apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or split files under `apps/web/src/components/shell/`) consumed by `apps/web/src/app/(app)/page.tsx` and `apps/web/src/app/(app)/listings/add/page.tsx`
-- [ ] T024 [P] [US3] Implement `apps/web/src/components/listing/ListingDetailPanel.tsx` displaying all parity fields with consistent missing-value placeholders
-- [ ] T025 [P] [US3] Add selection state module `apps/web/src/state/selectedListing.ts` using Jotai atoms (or equivalent) for `selectedListingId` and cached row data shared across routes
-- [ ] T026 [US3] Update `apps/web/src/components/MapShell.tsx` usage via a thin coordinator `apps/web/src/components/map/MapSelectionCoordinator.tsx` that pans/zooms when selection changes and `latitude`/`longitude` exist
-- [ ] T027 [US3] Connect `HomeListingList.tsx` row press and add-page history row press to set selection and open `ListingDetailPanel.tsx`
-- [ ] T028 [US3] Use `trpc.listing.getById.useQuery` in `ListingDetailPanel.tsx` when a simple list row lacks joined property fields, or pass full row from list query if already complete—document chosen data flow in component file comment
+- [x] T023 [US3] Extract or compose shared map + detail layout in `apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or split files under `apps/web/src/components/shell/`) consumed by `apps/web/src/app/(app)/page.tsx` and `apps/web/src/app/(app)/listings/add/page.tsx`
+- [x] T024 [P] [US3] Implement `apps/web/src/components/listing/ListingDetailPanel.tsx` displaying all parity fields with consistent missing-value placeholders
+- [x] T025 [P] [US3] Add selection state module `apps/web/src/state/selectedListing.ts` using Jotai atoms (or equivalent) for `selectedListingId` and cached row data shared across routes
+- [x] T026 [US3] Update `apps/web/src/components/MapShell.tsx` usage via a thin coordinator `apps/web/src/components/map/MapSelectionCoordinator.tsx` that pans/zooms when selection changes and `latitude`/`longitude` exist
+- [x] T027 [US3] Connect `HomeListingList.tsx` row press and add-page history row press to set selection and open `ListingDetailPanel.tsx`
+- [x] T028 [US3] Use `trpc.listing.getById.useQuery` in `ListingDetailPanel.tsx` when a simple list row lacks joined property fields, or pass full row from list query if already complete—document chosen data flow in component file comment
 
 **Checkpoint**: Selection + map + detail behavior works from both home and add pages.
 
@@ -97,10 +97,10 @@
 
 **Purpose**: Navigation cleanup, regression safety, and operator docs.
 
-- [ ] T029 [P] Refactor legacy `apps/web/src/app/(app)/listings/page.tsx` to avoid duplicating the new home experience (redirect to `/`, or remove map-heavy duplicate per new IA)
-- [ ] T030 Update `apps/web/src/components/AuthToolbar.tsx` (or nav in `apps/web/src/app/(app)/layout.tsx`) to link **Home** (`/`) and **Add listing** (`/listings/add`) with Rosé Pine styling
-- [ ] T031 Run `bun run lint` and `bun run typecheck` from repository root; fix any new issues in touched files
-- [ ] T032 Validate `specs/003-listing-ui-parity/quickstart.md` scenarios manually against Docker or local stack; note gaps in `specs/003-listing-ui-parity/checklists/requirements.md` if any
+- [x] T029 [P] Refactor legacy `apps/web/src/app/(app)/listings/page.tsx` to avoid duplicating the new home experience (redirect to `/`, or remove map-heavy duplicate per new IA)
+- [x] T030 Update `apps/web/src/components/AuthToolbar.tsx` (or nav in `apps/web/src/app/(app)/layout.tsx`) to link **Home** (`/`) and **Add listing** (`/listings/add`) with Rosé Pine styling
+- [x] T031 Run `bun run lint` and `bun run typecheck` from repository root; fix any new issues in touched files
+- [x] T032 Validate `specs/003-listing-ui-parity/quickstart.md` scenarios manually against Docker or local stack; note gaps in `specs/003-listing-ui-parity/checklists/requirements.md` if any
 
 ---
 
