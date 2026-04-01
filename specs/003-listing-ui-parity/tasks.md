@@ -104,6 +104,32 @@
 
 ---
 
+## Phase 7: UI Refinements (Post-POC Requests)
+
+**Purpose**: Apply operator-requested navigation and visual polish tweaks after baseline parity.
+
+- [x] T033 Simplify top bar nav in `apps/web/src/components/AuthToolbar.tsx` to only **Home**, **Add**, and **Sign out** and center the "Tokyo Listings" title
+- [x] T034 Make Home filters collapsible in `apps/web/src/app/(app)/page.tsx` with preserved filter state when collapsed
+- [x] T035 Remove duplicate "Add listing" headers between `apps/web/src/app/(app)/listings/add/page.tsx` and `apps/web/src/components/listing/ListingFormParity.tsx`
+- [x] T036 Improve create-button color contrast in `apps/web/src/components/listing/ListingFormParity.tsx` (non-grey primary)
+- [x] T037 Improve sign-in button color contrast in `apps/web/src/app/(auth)/login/page.tsx` (non-grey primary)
+- [x] T038 Add a single "Add Listing" page header in `apps/web/src/app/(app)/listings/add/page.tsx`
+- [x] T039 Align sign-in intro text and register link in `apps/web/src/app/(auth)/login/page.tsx`
+- [x] T040 Hide right-side listing detail panel by default and show only on selection in `apps/web/src/components/shell/ListingsMapWorkspace.tsx`
+- [x] T041 Clear detail panel selection on deselect and page transitions in `apps/web/src/app/(app)/page.tsx` and `apps/web/src/app/(app)/listings/add/page.tsx`
+- [x] T042 Replace simple filter-collapse button with modern chevron card pattern in `apps/web/src/app/(app)/page.tsx`
+- [x] T043 Integrate legacy logo asset (`logo128_light.png`) into `apps/web/public/` and use in `apps/web/src/components/AuthToolbar.tsx`
+- [x] T044 Integrate legacy logo into auth surfaces via `apps/web/src/app/(auth)/layout.tsx`
+- [x] T045 Simplify filter collapse header to text+arrow only and add breathing space before listing list in `apps/web/src/app/(app)/page.tsx`
+- [x] T046 Compact home filter layout to align with legacy structure in `apps/web/src/components/home/HomeListingFilters.tsx`
+- [x] T047 Compact add form grouping to align with legacy structure in `apps/web/src/components/listing/ListingFormParity.tsx`
+- [x] T048 Ensure detail panel hides on deselect and route change in `apps/web/src/components/shell/ListingsMapWorkspace.tsx` and route pages
+- [x] T049 Apply screenshot-driven phase-8 UI parity polish in `apps/web/src/app/(app)/page.tsx` and add/auth surfaces
+- [x] T050 Align home left panel heading/layout to old `Property Search` structure in `apps/web/src/app/(app)/page.tsx`
+- [x] T051 Center add-page title as `Add a Listing` in `apps/web/src/app/(app)/listings/add/page.tsx`
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

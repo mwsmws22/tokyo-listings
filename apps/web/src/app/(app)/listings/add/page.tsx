@@ -25,33 +25,35 @@ export default function AddListingsPage() {
   useEffect(() => {
     return () => {
       setRecent([]);
+      setSelectedId(null);
+      setSelectedPreview(null);
     };
-  }, []);
+  }, [setSelectedId, setSelectedPreview]);
 
   return (
     <ListingsMapWorkspace
       leftPane={
         <ScrollView className="max-h-[45vh] md:max-h-none">
-          <View className="gap-4 p-4">
-            <Text className="text-xl font-bold text-rose-pine-text">Add Listing</Text>
+          <View className="gap-3 px-3 py-2.5">
+            <Text className="text-center text-2xl font-normal text-rose-pine-text">
+              Add a Listing
+            </Text>
             <ListingFormParity
               pending={createMut.isPending}
               onSubmit={(input) => createMut.mutate(input)}
             />
-            <View className="gap-2">
-              <Text className="text-sm font-semibold text-rose-pine-text">Recent submissions</Text>
-              {recent.length === 0 ? (
-                <Text className="text-sm text-rose-pine-muted">
-                  No submissions in this visit. History resets when leaving this page.
+            {recent.length > 0 ? (
+              <View className="gap-2 pt-2">
+                <Text className="text-sm font-semibold text-rose-pine-text">
+                  Recent submissions
                 </Text>
-              ) : (
-                recent.map((row) => (
+                {recent.map((row) => (
                   <Pressable
                     key={row.id}
-                    className="rounded-lg border border-rose-pine-highlight-med px-3 py-2"
+                    className="rounded-md border border-rose-pine-highlight-med px-3 py-2"
                     onPress={() => {
-                      setSelectedId(row.id);
-                      setSelectedPreview(row);
+                      setSelectedId((prev) => (prev === row.id ? null : row.id));
+                      setSelectedPreview((prev) => (prev?.id === row.id ? null : row));
                     }}
                   >
                     <Text className="font-medium text-rose-pine-text">{row.title}</Text>
@@ -59,9 +61,9 @@ export default function AddListingsPage() {
                       {row.monthlyRentYen.toLocaleString()} JPY
                     </Text>
                   </Pressable>
-                ))
-              )}
-            </View>
+                ))}
+              </View>
+            ) : null}
           </View>
         </ScrollView>
       }

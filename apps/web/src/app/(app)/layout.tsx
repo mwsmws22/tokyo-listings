@@ -33,7 +33,7 @@ export default function AppGroupLayout({ children }: { children: ReactNode }) {
 
   return (
     <View className="min-h-screen flex-1 bg-rose-pine-base">
-      <AuthToolbar email={session.user.email} />
+      <AuthToolbar />
       {children}
     </View>
   );

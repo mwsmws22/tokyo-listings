@@ -40,8 +40,9 @@ export function MapShell({ children }: { children?: ReactNode }) {
         zoom: defaultMapZoom,
         ...(mapId ? { mapId } : {}),
         mapTypeControl: true,
-        streetViewControl: true,
-        fullscreenControl: true,
+        mapTypeId: "hybrid",
+        streetViewControl: false,
+        fullscreenControl: false,
       });
       setMap(mapInstance);
 

@@ -27,6 +27,16 @@ function valueOrNA(value: string | number | null | undefined): string {
   return String(value);
 }
 
+function compactAddress(row: ListingRowWithProperty): string {
+  const base = [row.property?.municipality, row.property?.town].filter(Boolean).join("");
+  const typeHint = row.title.includes("アパート")
+    ? "アパート"
+    : row.title.includes("一戸建て")
+      ? "一戸建て"
+      : "物件";
+  return `${base}の${typeHint}`;
+}
+
 export function HomeListingList({ listings, selectedId, isLoading, onSelect }: Props) {
   if (isLoading) {
     return <Text className="text-rose-pine-muted">Loading listings…</Text>;
@@ -42,22 +52,36 @@ export function HomeListingList({ listings, selectedId, isLoading, onSelect }: P
         {listings.map((row) => (
           <Pressable
             key={row.id}
-            className={`rounded-lg border p-3 ${selectedId === row.id ? "border-rose-pine-foam bg-rose-pine-surface" : "border-rose-pine-highlight-med"}`}
+            className={`rounded-md border px-3 py-2 ${selectedId === row.id ? "border-rose-pine-iris bg-rose-pine-highlight-med/25" : "border-rose-pine-highlight-med"}`}
             onPress={() => onSelect(row)}
           >
-            <Text className="font-semibold text-rose-pine-text">{row.title}</Text>
-            <Text className="text-xs text-rose-pine-muted">
-              {formatRentYen(row.monthlyRentYen)}
-            </Text>
-            <Text className="text-xs text-rose-pine-muted">
-              {formatAreaSqm(row.squareM)} · 礼金 {valueOrNA(row.reikinMonths)}ヶ月 · 敷金{" "}
-              {valueOrNA(row.securityDepositMonths)}ヶ月
-            </Text>
-            <Text className="text-xs text-rose-pine-muted">
-              {valueOrNA(row.closestStation)} · 徒歩 {valueOrNA(row.walkingTimeMin)}分
-            </Text>
-            <Text className="text-xs text-rose-pine-muted">
-              {[row.property?.municipality, row.property?.town].filter(Boolean).join(" ")}
+            <Text className="text-xl text-rose-pine-text">{compactAddress(row)}</Text>
+            <Text
+              className="overflow-hidden text-[11px] text-rose-pine-muted"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              賃料:{" "}
+              <Text className="font-semibold text-rose-pine-text">
+                {formatRentYen(row.monthlyRentYen)}
+              </Text>
+              {"  /  "}面積:{" "}
+              <Text className="font-semibold text-rose-pine-text">
+                {formatAreaSqm(row.squareM)}
+              </Text>
+              {"  /  "}礼金:{" "}
+              <Text className="font-semibold text-rose-pine-text">
+                {valueOrNA(row.reikinMonths)}ヶ月
+              </Text>
+              {"  /  "}敷金:{" "}
+              <Text className="font-semibold text-rose-pine-text">
+                {valueOrNA(row.securityDepositMonths)}ヶ月
+              </Text>
+              {"  /  "}
+              {valueOrNA(row.closestStation)} 徒歩
+              <Text className="font-semibold text-rose-pine-text">
+                {valueOrNA(row.walkingTimeMin)}分
+              </Text>
             </Text>
           </Pressable>
         ))}

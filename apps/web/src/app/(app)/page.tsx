@@ -10,7 +10,7 @@ import { trpc } from "@/lib/trpc/client";
 import { selectedListingIdAtom, selectedListingPreviewAtom } from "@/state/selectedListing";
 import type { ListingRow } from "@/types/trpc";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
 export default function HomePage() {
@@ -18,6 +18,8 @@ export default function HomePage() {
   const setSelectedId = useSetAtom(selectedListingIdAtom);
   const setSelectedPreview = useSetAtom(selectedListingPreviewAtom);
   const [filters, setFilters] = useState<HomeListingFiltersState>({
+    availability: "募集中",
+    interest: "Top",
     prefecture: "",
     municipality: "",
     town: "",
@@ -41,27 +43,33 @@ export default function HomePage() {
 
   const listQuery = trpc.listing.list.useQuery(queryInput);
 
-  const clearFilters = () =>
-    setFilters({
-      prefecture: "",
-      municipality: "",
-      town: "",
-      district: "",
-      block: "",
-    });
+  useEffect(() => {
+    return () => {
+      setSelectedId(null);
+      setSelectedPreview(null);
+    };
+  }, [setSelectedId, setSelectedPreview]);
 
   return (
     <ListingsMapWorkspace
       leftPane={
         <ScrollView className="max-h-[45vh] md:max-h-none">
-          <View className="gap-4 p-4">
-            <Text className="text-3xl font-bold text-rose-pine-text">Tokyo Listings</Text>
-            <HomeListingFilters value={filters} onChange={setFilters} onClear={clearFilters} />
+          <View className="gap-3 px-3 py-2.5">
+            <Text className="text-center text-2xl font-normal text-rose-pine-text">
+              My Listings
+            </Text>
+            <HomeListingFilters value={filters} onChange={setFilters} />
+            <View className="h-2" />
             <HomeListingList
               listings={listQuery.data}
               selectedId={selectedId}
               isLoading={listQuery.isLoading}
               onSelect={(row) => {
+                if (selectedId === row.id) {
+                  setSelectedId(null);
+                  setSelectedPreview(null);
+                  return;
+                }
                 setSelectedId(row.id);
                 setSelectedPreview(row as ListingRow);
               }}

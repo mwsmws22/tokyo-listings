@@ -7,7 +7,7 @@ import { MapSelectionCoordinator } from "@/components/map/MapSelectionCoordinato
 import { trpc } from "@/lib/trpc/client";
 import { selectedListingIdAtom, selectedListingPreviewAtom } from "@/state/selectedListing";
 import { useAtomValue, useSetAtom } from "jotai";
-import { type ReactNode, useCallback } from "react";
+import { type ReactNode, useCallback, useEffect } from "react";
 import { View } from "react-native";
 
 type Props = {
@@ -28,11 +28,16 @@ export function ListingsMapWorkspace({ leftPane }: Props) {
 
   const onSelectListing = useCallback(
     (id: string) => {
+      if (selectedId === id) {
+        setSelectedId(null);
+        setSelectedPreview(null);
+        return;
+      }
       setSelectedId(id);
       const match = (listings ?? []).find((row) => row.id === id) ?? null;
       setSelectedPreview(match);
     },
-    [setSelectedId, setSelectedPreview, listings],
+    [selectedId, setSelectedId, setSelectedPreview, listings],
   );
 
   const onPinDragEnd = useCallback(
@@ -42,9 +47,16 @@ export function ListingsMapWorkspace({ leftPane }: Props) {
     [updatePin],
   );
 
+  useEffect(() => {
+    return () => {
+      setSelectedId(null);
+      setSelectedPreview(null);
+    };
+  }, [setSelectedId, setSelectedPreview]);
+
   return (
     <View className="min-h-0 flex-1 flex-col md:flex-row">
-      <View className="max-h-[45vh] border-rose-pine-highlight-med md:max-h-none md:min-h-0 md:w-[380px] md:max-w-[40vw] md:flex-none md:border-r">
+      <View className="max-h-[48vh] border-rose-pine-highlight-med md:max-h-none md:min-h-0 md:w-[420px] md:flex-none md:border-r">
         {leftPane}
       </View>
       <View className="relative min-h-[45vh] flex-1 md:min-h-0">
@@ -57,9 +69,11 @@ export function ListingsMapWorkspace({ leftPane }: Props) {
           />
           <MapSelectionCoordinator />
         </MapShell>
-      </View>
-      <View className="border-l border-rose-pine-highlight-med p-3 md:w-[340px] md:flex-none">
-        <ListingDetailPanel />
+        {selectedId ? (
+          <View className="absolute bottom-0 right-0 top-0 z-20 w-[340px] border-l border-rose-pine-highlight-med bg-rose-pine-base p-3 shadow-2xl">
+            <ListingDetailPanel />
+          </View>
+        ) : null}
       </View>
     </View>
   );

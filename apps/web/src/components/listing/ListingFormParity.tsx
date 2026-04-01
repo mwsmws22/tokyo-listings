@@ -31,12 +31,18 @@ type Props = {
 };
 
 const inputClass =
-  "rounded-lg border border-rose-pine-highlight-med bg-rose-pine-surface px-3 py-3 text-rose-pine-text";
+  "min-w-0 rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-1.5 py-1.5 text-xs text-rose-pine-text focus:outline-none focus:border-rose-pine-foam focus:ring-1 focus:ring-rose-pine-foam/30";
+
+const labelClass =
+  "min-w-0 flex-1 text-left text-[10px] leading-tight text-rose-pine-text md:text-xs";
+
+const fieldCell = `${inputClass} min-w-[3.25rem] shrink grow basis-0`;
 
 const interestOptions = ["Top", "Extremely", "KindaPlus", "KindaMinus", "Nah"] as const;
 
 export function ListingFormParity({ onSubmit, pending }: Props) {
   const [error, setError] = useState<string | null>(null);
+  const [pinMessage, setPinMessage] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
     monthlyRentYen: "",
@@ -64,10 +70,26 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
       const n = Number(value);
       return Number.isFinite(n) ? n : undefined;
     };
+    const fallbackTitle = [form.prefecture, form.municipality, form.town, form.propertyType]
+      .filter((v) => v && v.trim().length > 0)
+      .join(" ")
+      .trim();
+    const fallbackAddress = [
+      form.prefecture,
+      form.municipality,
+      form.town,
+      form.district,
+      form.block,
+      form.houseNumber,
+    ]
+      .filter((v) => v && v.trim().length > 0)
+      .join(" ")
+      .trim();
+
     return {
-      title: form.title,
+      title: form.title.trim() || fallbackTitle || "Listing",
       monthlyRentYen: Number.parseInt(form.monthlyRentYen, 10),
-      addressText: form.addressText,
+      addressText: form.addressText.trim() || fallbackAddress || "Tokyo",
       sourceUrl: form.sourceUrl || undefined,
       reikinMonths: toNumber(form.reikinMonths),
       securityDepositMonths: toNumber(form.securityDepositMonths),
@@ -96,52 +118,115 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
     onSubmit(parsed.data);
   }
 
+  function setCoordinates() {
+    setPinMessage("Pin placement is enabled from map interaction after selecting the listing.");
+  }
+
+  function RadioRow<T extends string>({
+    label,
+    values,
+    selected,
+    onSelect,
+  }: {
+    label: string;
+    values: readonly T[];
+    selected: T | undefined;
+    onSelect: (value: T | undefined) => void;
+  }) {
+    return (
+      <View className="gap-1">
+        <Text className="text-xs text-rose-pine-text">{label}</Text>
+        <View className="flex-row flex-wrap gap-2">
+          {values.map((value) => {
+            const active = selected === value;
+            return (
+              <Pressable
+                key={value}
+                className="flex-row items-center gap-1"
+                onPress={() => onSelect(active ? undefined : value)}
+              >
+                <View
+                  className={`h-3.5 w-3.5 rounded-full border ${active ? "border-rose-pine-foam bg-rose-pine-foam" : "border-rose-pine-highlight-med"}`}
+                />
+                <Text className="text-xs text-rose-pine-text">
+                  {value === "KindaPlus" ? "Kinda+" : value === "KindaMinus" ? "Kinda-" : value}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    );
+  }
+
   return (
-    <View className="gap-3">
-      <Text className="text-lg font-semibold text-rose-pine-text">Add listing</Text>
-      <TextInput
-        className={inputClass}
-        placeholder="Title"
-        placeholderTextColor="var(--color-rose-pine-muted)"
-        value={form.title}
-        onChangeText={(title) => setForm((s) => ({ ...s, title }))}
-      />
-      <TextInput
-        className={inputClass}
-        inputMode="numeric"
-        placeholder="Monthly rent (JPY)"
-        placeholderTextColor="var(--color-rose-pine-muted)"
-        value={form.monthlyRentYen}
-        onChangeText={(monthlyRentYen) => setForm((s) => ({ ...s, monthlyRentYen }))}
-      />
-      <TextInput
-        className={`${inputClass} min-h-[70px]`}
-        multiline
-        placeholder="Address text"
-        placeholderTextColor="var(--color-rose-pine-muted)"
-        value={form.addressText}
-        onChangeText={(addressText) => setForm((s) => ({ ...s, addressText }))}
-      />
-      <TextInput
-        className={inputClass}
-        placeholder="Source URL (optional)"
-        placeholderTextColor="var(--color-rose-pine-muted)"
-        value={form.sourceUrl}
-        onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
-      />
-      <View className="flex-row gap-2">
+    <View className="gap-2">
+      <Text className="text-xs text-rose-pine-text">Listing URL</Text>
+      <View className="flex-row gap-1">
         <TextInput
           className={`${inputClass} flex-1`}
+          placeholder="Enter URL"
+          placeholderTextColor="var(--color-rose-pine-muted)"
+          value={form.sourceUrl}
+          onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
+        />
+        <Pressable
+          className="w-[84px] items-center justify-center rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-2 py-1.5"
+          onPress={() => setPinMessage("DB duplicate check will be added in ingest phase.")}
+        >
+          <Text className="text-xs font-semibold text-rose-pine-text">Check DB</Text>
+        </Pressable>
+      </View>
+      <View className="hidden">
+        <TextInput
+          className={inputClass}
+          placeholder="Title"
+          placeholderTextColor="var(--color-rose-pine-muted)"
+          value={form.title}
+          onChangeText={(title) => setForm((s) => ({ ...s, title }))}
+        />
+      </View>
+      <View className="hidden">
+        <TextInput
+          className={inputClass}
+          placeholder="Address text"
+          placeholderTextColor="var(--color-rose-pine-muted)"
+          value={form.addressText}
+          onChangeText={(addressText) => setForm((s) => ({ ...s, addressText }))}
+        />
+      </View>
+      <View className="min-w-0 flex-row flex-nowrap gap-1 pt-0.5">
+        <Text className={labelClass} numberOfLines={1}>
+          Monthly Rent
+        </Text>
+        <Text className={labelClass} numberOfLines={1}>
+          礼金
+        </Text>
+        <Text className={labelClass} numberOfLines={1}>
+          敷金
+        </Text>
+      </View>
+      <View className="min-w-0 flex-row flex-nowrap gap-1">
+        <TextInput
+          className={fieldCell}
+          inputMode="numeric"
+          placeholder="万円"
+          placeholderTextColor="var(--color-rose-pine-muted)"
+          value={form.monthlyRentYen}
+          onChangeText={(monthlyRentYen) => setForm((s) => ({ ...s, monthlyRentYen }))}
+        />
+        <TextInput
+          className={fieldCell}
           inputMode="decimal"
-          placeholder="礼金"
+          placeholder="家賃の何ヶ月分"
           placeholderTextColor="var(--color-rose-pine-muted)"
           value={form.reikinMonths}
           onChangeText={(reikinMonths) => setForm((s) => ({ ...s, reikinMonths }))}
         />
         <TextInput
-          className={`${inputClass} flex-1`}
+          className={fieldCell}
           inputMode="decimal"
-          placeholder="敷金"
+          placeholder="家賃の何ヶ月分"
           placeholderTextColor="var(--color-rose-pine-muted)"
           value={form.securityDepositMonths}
           onChangeText={(securityDepositMonths) =>
@@ -149,128 +234,156 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
           }
         />
       </View>
-      <View className="flex-row gap-2">
+      <View className="min-w-0 flex-row flex-nowrap gap-1 pt-0.5">
+        <Text className={labelClass} numberOfLines={1}>
+          面積
+        </Text>
+        <Text className={labelClass} numberOfLines={1}>
+          Station
+        </Text>
+        <Text className={labelClass} numberOfLines={1}>
+          Walk
+        </Text>
+      </View>
+      <View className="min-w-0 flex-row flex-nowrap gap-1">
         <TextInput
-          className={`${inputClass} flex-1`}
+          className={fieldCell}
           inputMode="decimal"
-          placeholder="Area ㎡"
+          placeholder="m²"
           placeholderTextColor="var(--color-rose-pine-muted)"
           value={form.squareM}
           onChangeText={(squareM) => setForm((s) => ({ ...s, squareM }))}
         />
         <TextInput
-          className={`${inputClass} flex-1`}
+          className={fieldCell}
+          placeholder="Station Name"
+          placeholderTextColor="var(--color-rose-pine-muted)"
+          value={form.closestStation}
+          onChangeText={(closestStation) => setForm((s) => ({ ...s, closestStation }))}
+        />
+        <TextInput
+          className={fieldCell}
           inputMode="numeric"
-          placeholder="Walk min"
+          placeholder="Minutes"
           placeholderTextColor="var(--color-rose-pine-muted)"
           value={form.walkingTimeMin}
           onChangeText={(walkingTimeMin) => setForm((s) => ({ ...s, walkingTimeMin }))}
         />
       </View>
-      <TextInput
-        className={inputClass}
-        placeholder="Closest station"
-        placeholderTextColor="var(--color-rose-pine-muted)"
-        value={form.closestStation}
-        onChangeText={(closestStation) => setForm((s) => ({ ...s, closestStation }))}
-      />
-      <View className="flex-row gap-2">
-        <Pressable
-          className={`rounded-md border px-3 py-2 ${form.availability === "募集中" ? "border-rose-pine-foam" : "border-rose-pine-highlight-med"}`}
-          onPress={() => setForm((s) => ({ ...s, availability: "募集中" }))}
-        >
-          <Text className="text-rose-pine-text">募集中</Text>
-        </Pressable>
-        <Pressable
-          className={`rounded-md border px-3 py-2 ${form.availability === "契約済" ? "border-rose-pine-foam" : "border-rose-pine-highlight-med"}`}
-          onPress={() => setForm((s) => ({ ...s, availability: "契約済" }))}
-        >
-          <Text className="text-rose-pine-text">契約済</Text>
-        </Pressable>
+      <View className="min-w-0 gap-1.5">
+        <View className="min-w-0 flex-row flex-nowrap gap-1 pt-0.5">
+          <Text accessibilityLabel="Prefecture" className={labelClass} numberOfLines={1}>
+            Pref
+          </Text>
+          <Text accessibilityLabel="City" className={labelClass} numberOfLines={1}>
+            City
+          </Text>
+          <Text accessibilityLabel="Town" className={labelClass} numberOfLines={1}>
+            Town
+          </Text>
+          <Text accessibilityLabel="District" className={labelClass} numberOfLines={1}>
+            Dist
+          </Text>
+          <Text accessibilityLabel="Block" className={labelClass} numberOfLines={1}>
+            Block
+          </Text>
+          <Text accessibilityLabel="House number" className={labelClass} numberOfLines={1}>
+            House
+          </Text>
+        </View>
+        <View className="min-w-0 flex-row flex-nowrap gap-1 overflow-x-auto">
+          <TextInput
+            className={fieldCell}
+            placeholder="都 / 県"
+            placeholderTextColor="var(--color-rose-pine-muted)"
+            value={form.prefecture}
+            onChangeText={(prefecture) => setForm((s) => ({ ...s, prefecture }))}
+          />
+          <TextInput
+            className={fieldCell}
+            placeholder="市 / 区"
+            placeholderTextColor="var(--color-rose-pine-muted)"
+            value={form.municipality}
+            onChangeText={(municipality) => setForm((s) => ({ ...s, municipality }))}
+          />
+          <TextInput
+            className={fieldCell}
+            placeholder="町"
+            placeholderTextColor="var(--color-rose-pine-muted)"
+            value={form.town}
+            onChangeText={(town) => setForm((s) => ({ ...s, town }))}
+          />
+          <TextInput
+            className={fieldCell}
+            placeholder="丁目"
+            placeholderTextColor="var(--color-rose-pine-muted)"
+            value={form.district}
+            onChangeText={(district) => setForm((s) => ({ ...s, district }))}
+          />
+          <TextInput
+            className={fieldCell}
+            placeholder="番"
+            placeholderTextColor="var(--color-rose-pine-muted)"
+            value={form.block}
+            onChangeText={(block) => setForm((s) => ({ ...s, block }))}
+          />
+          <TextInput
+            className={fieldCell}
+            placeholder="号"
+            placeholderTextColor="var(--color-rose-pine-muted)"
+            value={form.houseNumber}
+            onChangeText={(houseNumber) => setForm((s) => ({ ...s, houseNumber }))}
+          />
+        </View>
       </View>
-      <View className="flex-row gap-2">
-        <Pressable
-          className={`rounded-md border px-3 py-2 ${form.propertyType === "一戸建て" ? "border-rose-pine-foam" : "border-rose-pine-highlight-med"}`}
-          onPress={() => setForm((s) => ({ ...s, propertyType: "一戸建て" }))}
-        >
-          <Text className="text-rose-pine-text">一戸建て</Text>
-        </Pressable>
-        <Pressable
-          className={`rounded-md border px-3 py-2 ${form.propertyType === "アパート" ? "border-rose-pine-foam" : "border-rose-pine-highlight-med"}`}
-          onPress={() => setForm((s) => ({ ...s, propertyType: "アパート" }))}
-        >
-          <Text className="text-rose-pine-text">アパート</Text>
-        </Pressable>
+      <View className="flex-row gap-4">
+        <View className="flex-1">
+          <RadioRow
+            label="Availability"
+            values={["募集中", "契約済"] as const}
+            selected={form.availability}
+            onSelect={(availability) => setForm((s) => ({ ...s, availability }))}
+          />
+        </View>
+        <View className="flex-1">
+          <RadioRow
+            label="Property Type"
+            values={["一戸建て", "アパート"] as const}
+            selected={form.propertyType}
+            onSelect={(propertyType) => setForm((s) => ({ ...s, propertyType }))}
+          />
+        </View>
       </View>
-      <View className="flex-row flex-wrap gap-2">
-        {interestOptions.map((option) => (
-          <Pressable
-            key={option}
-            className={`rounded-md border px-3 py-2 ${form.interest === option ? "border-rose-pine-foam" : "border-rose-pine-highlight-med"}`}
-            onPress={() => setForm((s) => ({ ...s, interest: option }))}
-          >
-            <Text className="text-rose-pine-text">{option}</Text>
-          </Pressable>
-        ))}
-      </View>
-      <View className="flex-row gap-2">
-        <TextInput
-          className={`${inputClass} flex-1`}
-          placeholder="Prefecture"
-          placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.prefecture}
-          onChangeText={(prefecture) => setForm((s) => ({ ...s, prefecture }))}
-        />
-        <TextInput
-          className={`${inputClass} flex-1`}
-          placeholder="Municipality"
-          placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.municipality}
-          onChangeText={(municipality) => setForm((s) => ({ ...s, municipality }))}
-        />
-      </View>
-      <View className="flex-row gap-2">
-        <TextInput
-          className={`${inputClass} flex-1`}
-          placeholder="Town"
-          placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.town}
-          onChangeText={(town) => setForm((s) => ({ ...s, town }))}
-        />
-        <TextInput
-          className={`${inputClass} flex-1`}
-          placeholder="District"
-          placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.district}
-          onChangeText={(district) => setForm((s) => ({ ...s, district }))}
-        />
-      </View>
-      <View className="flex-row gap-2">
-        <TextInput
-          className={`${inputClass} flex-1`}
-          placeholder="Block"
-          placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.block}
-          onChangeText={(block) => setForm((s) => ({ ...s, block }))}
-        />
-        <TextInput
-          className={`${inputClass} flex-1`}
-          placeholder="House number"
-          placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.houseNumber}
-          onChangeText={(houseNumber) => setForm((s) => ({ ...s, houseNumber }))}
-        />
+      <View className="flex-row flex-wrap gap-4">
+        <View className="flex-1">
+          <RadioRow
+            label="Interest"
+            values={interestOptions}
+            selected={form.interest}
+            onSelect={(interest) => setForm((s) => ({ ...s, interest }))}
+          />
+        </View>
       </View>
       {error ? <Text className="text-sm text-rose-pine-love">{error}</Text> : null}
-      <Pressable
-        className="items-center rounded-lg bg-rose-pine-highlight-med px-4 py-3 active:opacity-80 disabled:opacity-50"
-        disabled={pending}
-        onPress={submit}
-      >
-        <Text className="font-semibold text-rose-pine-text">
-          {pending ? "Saving…" : "Create listing"}
-        </Text>
-      </Pressable>
+      {pinMessage ? <Text className="text-xs text-rose-pine-muted">{pinMessage}</Text> : null}
+      <View className="flex-row justify-center gap-2 pt-1">
+        <Pressable
+          className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80 disabled:opacity-50"
+          disabled={pending}
+          onPress={submit}
+        >
+          <Text className="text-xs font-semibold text-rose-pine-base">
+            {pending ? "Saving…" : "Submit"}
+          </Text>
+        </Pressable>
+        <Pressable
+          className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80"
+          disabled={pending}
+          onPress={setCoordinates}
+        >
+          <Text className="text-xs font-semibold text-rose-pine-base">Set Coordinates</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
