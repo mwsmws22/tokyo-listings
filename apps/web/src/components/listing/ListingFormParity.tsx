@@ -1,7 +1,7 @@
 "use client";
 
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import {
   PreferenceToggleGroup,
@@ -31,6 +31,16 @@ export type ListingCreateParityInput = {
 type Props = {
   onSubmit: (input: ListingCreateParityInput) => void;
   pending: boolean;
+  initialValues?: Partial<ListingCreateParityInput>;
+  submitLabel?: string;
+  secondaryAction?: {
+    label: string;
+    onPress: () => void;
+    destructive?: boolean;
+    disabled?: boolean;
+  };
+  showCheckDbButton?: boolean;
+  requireSelections?: boolean;
 };
 
 const inputClass =
@@ -45,7 +55,20 @@ const interestOptions = ["Top", "Extremely", "KindaPlus", "KindaMinus", "Nah"] a
 const availabilityOptions = ["募集中", "契約済"] as const;
 const propertyTypeOptions = ["一戸建て", "アパート"] as const;
 
-export function ListingFormParity({ onSubmit, pending }: Props) {
+function toInputValue(value: number | string | null | undefined): string {
+  if (value === null || value === undefined) return "";
+  return String(value);
+}
+
+export function ListingFormParity({
+  onSubmit,
+  pending,
+  initialValues,
+  submitLabel = "Submit",
+  secondaryAction,
+  showCheckDbButton = true,
+  requireSelections = true,
+}: Props) {
   const [error, setError] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -68,6 +91,31 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
     block: "",
     houseNumber: "",
   });
+
+  useEffect(() => {
+    if (!initialValues) return;
+    setForm((s) => ({
+      ...s,
+      title: initialValues.title ?? "",
+      monthlyRentYen: toInputValue(initialValues.monthlyRentYen),
+      addressText: initialValues.addressText ?? "",
+      sourceUrl: initialValues.sourceUrl ?? "",
+      reikinMonths: toInputValue(initialValues.reikinMonths),
+      securityDepositMonths: toInputValue(initialValues.securityDepositMonths),
+      squareM: toInputValue(initialValues.squareM),
+      closestStation: initialValues.closestStation ?? "",
+      walkingTimeMin: toInputValue(initialValues.walkingTimeMin),
+      availability: initialValues.availability,
+      propertyType: initialValues.propertyType,
+      interest: initialValues.interest,
+      prefecture: initialValues.prefecture ?? "",
+      municipality: initialValues.municipality ?? "",
+      town: initialValues.town ?? "",
+      district: initialValues.district ?? "",
+      block: initialValues.block ?? "",
+      houseNumber: initialValues.houseNumber ?? "",
+    }));
+  }, [initialValues]);
 
   const normalized = useMemo(() => {
     const toNumber = (value: string): number | undefined => {
@@ -114,7 +162,7 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
   }, [form]);
 
   function submit() {
-    if (!form.propertyType || !form.availability || !form.interest) {
+    if (requireSelections && (!form.propertyType || !form.availability || !form.interest)) {
       setError("Please select Property Type, Availability, and Interest before submitting.");
       return;
     }
@@ -142,12 +190,14 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
           value={form.sourceUrl}
           onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
         />
-        <Pressable
-          className="w-[84px] items-center justify-center rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-2 py-1.5"
-          onPress={() => setPinMessage("DB duplicate check will be added in ingest phase.")}
-        >
-          <Text className="text-xs font-semibold text-rose-pine-text">Check DB</Text>
-        </Pressable>
+        {showCheckDbButton ? (
+          <Pressable
+            className="w-[84px] items-center justify-center rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-2 py-1.5"
+            onPress={() => setPinMessage("DB duplicate check will be added in ingest phase.")}
+          >
+            <Text className="text-xs font-semibold text-rose-pine-text">Check DB</Text>
+          </Pressable>
+        ) : null}
       </View>
       <View className="hidden">
         <TextInput
@@ -345,16 +395,30 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
           onPress={submit}
         >
           <Text className="text-xs font-semibold text-rose-pine-base">
-            {pending ? "Saving…" : "Submit"}
+            {pending ? "Saving…" : submitLabel}
           </Text>
         </Pressable>
-        <Pressable
-          className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80"
-          disabled={pending}
-          onPress={setCoordinates}
-        >
-          <Text className="text-xs font-semibold text-rose-pine-base">Set Coordinates</Text>
-        </Pressable>
+        {secondaryAction ? (
+          <Pressable
+            className={`items-center rounded-lg px-4 py-2.5 active:opacity-80 ${secondaryAction.destructive ? "bg-rose-pine-love" : "bg-rose-pine-foam"}`}
+            disabled={pending || secondaryAction.disabled}
+            onPress={secondaryAction.onPress}
+          >
+            <Text
+              className={`text-xs font-semibold ${secondaryAction.destructive ? "text-rose-pine-base" : "text-rose-pine-base"}`}
+            >
+              {secondaryAction.label}
+            </Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80"
+            disabled={pending}
+            onPress={setCoordinates}
+          >
+            <Text className="text-xs font-semibold text-rose-pine-base">Set Coordinates</Text>
+          </Pressable>
+        )}
       </View>
     </View>
   );

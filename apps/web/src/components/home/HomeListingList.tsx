@@ -1,6 +1,6 @@
 "use client";
 
-import { formatAreaSqm, formatRentYen } from "@/lib/listing-display";
+import { formatAreaSqm, formatMonthsJa, formatRentYen } from "@/lib/listing-display";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 type ListingRowWithProperty = {
@@ -27,6 +27,16 @@ function valueOrNA(value: string | number | null | undefined): string {
   return String(value);
 }
 
+function compactListingMetaLine(row: ListingRowWithProperty): string {
+  const rent = formatRentYen(row.monthlyRentYen);
+  const area = formatAreaSqm(row.squareM);
+  const reikin = formatMonthsJa(row.reikinMonths).replace(/ヶ月$/, "");
+  const shiki = formatMonthsJa(row.securityDepositMonths).replace(/ヶ月$/, "");
+  const station = valueOrNA(row.closestStation);
+  const walk = valueOrNA(row.walkingTimeMin);
+  return `${rent} / ${area} / 礼${reikin} / 敷${shiki} / ${station} 徒歩${walk}分`;
+}
+
 function compactAddress(row: ListingRowWithProperty): string {
   const base = [row.property?.municipality, row.property?.town].filter(Boolean).join("");
   const typeHint = row.title.includes("アパート")
@@ -48,41 +58,23 @@ export function HomeListingList({ listings, selectedId, isLoading, onSelect }: P
 
   return (
     <ScrollView className="min-h-0 flex-1">
-      <View className="gap-2">
-        {listings.map((row) => (
+      <View className="overflow-hidden rounded-md border border-rose-pine-highlight-med">
+        {listings.map((row, index) => (
           <Pressable
             key={row.id}
-            className={`rounded-md border px-3 py-2 ${selectedId === row.id ? "border-rose-pine-iris bg-rose-pine-highlight-med/25" : "border-rose-pine-highlight-med"}`}
+            className={`px-3 py-2 ${selectedId === row.id ? "border-l-2 border-l-rose-pine-iris bg-rose-pine-highlight-med/25" : "bg-rose-pine-base"} ${index < listings.length - 1 ? "border-b border-rose-pine-highlight-med" : ""}`}
             onPress={() => onSelect(row)}
           >
             <Text className="text-xl text-rose-pine-text">{compactAddress(row)}</Text>
-            <Text
-              className="overflow-hidden text-[11px] text-rose-pine-muted"
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              賃料:{" "}
-              <Text className="font-semibold text-rose-pine-text">
-                {formatRentYen(row.monthlyRentYen)}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="max-h-5">
+              <Text
+                className="text-[10px] leading-tight text-rose-pine-muted"
+                numberOfLines={1}
+                ellipsizeMode="clip"
+              >
+                {compactListingMetaLine(row)}
               </Text>
-              {"  /  "}面積:{" "}
-              <Text className="font-semibold text-rose-pine-text">
-                {formatAreaSqm(row.squareM)}
-              </Text>
-              {"  /  "}礼金:{" "}
-              <Text className="font-semibold text-rose-pine-text">
-                {valueOrNA(row.reikinMonths)}ヶ月
-              </Text>
-              {"  /  "}敷金:{" "}
-              <Text className="font-semibold text-rose-pine-text">
-                {valueOrNA(row.securityDepositMonths)}ヶ月
-              </Text>
-              {"  /  "}
-              {valueOrNA(row.closestStation)} 徒歩
-              <Text className="font-semibold text-rose-pine-text">
-                {valueOrNA(row.walkingTimeMin)}分
-              </Text>
-            </Text>
+            </ScrollView>
           </Pressable>
         ))}
       </View>

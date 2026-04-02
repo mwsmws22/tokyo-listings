@@ -71,7 +71,7 @@ export function ListingsMapWorkspace({ leftPane, detailPanelMode = "selectedOnly
           <MapSelectionCoordinator />
         </MapShell>
         {selectedId || detailPanelMode === "always" ? (
-          <View className="absolute bottom-0 right-0 top-0 z-20 w-[600px] max-w-[48vw] border-l border-rose-pine-highlight-med bg-rose-pine-base p-3 shadow-2xl">
+          <View className="absolute bottom-0 right-0 top-0 z-20 w-[420px] max-w-[420px] border-l border-rose-pine-highlight-med bg-rose-pine-base p-3 shadow-2xl">
             <ListingDetailPanel />
           </View>
         ) : null}
