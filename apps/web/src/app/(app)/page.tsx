@@ -52,6 +52,7 @@ export default function HomePage() {
 
   return (
     <ListingsMapWorkspace
+      detailPanelMode="always"
       leftPane={
         <ScrollView className="max-h-[45vh] md:max-h-none">
           <View className="gap-3 px-3 py-2.5">

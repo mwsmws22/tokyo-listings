@@ -3,6 +3,9 @@
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
 import { useMemo, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
+import {
+  PreferenceToggleGroup,
+} from "@/components/listing/ListingPreferenceToggles";
 
 export type ListingCreateParityInput = {
   title: string;
@@ -39,6 +42,8 @@ const labelClass =
 const fieldCell = `${inputClass} min-w-[3.25rem] shrink grow basis-0`;
 
 const interestOptions = ["Top", "Extremely", "KindaPlus", "KindaMinus", "Nah"] as const;
+const availabilityOptions = ["募集中", "契約済"] as const;
+const propertyTypeOptions = ["一戸建て", "アパート"] as const;
 
 export function ListingFormParity({ onSubmit, pending }: Props) {
   const [error, setError] = useState<string | null>(null);
@@ -109,6 +114,10 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
   }, [form]);
 
   function submit() {
+    if (!form.propertyType || !form.availability || !form.interest) {
+      setError("Please select Property Type, Availability, and Interest before submitting.");
+      return;
+    }
     const parsed = listingCreateSchema.safeParse(normalized);
     if (!parsed.success) {
       setError(parsed.error.issues.map((e) => e.message).join("; "));
@@ -120,43 +129,6 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
 
   function setCoordinates() {
     setPinMessage("Pin placement is enabled from map interaction after selecting the listing.");
-  }
-
-  function RadioRow<T extends string>({
-    label,
-    values,
-    selected,
-    onSelect,
-  }: {
-    label: string;
-    values: readonly T[];
-    selected: T | undefined;
-    onSelect: (value: T | undefined) => void;
-  }) {
-    return (
-      <View className="gap-1">
-        <Text className="text-xs text-rose-pine-text">{label}</Text>
-        <View className="flex-row flex-wrap gap-2">
-          {values.map((value) => {
-            const active = selected === value;
-            return (
-              <Pressable
-                key={value}
-                className="flex-row items-center gap-1"
-                onPress={() => onSelect(active ? undefined : value)}
-              >
-                <View
-                  className={`h-3.5 w-3.5 rounded-full border ${active ? "border-rose-pine-foam bg-rose-pine-foam" : "border-rose-pine-highlight-med"}`}
-                />
-                <Text className="text-xs text-rose-pine-text">
-                  {value === "KindaPlus" ? "Kinda+" : value === "KindaMinus" ? "Kinda-" : value}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-    );
   }
 
   return (
@@ -336,27 +308,27 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
           />
         </View>
       </View>
-      <View className="flex-row gap-4">
+      <View className="flex-row gap-2">
         <View className="flex-1">
-          <RadioRow
+          <PreferenceToggleGroup
             label="Availability"
-            values={["募集中", "契約済"] as const}
+            values={availabilityOptions}
             selected={form.availability}
             onSelect={(availability) => setForm((s) => ({ ...s, availability }))}
           />
         </View>
         <View className="flex-1">
-          <RadioRow
-            label="Property Type"
-            values={["一戸建て", "アパート"] as const}
+          <PreferenceToggleGroup
+            label="Property type"
+            values={propertyTypeOptions}
             selected={form.propertyType}
             onSelect={(propertyType) => setForm((s) => ({ ...s, propertyType }))}
           />
         </View>
       </View>
-      <View className="flex-row flex-wrap gap-4">
+      <View className="gap-1.5">
         <View className="flex-1">
-          <RadioRow
+          <PreferenceToggleGroup
             label="Interest"
             values={interestOptions}
             selected={form.interest}
@@ -366,7 +338,7 @@ export function ListingFormParity({ onSubmit, pending }: Props) {
       </View>
       {error ? <Text className="text-sm text-rose-pine-love">{error}</Text> : null}
       {pinMessage ? <Text className="text-xs text-rose-pine-muted">{pinMessage}</Text> : null}
-      <View className="flex-row justify-center gap-2 pt-1">
+      <View className="mt-[15px] flex-row justify-center gap-2 pt-0">
         <Pressable
           className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80 disabled:opacity-50"
           disabled={pending}

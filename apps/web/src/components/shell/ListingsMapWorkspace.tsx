@@ -12,9 +12,10 @@ import { View } from "react-native";
 
 type Props = {
   leftPane: ReactNode;
+  detailPanelMode?: "selectedOnly" | "always";
 };
 
-export function ListingsMapWorkspace({ leftPane }: Props) {
+export function ListingsMapWorkspace({ leftPane, detailPanelMode = "selectedOnly" }: Props) {
   const selectedId = useAtomValue(selectedListingIdAtom);
   const setSelectedId = useSetAtom(selectedListingIdAtom);
   const setSelectedPreview = useSetAtom(selectedListingPreviewAtom);
@@ -69,8 +70,8 @@ export function ListingsMapWorkspace({ leftPane }: Props) {
           />
           <MapSelectionCoordinator />
         </MapShell>
-        {selectedId ? (
-          <View className="absolute bottom-0 right-0 top-0 z-20 w-[340px] border-l border-rose-pine-highlight-med bg-rose-pine-base p-3 shadow-2xl">
+        {selectedId || detailPanelMode === "always" ? (
+          <View className="absolute bottom-0 right-0 top-0 z-20 w-[600px] max-w-[48vw] border-l border-rose-pine-highlight-med bg-rose-pine-base p-3 shadow-2xl">
             <ListingDetailPanel />
           </View>
         ) : null}
