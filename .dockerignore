@@ -1,0 +1,17 @@
+.git
+.github
+**/.next
+**/node_modules
+# Exclude env files from context by default; include root `.env` so Docker web builds can run
+# `next build` with the same vars as local (see `docker/Dockerfile.web`).
+.env*
+!.env
+!.env.template
+*.md
+specs
+.cursor
+coverage
+dist
+build
+.turbo
+*.log

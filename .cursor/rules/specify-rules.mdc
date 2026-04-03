@@ -1,0 +1,74 @@
+---
+description: Project Development Guidelines
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# tokyo-listings Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2026-03-29
+
+## Active Technologies
+
+- TypeScript (strict), Node.js 22 LTS for Next.js; **Bun 1.2.x** (e.g. 1.2.23) for package manager + Next.js (App Router), **Uniwind** + **Tailwind v4** + **[Rosé Pine for Tailwind](https://github.com/rose-pine/tailwind-css)** (`react-native` + `react-native-web` + `@expo/next-adapter`), tRPC, TanStack Query, Jotai, Hono, (001-tokyo-listings-baseline). Avoid **Bun 1.3.11** for day-to-day installs on this repo — see **Bun / `bun install`** below.
+
+## Project Structure
+
+```text
+apps/web/
+apps/api/
+packages/db/
+tests/
+```
+
+## Commands
+
+bun run test && bun run lint
+
+## Docker Compose (primary integration check)
+
+After implementing or changing features that touch **API, web, DB, or Dockerfiles**, **verify the full stack** unless blocked (e.g. missing secrets only the operator can add):
+
+1. From the **repository root**: `docker compose build` (or `docker compose build --no-cache` when images must not use stale layers) then `docker compose up -d`.
+2. Root **`.env`** must exist with at least **`BETTER_AUTH_SECRET`**, **`GOOGLE_MAPS_API_KEY_SERVER`** (geocode) and **`GOOGLE_MAPS_API_KEY_CLIENT`** (Maps JS), and DB/auth URLs as in **`.env.template`**. If a required secret is missing, say so and stop short of claiming Compose is green.
+3. Quick smoke: `GET http://localhost:4001/health`, open **`http://localhost:3000`** (login/map/listings as relevant).
+
+Do **not** start a second Compose project on the same host ports (5432 / 4001 / 3000); bring any older stack down first. Postgres data persists in the **`tokyo-listings_postgres_data`** volume unless `docker compose down -v` is used.
+
+## Code Style
+
+TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x for package manager: Follow standard conventions
+
+## Recent Changes
+
+- 001-tokyo-listings-baseline: TypeScript (strict), Node.js 22 LTS for Next.js; Bun 1.x; Next.js (App Router), Uniwind + Tailwind + Rosé Pine, tRPC, TanStack Query, Jotai, Hono,
+
+<!-- MANUAL ADDITIONS START -->
+
+## Development environment (SSH)
+
+This repo is developed **over SSH**: Cursor (IDE and agent) runs in **Remote-SSH** mode against the user’s server, with the workspace and terminal on that machine—not on a local macOS/Windows box.
+
+When running commands, testing, or reasoning about paths and tooling, **assume Linux** (shell, package managers, file paths, process model). Prefer standard POSIX/Linux conventions unless the project explicitly documents otherwise.
+
+## Bun / `bun install`
+
+Tracking: [Bun issue #23969 — install performance regression (1.3.x vs 1.2.x)](https://github.com/oven-sh/bun/issues/23969#issuecomment-4149520781). This project intentionally uses **Bun 1.2.23** (or another **1.2.x**) so `bun install` stays fast and does not hang; upgrade Bun only after verifying the issue is resolved.
+
+## Dependency installs (agents)
+
+When `package.json` or `bun.lock` changes, dependencies are missing, or tasks need installed packages, **run `bun install` at the repository root** yourself, then continue with lint, typecheck, tests, or builds. Do not defer installs to the developer unless the environment truly cannot run Bun (e.g. no binary on PATH).
+
+## Environment files (Speckit / agents)
+
+- **`.env.template`** (repo root, committed): canonical list of variables, comments, and safe placeholder values. Update this whenever the env contract changes (new keys, renames, Docker/Bun needs).
+- **`.env`** (repo root, gitignored): operator’s real values for local dev and scripts (`bun --env-file=.env`). When adding or renaming variables, **update both** so `.env` stays in sync on this machine (new keys with empty defaults or placeholders as appropriate). Do not commit secrets.
+- Copy onboarding: `cp .env.template .env` then fill secrets.
+- Prefer **one** root `.env`; avoid per-app `.env` files unless a tool forces it.
+
+## Local dev ports
+
+- **Web** (Next.js): `3000` by default.
+- **API** (Hono): **`4001`** by default (`API_LISTEN_PORT` in root `.env`, `API_DEV_ORIGIN` / Next rewrites default to `http://localhost:4001`). Do not use `8787` for this project.
+
+<!-- MANUAL ADDITIONS END -->

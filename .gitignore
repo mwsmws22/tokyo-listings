@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets
+.env
+.env.*
+!.env.template
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Logs & caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# IDE (keep team-local; optional — uncomment if you do not commit editor settings)
+# .vscode/
+# .idea/
+
+# Test / coverage
+coverage/
+
+# Drizzle
+drizzle/meta/
+
+# Docker
+*.local.yaml
+compose.override.yaml
+
+# Misc
+.vercel
+.idea

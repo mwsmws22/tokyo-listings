@@ -19,6 +19,10 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Project conventions (tokyo-listings)
+
+When generated tasks (or follow-up work) introduce or rename environment variables, the implementation must update **both** repo-root **`.env.template`** (committed template) and **`.env`** (local, gitignored) so keys stay aligned. See `.cursor/rules/specify-rules.mdc` → **Environment files**.
+
 ## Pre-Execution Checks
 
 **Check for extension hooks (before tasks generation)**:

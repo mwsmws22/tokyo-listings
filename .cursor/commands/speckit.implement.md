@@ -86,6 +86,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **IF EXISTS**: Read contracts/ for API specifications and test requirements
    - **IF EXISTS**: Read research.md for technical decisions and constraints
    - **IF EXISTS**: Read quickstart.md for integration scenarios
+   - **tokyo-listings**: When changing env vars, update **`.env.template`** and **`.env`** at the repo root per `.cursor/rules/specify-rules.mdc` → **Environment files**.
 
 4. **Project Setup Verification**:
    - **REQUIRED**: Create/verify ignore files based on actual project setup:
