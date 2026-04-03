@@ -1,9 +1,7 @@
 "use client";
 
+import { PreferenceToggleGroup } from "@/components/listing/ListingPreferenceToggles";
 import { Text, TextInput, View } from "react-native";
-import {
-  PreferenceToggleGroup,
-} from "@/components/listing/ListingPreferenceToggles";
 
 export type HomeListingFiltersState = {
   propertyType?: "一戸建て" | "アパート";

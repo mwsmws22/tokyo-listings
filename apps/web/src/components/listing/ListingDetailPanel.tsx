@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  ListingFormParity,
   type ListingCreateParityInput,
+  ListingFormParity,
 } from "@/components/listing/ListingFormParity";
 import { formatAreaSqm, formatMonthsJa, formatRentYen } from "@/lib/listing-display";
 import { trpc } from "@/lib/trpc/client";
@@ -187,7 +187,9 @@ export function ListingDetailPanel() {
               <Text className="w-1/4 border-r border-rose-pine-highlight-med bg-rose-pine-overlay px-2 py-1 text-xs text-rose-pine-subtle">
                 Address
               </Text>
-              <Text className="w-3/4 px-2 py-1 text-xs text-rose-pine-text">{valueOrNA(row.addressText)}</Text>
+              <Text className="w-3/4 px-2 py-1 text-xs text-rose-pine-text">
+                {valueOrNA(row.addressText)}
+              </Text>
             </View>
           </View>
 

@@ -11,8 +11,7 @@
 ## Summary
 
 Rebuild **Tokyo Listings** as a **multi-tenant** web product: **auth-first**, then **map shell**,
-then **user-scoped listings** with geocoding and manual pins, then **filters**, then **URL
-ingestion / dedupe / merge** parity with the legacy app’s described behavior. **T4-aligned**
+then **user-scoped listings** with geocoding and manual pins as the baseline scope. **T4-aligned**
 tooling with **self-hosted PostgreSQL** and **Docker**—no dependency on Cloudflare Workers, D1, or
 Cloudflare-only hosting. Split **Next.js** (`apps/web`) and **Hono + tRPC + Drizzle + Better Auth**
 (`apps/api`) behind one Docker Compose stack; **Next.js** UI with **Uniwind** + **Tailwind CSS v4** and the **[Rosé Pine for Tailwind](https://github.com/rose-pine/tailwind-css)** theme (vendored `rose-pine-tailwind-v4`; default variant **Moon** in `globals.css`), **tRPC**, **TanStack Query**, **Jotai**,
@@ -37,7 +36,7 @@ Postgres in CI profile
 **Project Type**: Multi-package web application (web UI + HTTP API)
 
 **Performance Goals**: Subjective “snappy” UI for &lt;500 listings per user; API p95 &lt;500ms for
-list/filter on typical LAN/WAN excluding third-party map/geocode latency
+listing CRUD and map-related operations on typical LAN/WAN excluding third-party map/geocode latency
 
 **Constraints**: No edge-only database as sole store; secrets never logged; SMTP for auth email in
 production; map keys restricted per Google guidance
@@ -51,11 +50,11 @@ growth
 
 Verify alignment with `.specify/memory/constitution.md` (Tokyo Listings):
 
-- [x] **Data integrity**: Rent, location, and dedupe rules live in **Drizzle + domain helpers**
-  with tests; scraped rows store **sourceUrl** and **fetchedAt**; UI does not own uniqueness logic.
+- [x] **Data integrity**: Rent and location rules live in **Drizzle + domain helpers**
+  with tests; UI does not own core domain constraints.
 - [x] **Contracts**: **tRPC `AppRouter`** + `contracts/` docs; Better Auth routes documented via
   upstream; procedure list in `contracts/trpc-procedures.md`.
-- [x] **Test-first**: Vitest for **filter math**, **URL normalization**, **geocode status**
+- [x] **Test-first**: Vitest for **listing-domain helpers** and **geocode status**
   transitions; integration tests for **tenant isolation** on listing queries; visual-only work
   exempt per constitution with no domain change.
 - [x] **Integration**: Compose-based **Postgres + API** tests for migrations and tRPC procedures;

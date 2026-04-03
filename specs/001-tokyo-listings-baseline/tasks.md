@@ -9,14 +9,14 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Tests**: The feature spec does not mandate TDD-only delivery; **no standalone test-task phases** are included. Vitest may be added later for domain helpers (`plan.md`); optional polish task references CI typecheck only.
 
-**Organization**: Phases follow user stories **US1 → US5** (spec priorities). Setup and foundational work must complete before user stories.
+**Organization**: Phases follow user stories **US1 → US3** (spec priorities). Setup and foundational work must complete before user stories.
 
 **Runtime policy**: Development may use **local Bun + Next** for fast iteration. **Docker Compose** is a **first-class path**: after **US1**, the repo must support **postgres + api + web** in Compose, and new features should remain verifiable in containers (see Phase 4). Do not treat Docker as end-of-project polish only.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: `[US1]`…`[US5]` on user-story phases only
+- **[Story]**: `[US1]`…`[US3]` on user-story phases only
 - Paths are **repository-relative** from `tokyo-listings/` root
 
 ## Path Conventions (this repo)
@@ -62,7 +62,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 **Progress** (implementation verified):
 
-- [X] T011 Add Drizzle `listing` and `property` tables in `packages/db/src/schema/listings.ts` per `data-model.md` (include `userId`, `sourceUrl`, rent JPY, lat/lng, geocode status)
+- [X] T011 Add Drizzle `listing` table in `packages/db/src/schema/listings.ts` per `data-model.md` (include `userId`, rent JPY, lat/lng, geocode status)
 - [X] T012 Add Better Auth tables in `packages/db/src/schema/auth.ts` (or follow Better Auth + Drizzle generator output) and export from `packages/db/src/schema/index.ts`
 - [X] T013 Create `packages/db/src/index.ts` exporting schema types and table objects for `apps/api`
 - [X] T014 Add `packages/db/drizzle.config.ts` and generate initial migration under `packages/db/migrations/` — initial SQL under `packages/db/migrations/`; use `DATABASE_URL=... bun run db:migrate` from repo root (or `--cwd packages/db`)
@@ -150,7 +150,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 **Independent test**: User A creates listing with address → pin appears → drag pin → refresh persists; User B never sees A’s listings.
 
 - [X] T040 [US3] Implement `listing` tRPC router in `apps/api/src/trpc/routers/listing.ts` with `create`, `list`, `getById`, `update`, `delete` enforcing `ctx.userId` on all queries
-- [X] T041 [P] [US3] Add Zod schemas in `packages/validators/src/listing.ts` for create/update/list filters (initially optional filter fields)
+- [X] T041 [P] [US3] Add Zod schemas in `packages/validators/src/listing.ts` for create/update/list inputs
 - [X] T042 [US3] Implement `map` tRPC router in `apps/api/src/trpc/routers/map.ts` with `geocode` calling Google Geocoding API using server-side key in `apps/api/src/lib/geocoding.ts`
 - [X] T043 [US3] Register `listing` and `map` routers in `apps/api/src/trpc/router.ts` and export updated `AppRouter` type
 - [X] T044 [US3] Build `apps/web/src/components/ListingForm.tsx` for create/edit (title, monthly rent JPY, address text) calling `listing.create` / `update`
@@ -162,47 +162,15 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ---
 
-## Phase 7: User Story 4 — Find and narrow listings (Priority: P4)
-
-**Goal**: Combined filters: rent range, station distance cap, interest/tag — server-side filtering; UI drives query input.
-
-**Independent test**: Seed multiple listings; change rent slider/tag; list and markers stay consistent.
-
-- [ ] T048 [US4] Extend Zod list input in `packages/validators/src/listing.ts` with `minRent`, `maxRent`, `tag`, `maxStationDistanceMinutes` (names aligned to `data-model.md`)
-- [ ] T049 [US4] Apply Drizzle `where` clauses for filters in `apps/api/src/trpc/routers/listing.ts` `list` procedure
-- [ ] T050 [US4] Add `apps/web/src/state/listFilters.ts` Jotai atoms and derive tRPC `listing.list` input from atoms
-- [ ] T051 [US4] Build `apps/web/src/components/ListingFilterBar.tsx` and wire into `apps/web/src/app/(app)/listings/page.tsx` with TanStack Query invalidation
-
-**Checkpoint**: Filters narrow both sidebar list and visible markers.
-
----
-
-## Phase 8: User Story 5 — Listing ingestion and deduplication (Priority: P5)
-
-**Goal**: Ingest from at least one listing URL with **Cheerio**; reject duplicate URLs per user; merge listings under one `property`.
-
-**Independent test**: Same URL twice → error; two URLs merged → single property group in UI.
-
-- [ ] T052 [US5] Implement URL normalization helper in `packages/validators/src/url.ts` used by API before uniqueness check
-- [ ] T053 [US5] Implement `ingest` tRPC router in `apps/api/src/trpc/routers/ingest.ts` with `fromUrl` using `fetch` + `cheerio` and persisting `sourceUrl` + `sourceFetchedAt`
-- [ ] T054 [US5] Enforce unique `(userId, normalizedSourceUrl)` constraint in `ingest.fromUrl` and surface friendly `CONFLICT` error
-- [ ] T055 [US5] Implement `property` tRPC router in `apps/api/src/trpc/routers/property.ts` with `mergeListings` updating `listing.propertyId` transactionally
-- [ ] T056 [US5] Register `ingest` and `property` routers in `apps/api/src/trpc/router.ts`
-- [ ] T057 [US5] Add `apps/web/src/components/IngestFromUrlForm.tsx` and `apps/web/src/components/MergeListingsDialog.tsx` wired to new procedures
-
-**Checkpoint**: Duplicate URL rejected; merge associates listings for same user.
-
----
-
-## Phase 9: Polish & cross-cutting concerns
+## Phase 7: Polish & cross-cutting concerns
 
 **Purpose**: Documentation, CI lint/typecheck, contract doc sync. **Docker full-stack work is Phase 4, not here.**
 
-- [ ] T058 Add root `README.md` linking `.specify/memory/constitution.md` and `specs/001-tokyo-listings-baseline/spec.md`
+- [X] T058 Add root `README.md` linking `.specify/memory/constitution.md` and `specs/001-tokyo-listings-baseline/spec.md`
 - [X] T060 [P] Add root script `lint` running `biome check .` and `typecheck` running `tsc -b` across workspaces — **done** in root `package.json` (`lint`, `typecheck`)
-- [ ] T061 Add `.github/workflows/ci.yml` installing Bun, caching, running `bun install`, `bun run lint`, `bun run typecheck`
-- [ ] T062 Update `specs/001-tokyo-listings-baseline/contracts/trpc-procedures.md` to match final router procedure names
-- [ ] T063 Final pass on `specs/001-tokyo-listings-baseline/quickstart.md` for exact commands (`bun install`, compose up, migrate) and parity with **`docker/README.md`**
+- [X] T061 Add `.github/workflows/ci.yml` installing Bun, caching, running `bun install`, `bun run lint`, `bun run typecheck`
+- [X] T062 Update `specs/001-tokyo-listings-baseline/contracts/trpc-procedures.md` to match final router procedure names
+- [X] T063 Final pass on `specs/001-tokyo-listings-baseline/quickstart.md` for exact commands (`bun install`, compose up, migrate) and parity with **`docker/README.md`**
 
 ---
 
@@ -210,7 +178,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 
 ### Phase dependencies
 
-- **Phase 1** → **Phase 2** → **US1 (Phase 3)** → **Phase 4 (Docker full stack)** → **US2** → **US3** → **US4** → **US5** → **Polish (Phase 9)**
+- **Phase 1** → **Phase 2** → **US1 (Phase 3)** → **Phase 4 (Docker full stack)** → **US2** → **US3** → **Polish (Phase 7)**
 - **US2** depends on **US1** and **Phase 4** (Compose must run api + web + postgres before map work proceeds as the default gate)
 - **US3+** depend on **US2** for map components/paths (can mock map briefly if needed, not recommended)
 
@@ -219,8 +187,6 @@ description: "Task list for Tokyo Listings baseline implementation"
 - **US1**: After Phase 2 only
 - **US2**: After US1 and **Phase 4 (Docker)**
 - **US3**: After US2 (uses map surface)
-- **US4**: After US3 (needs listings)
-- **US5**: After US3 (needs listings/property schema); merge UI needs `property` router
 
 ### Parallel opportunities
 
@@ -228,7 +194,7 @@ description: "Task list for Tokyo Listings baseline implementation"
 - **US1**: T028 and T029 in parallel after T027
 - **US1**: T033 parallelizable after T032
 - **Phase 4**: T064 and T065 in parallel after T059 defines compose service names and build contexts
-- **Polish**: T060 and T061 in parallel after T058
+- **Polish (Phase 7)**: T060 and T061 in parallel after T058
 
 ---
 
@@ -257,9 +223,7 @@ Task: "apps/web/src/app/(auth)/register/page.tsx"
 2. **Phase 4** → Docker parity for api + web + postgres
 3. US2 → trust map integration
 4. US3 → core product value (listings + pins)
-5. US4 → power-user filtering
-6. US5 → parity with legacy scraping/dedupe spirit
-7. Polish → README, CI, contracts (Docker already done in Phase 4)
+5. Polish (Phase 7) → README, CI, contracts (Docker already done in Phase 4)
 
 ---
 

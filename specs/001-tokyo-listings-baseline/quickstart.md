@@ -34,22 +34,32 @@ Use **one** file at the repo root: copy `.env.template` → `.env` and set value
 docker compose up -d postgres
 ```
 
-**Full stack** (Postgres + API + Web) — run from repo root so `.env` is used for **`NEXT_PUBLIC_*` build args** (see [`docker/README.md`](../../docker/README.md)):
+**Full stack** (Postgres + API + Web) — run from repo root so `.env` is used for **`NEXT_PUBLIC_*` build args** (see [`docker/README.md`](../../../docker/README.md)):
 
 ```bash
 docker compose up --build
 ```
 
-(`compose.yaml` at the repo root includes `docker/docker-compose.yml`; you can still use `-f docker/docker-compose.yml` if you prefer.)
+Equivalent: `docker compose -f docker/docker-compose.yml up --build` (same file is included from root `compose.yaml`).
+
+**Docker parity** (details in [`docker/README.md`](../../../docker/README.md)):
+
+- Run Compose from the **repository root** so env substitution and `env_file` resolve correctly.
+- **`BETTER_AUTH_URL`** must match the browser origin (e.g. `http://localhost:3000`); align with **`NEXT_PUBLIC_BETTER_AUTH_URL`**.
+- Map keys for the web build: **`GOOGLE_MAPS_API_KEY_CLIENT`** / optional **`GOOGLE_MAPS_MAP_ID`** must be available at **`docker compose build`** time (see Dockerfile and compose comments).
+- The API container runs **Drizzle migrations on startup** before listening, so a fresh Postgres volume gets schema without a manual migrate inside the container workflow.
 
 ## 4. Migrations
 
-From the repository root (with a root `.env` containing `DATABASE_URL`; `bun run db:*` loads it automatically):
+**Host / Bun dev** — from the repository root (with a root `.env` containing `DATABASE_URL`; `bun run db:*` loads it automatically):
 
 ```bash
+bun install            # after clone or lockfile changes
 bun run db:generate   # when schema changes — creates/updates packages/db/migrations/
 bun run db:migrate    # apply migrations to Postgres
 ```
+
+**Docker full stack**: prefer letting the API entrypoint migrate on startup (see `docker/README.md`); use the commands above when developing against **Postgres-only** or when you change schema locally.
 
 ## 5. Run tests / lint
 

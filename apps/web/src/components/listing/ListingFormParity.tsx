@@ -1,11 +1,9 @@
 "use client";
 
+import { PreferenceToggleGroup } from "@/components/listing/ListingPreferenceToggles";
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import {
-  PreferenceToggleGroup,
-} from "@/components/listing/ListingPreferenceToggles";
 
 export type ListingCreateParityInput = {
   title: string;

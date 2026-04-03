@@ -3,11 +3,10 @@
 ## Primary contract: tRPC `AppRouter`
 
 This project uses **tRPC** between `apps/web` and `apps/api`. The **source of truth** is the
-exported TypeScript type **`AppRouter`** in `packages/api` (or `apps/api/src/router.ts`—exact path
-set during implementation).
+exported TypeScript type **`AppRouter`** in `apps/api/src/trpc/router.ts`.
 
 - **Procedure list**: See `trpc-procedures.md` in this folder for routers and procedure names
-  (update during implementation to match code).
+  (kept in sync with `AppRouter`).
 - **Versioning**: Breaking procedure or input/output shape changes require a **MAJOR** release for
   any published package **or** a documented migration window for the single deployable (per
   constitution).

@@ -1,41 +1,40 @@
-# tRPC procedure outline (baseline)
+# tRPC procedures (baseline)
 
-**Status**: Planning artifact — **rename/split to match code** during implementation.
+**Status**: Aligned with `apps/api/src/trpc/router.ts` and nested routers.
 
-Router names are indicative.
+HTTP entry: **`/trpc`** (Hono + `@hono/trpc-server`). Better Auth remains on **`/api/auth/*`** (not tRPC).
 
-## `auth` (if not fully covered by Better Auth client only)
+## Root router
 
-- _(none — prefer Better Auth HTTP routes + session helpers in tRPC context)_
+| Procedure | Type   | Auth | Output / behavior |
+|-----------|--------|------|-------------------|
+| `health`  | query  | public | `{ ok: true }` — liveness |
 
 ## `listing`
 
-- `list` — input: filter DTO (rent range, tag, station distance max); output: listing DTOs **scoped
-  to authenticated user**
-- `getById` — input: id; output: listing or NOT_FOUND; **must verify userId**
-- `create` — input: create DTO; output: listing
-- `update` — input: id + patch; output: listing
-- `delete` — input: id; output: success
+Router: `listing` — all procedures use **`protectedProcedure`** (requires `ctx.userId`).
+
+| Procedure | Type    | Input (Zod) | Notes |
+|-----------|---------|-------------|--------|
+| `create`  | mutation | `listingCreateSchema` | Creates listing; geocodes address server-side when configured; may create/link `property` rows for structured address fields. |
+| `list`    | query    | `listingListSchema` | Lists current user’s listings; optional filter fields + `buildListingWhereClause` in `apps/api/src/lib/listing-filters.ts`. |
+| `getById` | query    | `listingIdSchema` | Single listing with joined data for detail UI; **NOT_FOUND** if missing or wrong user. |
+| `update`  | mutation | `listingUpdateSchema` | Patch by id; enforces ownership. |
+| `delete`  | mutation | `listingIdSchema` | Delete by id; enforces ownership. |
 
 ## `map`
 
-- `geocode` — input: address text; output: lat/lng + status (server-side Google Geocoding)
+Router: `map` — **`protectedProcedure`** only.
 
-## `property`
+| Procedure | Type  | Input (Zod) | Notes |
+|-----------|-------|-------------|--------|
+| `geocode` | query | `mapGeocodeSchema` (`address`) | Server-side Google Geocoding; **BAD_REQUEST** if geocoding fails. |
 
-- `create` — optional; or auto-create on first merge
-- `mergeListings` — input: listing ids + target property id; output: updated rows
-
-## `ingest` (P5)
-
-- `fromUrl` — input: url string; output: created listing or duplicate error
-- `preview` — optional: fetch metadata without persist
-
-## Context requirements
+## Context
 
 Every procedure receives `ctx` with:
 
 - `session` / `userId` from Better Auth
-- `db` Drizzle client
+- `db` — Drizzle client
 
-**Unauthorized** requests MUST throw `UNAUTHORIZED` for mutating user data.
+**Unauthorized** access to protected procedures MUST throw **`UNAUTHORIZED`** (no `userId`).

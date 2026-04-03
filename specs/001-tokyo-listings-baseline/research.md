@@ -106,19 +106,7 @@ extra tuning.
 
 ---
 
-## 8. Scraping & ingestion (later phases)
-
-**Decision**: **Cheerio**-based HTML parsing in `apps/api` behind authenticated tRPC mutations;
-**axios** or **fetch** for HTTP; strict **per-user URL dedupe**; store **source URL**, **fetchedAt**,
-and raw snapshot path optional. **No** headless browser in baseline—add Playwright only if a site
-requires JS rendering (separate ADR).
-
-**Rationale**: Aligns with constitution (provenance, integrity); matches legacy Node/cheerio
-direction.
-
----
-
-## 9. Linting & formatting
+## 8. Linting & formatting
 
 **Decision**: **Biome** (or **ESLint 9 flat + Prettier** if Biome conflicts with a required tool)—default
 **Biome** for monorepo speed; **TypeScript** `strict`; CI runs `biome check` and `tsc --noEmit`.
@@ -127,9 +115,9 @@ direction.
 
 ---
 
-## 10. Testing
+## 9. Testing
 
-**Decision**: **Vitest** for unit/domain tests (filters, dedupe rules); **Playwright** optional for
+**Decision**: **Vitest** for unit/domain tests (auth/listing/map domain helpers); **Playwright** optional for
 critical auth + map smoke after baseline stable; integration tests against **Postgres** via
 docker-compose test profile or Testcontainers (evaluate in implementation).
 
@@ -137,7 +125,7 @@ docker-compose test profile or Testcontainers (evaluate in implementation).
 
 ---
 
-## 11. Docker & local dev
+## 10. Docker & local dev
 
 **Decision**: `docker compose` services: `postgres`, `api`, `web`. Document **local** workflow with
 `docker compose up` and env files. **No** Cloudflare tunnel or DNS in scope.

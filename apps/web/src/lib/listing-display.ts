@@ -23,6 +23,6 @@ export function formatMonthsJa(value: number | string | null | undefined): strin
   if (!Number.isFinite(numeric)) {
     return "N/A";
   }
-  const trimmed = parseFloat(numeric.toFixed(2)).toString();
+  const trimmed = Number.parseFloat(numeric.toFixed(2)).toString();
   return `${trimmed}ヶ月`;
 }
