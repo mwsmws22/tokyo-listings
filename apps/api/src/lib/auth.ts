@@ -21,6 +21,17 @@ function requireAuthSecret(): string {
 
 const baseURL = process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
 
+function parseTrustedOrigins(baseOrigin: string): string[] {
+  const configuredOrigins = process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "";
+  const parsedOrigins = configuredOrigins
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+
+  // Keep base origin trusted even if the env var is missing/misconfigured.
+  return Array.from(new Set([baseOrigin, ...parsedOrigins]));
+}
+
 export const auth = betterAuth({
   baseURL,
   secret: requireAuthSecret(),
@@ -82,5 +93,5 @@ export const auth = betterAuth({
         });
     },
   },
-  trustedOrigins: [baseURL],
+  trustedOrigins: parseTrustedOrigins(baseURL),
 });

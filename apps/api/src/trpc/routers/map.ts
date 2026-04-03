@@ -10,7 +10,7 @@ export const mapRouter = router({
       throw new TRPCError({
         code: "BAD_REQUEST",
         message:
-          "Geocoding failed. Check the address, GOOGLE_MAPS_API_KEY, and Geocoding API enablement.",
+          "Geocoding failed. Check the address, GOOGLE_MAPS_API_KEY_SERVER, and Geocoding API enablement.",
       });
     }
     return result;

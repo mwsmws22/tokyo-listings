@@ -25,9 +25,9 @@ document a thin REST facade—**not required for baseline**.
 
 ## Environment
 
-- **Server-only**: `DATABASE_URL`, `BETTER_AUTH_SECRET`, SMTP for email, and **`GOOGLE_MAPS_API_KEY`**
+- **Server-only**: `DATABASE_URL`, `BETTER_AUTH_SECRET`, SMTP for email, and **`GOOGLE_MAPS_API_KEY_SERVER`** (geocoding)
   for Geocoding API (same key as the browser Maps JS API if enabled on the key).
-- **Client-exposed**: Next inlines **`GOOGLE_MAPS_API_KEY`** and **`GOOGLE_MAPS_MAP_ID`** via
+- **Client-exposed**: Next inlines **`GOOGLE_MAPS_API_KEY_CLIENT`** and **`GOOGLE_MAPS_MAP_ID`** via
   `apps/web/next.config.ts` as `NEXT_PUBLIC_*` at build time; restrict the key by HTTP referrer in
   Google Cloud.
 

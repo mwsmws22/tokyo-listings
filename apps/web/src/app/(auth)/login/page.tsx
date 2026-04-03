@@ -31,13 +31,12 @@ export default function LoginPage() {
 
   return (
     <View className="w-full gap-3">
-      <Text className="text-3xl font-bold text-rose-pine-text">Sign in</Text>
-      <View className="flex-row flex-wrap gap-1">
-        <Text className="text-sm text-rose-pine-muted">
-          Use your email and password. No account?
-        </Text>
+      <Text className="text-4xl font-bold text-rose-pine-text">Sign in</Text>
+      <View className="flex-row items-center gap-1">
+        <Text className="text-sm leading-5 text-rose-pine-muted">Use your email and password.</Text>
+        <Text className="text-sm leading-5 text-rose-pine-muted">No account?</Text>
         <Link href="/register">
-          <Text className="text-sm text-rose-pine-foam underline">Register</Text>
+          <Text className="text-sm leading-5 text-rose-pine-foam underline">Register</Text>
         </Link>
       </View>
       <View className="gap-3">
@@ -73,11 +72,11 @@ export default function LoginPage() {
           </Text>
         ) : null}
         <Pressable
-          className="items-center rounded-lg bg-rose-pine-highlight-med px-4 py-3 active:opacity-80 disabled:opacity-50"
+          className="items-center rounded-lg bg-rose-pine-foam px-4 py-3 active:opacity-80 disabled:opacity-50"
           disabled={pending}
           onPress={() => void handleSignIn()}
         >
-          <Text className="font-semibold text-rose-pine-text">
+          <Text className="font-semibold text-rose-pine-base">
             {pending ? "Signing in…" : "Sign in"}
           </Text>
         </Pressable>

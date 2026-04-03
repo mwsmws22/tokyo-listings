@@ -43,11 +43,11 @@ Override the web bind with `WEB_PUBLISH_PORT` (e.g. `WEB_PUBLISH_PORT=3001`). Ov
 ## Environment and Better Auth URL
 
 - **`BETTER_AUTH_URL`** must equal the **browser origin** users open (scheme + host + port), e.g. `http://localhost:3000` when you publish the web service on port 3000. The API uses it for CORS; the Better Auth client uses **`NEXT_PUBLIC_BETTER_AUTH_URL`** with the **same value**.
-- **`GOOGLE_MAPS_API_KEY`** / **`GOOGLE_MAPS_MAP_ID`** are inlined at **web image build** (`next.config.ts` `env`). Ensure they are non-empty during `next build` by either:
-  - **Compose build args**: root `.env` present and `docker compose build` run from the repo root (so `${GOOGLE_MAPS_API_KEY}` interpolates), **or**
+- **`GOOGLE_MAPS_API_KEY_CLIENT`** / **`GOOGLE_MAPS_MAP_ID`** are inlined at **web image build** (`next.config.ts` `env`). Ensure they are non-empty during `next build` by either:
+  - **Compose build args**: root `.env` present and `docker compose build` run from the repo root (so variables interpolate), **or**
   - **Root `.env` in the build context**: `.dockerignore` includes `!.env`; `Dockerfile.web` copies `/app/.env` → `apps/web/.env` before `next build` so Next loads the same file as local dev.  
   After changing keys, rebuild: `docker compose build web` then `docker compose up -d`.  
-  The **API** uses **`GOOGLE_MAPS_API_KEY`** at runtime (`env_file`) for geocoding.
+  The **API** uses **`GOOGLE_MAPS_API_KEY_SERVER`** at runtime (`env_file`) for geocoding.
 - Inside the Compose network, the Next server proxies `/api` and `/trpc` to **`http://api:4001`**; that value is baked in at build via `API_DEV_ORIGIN` (see `docker/Dockerfile.web`).
 
 ## Database migrations

@@ -47,7 +47,7 @@ services:
       dockerfile: docker/Dockerfile.web
       args:
         API_DEV_ORIGIN: http://api:4001
-        NEXT_PUBLIC_BETTER_AUTH_URL: ${NEXT_PUBLIC_BETTER_AUTH_URL:-http://localhost:3000}
+        NEXT_PUBLIC_BETTER_AUTH_URL: ${NEXT_PUBLIC_BETTER_AUTH_URL:-}
     ports:
       - "${WEB_PUBLISH_PORT:-3000}:3000"
     env_file:
@@ -57,7 +57,7 @@ services:
       PORT: "3000"
       API_DEV_ORIGIN: http://api:4001
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
-      NEXT_PUBLIC_BETTER_AUTH_URL: ${NEXT_PUBLIC_BETTER_AUTH_URL:-http://localhost:3000}
+      NEXT_PUBLIC_BETTER_AUTH_URL: ${NEXT_PUBLIC_BETTER_AUTH_URL:-}
     depends_on:
       api:
         condition: service_healthy
