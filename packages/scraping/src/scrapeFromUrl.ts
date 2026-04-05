@@ -77,6 +77,9 @@ export async function scrapeFromUrl(
         timeoutMs: env.fetchTimeoutMs,
         maxBodyBytes: env.maxBodyBytes,
         fetchImpl: options.fetchImpl,
+        userAgent: env.userAgent,
+        retries: env.fetchRetries,
+        retryDelayMs: env.fetchRetryDelayMs,
       }),
     );
 

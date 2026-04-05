@@ -1,5 +1,7 @@
 import { parseAthomeDetail } from "../portals/athome";
+import { parseLifullHomesDetail } from "../portals/homes";
 import { parseListingPageStub } from "../portals/stub";
+import { parseSuumoDetail } from "../portals/suumo";
 import type { PortalId } from "./types";
 import type { ScrapeResult } from "./types";
 
@@ -25,6 +27,12 @@ export async function parseListingPage(
 ): Promise<ScrapeResult> {
   if (portal === "athome") {
     return parseAthomeDetail(html, canonicalUrl);
+  }
+  if (portal === "suumo") {
+    return parseSuumoDetail(html, canonicalUrl);
+  }
+  if (portal === "lifull_homes") {
+    return parseLifullHomesDetail(html, canonicalUrl);
   }
   return parseListingPageStub(portal, html, canonicalUrl);
 }

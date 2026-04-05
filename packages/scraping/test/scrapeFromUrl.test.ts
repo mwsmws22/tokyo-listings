@@ -50,4 +50,51 @@ describe("scrapeFromUrl", () => {
       expect(r.draft.monthlyRentYen).toBe(125_000);
     }
   });
+
+  it("recognizes Homes chintai room pages from canonical URL in HTML, not only </dt> label pairs", async () => {
+    const html = readFileSync(
+      join(
+        dirname(fileURLToPath(import.meta.url)),
+        "fixtures/homes-detection-canonical-only.sample.html",
+      ),
+      "utf8",
+    );
+    const r = await scrapeFromUrl(
+      "https://www.homes.co.jp/chintai/room/689140c34049a740002534eaa19a6cbdde05d867/",
+      {
+        fetchImpl: async () =>
+          new Response(html, {
+            status: 200,
+            headers: { "content-type": "text/html; charset=utf-8" },
+          }),
+      },
+    );
+    expect(r.status).toBe("parse_failed");
+    if (r.status === "parse_failed") {
+      expect(r.portal).toBe("lifull_homes");
+      expect(r.message).toContain("賃料");
+    }
+  });
+
+  it("returns ok when mock fetch returns Homes dl room fixture", async () => {
+    const html = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "fixtures/homes-traffic-multiline.sample.html"),
+      "utf8",
+    );
+    const r = await scrapeFromUrl(
+      "https://www.homes.co.jp/chintai/room/689140c34049a740002534eaa19a6cbdde05d867/",
+      {
+        fetchImpl: async () =>
+          new Response(html, {
+            status: 200,
+            headers: { "content-type": "text/html; charset=utf-8" },
+          }),
+      },
+    );
+    expect(r.status).toBe("ok");
+    if (r.status === "ok") {
+      expect(r.draft.closestStation).toBe("東大前駅");
+      expect(r.draft.walkingTimeMin).toBe(3);
+    }
+  });
 });

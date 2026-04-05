@@ -3,6 +3,7 @@
 import { ListingMarkers } from "@/components/ListingMarkers";
 import { MapShell } from "@/components/MapShell";
 import { ListingDetailPanel } from "@/components/listing/ListingDetailPanel";
+import { AddListingGeocodeCoordinator } from "@/components/map/AddListingGeocodeCoordinator";
 import { MapSelectionCoordinator } from "@/components/map/MapSelectionCoordinator";
 import { trpc } from "@/lib/trpc/client";
 import { selectedListingIdAtom, selectedListingPreviewAtom } from "@/state/selectedListing";
@@ -13,9 +14,18 @@ import { View } from "react-native";
 type Props = {
   leftPane: ReactNode;
   detailPanelMode?: "selectedOnly" | "always";
+  /**
+   * When set (including `null`), enables add-flow map behavior: geocode this address after
+   * URL preview and center the map. Omit on routes that are not add-listing.
+   */
+  addListingMapAddress?: string | null;
 };
 
-export function ListingsMapWorkspace({ leftPane, detailPanelMode = "selectedOnly" }: Props) {
+export function ListingsMapWorkspace({
+  leftPane,
+  detailPanelMode = "selectedOnly",
+  addListingMapAddress,
+}: Props) {
   const selectedId = useAtomValue(selectedListingIdAtom);
   const setSelectedId = useSetAtom(selectedListingIdAtom);
   const setSelectedPreview = useSetAtom(selectedListingPreviewAtom);
@@ -62,6 +72,9 @@ export function ListingsMapWorkspace({ leftPane, detailPanelMode = "selectedOnly
       </View>
       <View className="relative min-h-[45vh] flex-1 md:min-h-0">
         <MapShell>
+          {addListingMapAddress !== undefined ? (
+            <AddListingGeocodeCoordinator address={addListingMapAddress ?? ""} />
+          ) : null}
           <ListingMarkers
             adjustPin={false}
             selectedListingId={selectedId}

@@ -91,10 +91,10 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: `suumo.test.ts` passes on fixture.
 
-- [ ] T022 [US1] Add `suumo-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/suumo-detail.sample.html`
-- [ ] T023 [US1] Implement `parseSuumoDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/suumo.ts` referencing legacy `parseSuumo` in ScrapingService.js
-- [ ] T024 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/suumo.test.ts` with golden assertions
-- [ ] T025 [US1] Register Suumo parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `suumo.jp` / `www.suumo.jp`
+- [x] T022 [US1] Add `suumo-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/suumo-detail.sample.html`
+- [x] T023 [US1] Implement `parseSuumoDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/suumo.ts` referencing legacy `parseSuumo` in ScrapingService.js
+- [x] T024 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/suumo.test.ts` with golden assertions
+- [x] T025 [US1] Register Suumo parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `suumo.jp` / `www.suumo.jp`
 
 ---
 
@@ -104,10 +104,10 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: `homes.test.ts` passes on fixture.
 
-- [ ] T026 [US1] Add `homes-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/homes-detail.sample.html`
-- [ ] T027 [US1] Implement `parseLifullHomesDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/homes.ts` referencing legacy `parseLifullHomes`
-- [ ] T028 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/homes.test.ts` with golden assertions
-- [ ] T029 [US1] Register Homes parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `www.homes.co.jp` / `homes.co.jp`
+- [x] T026 [US1] Add `homes-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/homes-detail.sample.html`
+- [x] T027 [US1] Implement `parseLifullHomesDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/homes.ts` referencing legacy `parseLifullHomes`
+- [x] T028 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/homes.test.ts` with golden assertions
+- [x] T029 [US1] Register Homes parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `www.homes.co.jp` / `homes.co.jp`
 
 **Checkpoint**: All three portals extract on fixtures; `scrapeFromUrl` returns `ok` or `partial` with warnings for fixture URLs.
 

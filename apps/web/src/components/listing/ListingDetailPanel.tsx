@@ -25,8 +25,7 @@ export function ListingDetailPanel() {
   const listQuery = trpc.listing.list.useQuery({});
   const utils = trpc.useUtils();
   const listings = listQuery.data ?? [];
-  const fallbackId = listings[0]?.id ?? null;
-  const effectiveSelectedId = selectedId ?? fallbackId;
+  const effectiveSelectedId = selectedId;
   const detailsQuery = trpc.listing.getById.useQuery(
     { id: effectiveSelectedId ?? "" },
     { enabled: Boolean(effectiveSelectedId) },
@@ -84,7 +83,11 @@ export function ListingDetailPanel() {
     return (
       <View className="gap-2">
         <Text className="font-semibold text-rose-pine-text">Listing details</Text>
-        <Text className="text-sm text-rose-pine-muted">No listings available.</Text>
+        <Text className="text-sm text-rose-pine-muted">
+          {listings.length === 0
+            ? "No listings available."
+            : "Select a listing from the list or map."}
+        </Text>
       </View>
     );
   }

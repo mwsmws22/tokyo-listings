@@ -19,6 +19,7 @@ export default function AddListingsPage() {
   }>({});
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadWarnings, setLoadWarnings] = useState<string[]>([]);
+  const [mapPreviewAddress, setMapPreviewAddress] = useState<string | null>(null);
   const [urlPreviewStatus, setUrlPreviewStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
@@ -36,6 +37,7 @@ export default function AddListingsPage() {
   const { mutate: previewFromUrlMutate } = trpc.listing.previewFromUrl.useMutation({
     onMutate: () => {
       setUrlPreviewStatus("loading");
+      setMapPreviewAddress(null);
     },
     onSuccess: (res) => {
       if (
@@ -47,6 +49,7 @@ export default function AddListingsPage() {
         setLoadWarnings([]);
         setScrapeMeta({});
         setUrlPreviewStatus("error");
+        setMapPreviewAddress(null);
         return;
       }
       setLoadError(null);
@@ -54,6 +57,8 @@ export default function AddListingsPage() {
       setLoadWarnings(res.status === "partial" ? res.draft.warnings : []);
       setScrapeMeta({ portal: res.portal, fetchedAt: new Date() });
       const d = res.draft;
+      const addr = d.addressText?.trim();
+      setMapPreviewAddress(addr && addr.length >= 4 ? addr : null);
       setPrefill({
         title: d.title ?? "",
         monthlyRentYen: d.monthlyRentYen,
@@ -76,6 +81,7 @@ export default function AddListingsPage() {
     onError: (err) => {
       setLoadError(err.message);
       setUrlPreviewStatus("error");
+      setMapPreviewAddress(null);
     },
   });
 
@@ -89,6 +95,7 @@ export default function AddListingsPage() {
 
   const onUrlPreviewClear = useCallback(() => {
     setUrlPreviewStatus("idle");
+    setMapPreviewAddress(null);
   }, []);
 
   const onSourceUrlTextChange = useCallback(() => {
@@ -96,6 +103,7 @@ export default function AddListingsPage() {
     setLoadError(null);
     setLoadWarnings([]);
     setScrapeMeta({});
+    setMapPreviewAddress(null);
   }, []);
 
   useEffect(() => {
@@ -108,6 +116,7 @@ export default function AddListingsPage() {
 
   return (
     <ListingsMapWorkspace
+      addListingMapAddress={mapPreviewAddress}
       leftPane={
         <ScrollView className="max-h-[45vh] md:max-h-none">
           <View className="gap-3 px-3 py-2.5">
