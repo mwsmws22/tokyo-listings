@@ -1,7 +1,7 @@
 # tRPC contracts: Listing scrape / preview (004)
 
-**Status**: Planned — not implemented until tasks land.  
-**Router**: `apps/api/src/trpc/router.ts` (extend `listing` router or add nested router per implementation choice).
+**Status**: Implemented (Phase 6).  
+**Router**: `apps/api/src/trpc/router.ts` — procedure lives on **`listing`**.
 
 ## Principles
 
@@ -10,17 +10,17 @@
 
 ## Planned procedures
 
-### `listing.previewFromUrl` (query or mutation)
+### `listing.previewFromUrl` (mutation)
 
 **Use case**: Add-listing page: user submits URL → server returns draft fields for form prefill (no DB write).
 
-| Aspect | Plan |
-|--------|------|
-| **Input** | `{ url: string }` — Zod: valid URL, max length aligned with `sourceUrl` |
-| **Output** | `ScrapeResult` discriminated union: success (`ok` / `partial` with `draft` + warnings), failure (`unsupported_host`, `fetch_failed`, `parse_failed`) with user-safe `message` / `code` |
-| **Errors** | `BAD_REQUEST` — invalid URL; `TOO_MANY_REQUESTS` — optional if global scrape pool saturated; `INTERNAL_SERVER_ERROR` — unexpected (logged, not detailed to client) |
+| Aspect | Implementation |
+|--------|----------------|
+| **Input** | `scrapingPreviewInputSchema`: `{ url: string }` — valid URL, max 2000 chars (`packages/validators/src/scraping.ts`) |
+| **Output** | `scrapingPreviewOutputSchema`: discriminated union aligned with `ScrapeResult` (`ok` / `partial` with `draft` + `warnings`; `unsupported_host` / `fetch_failed` / `parse_failed` with user-safe `message` and optional `code`) |
+| **Errors** | `INTERNAL_SERVER_ERROR` — unexpected scrape/pipeline failure (logged server-side; generic message to client). URL validation failures surface as mutation error from Zod input parsing where applicable. |
 
-**Side effects**: HTTP fetch to third-party sites; subject to rate limiting and logging.
+**Side effects**: HTTP fetch to third-party sites; subject to scraping package rate limiting and logging.
 
 ### `listing.checkSourceUrl` (query) — optional consolidation
 

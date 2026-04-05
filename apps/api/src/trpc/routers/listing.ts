@@ -1,15 +1,23 @@
 import { listing, property } from "@tokyo-listings/db";
+import { canonicalizeListingUrl, scrapeFromUrl } from "@tokyo-listings/scraping";
 import {
   listingCreateSchema,
   listingIdSchema,
   listingListSchema,
   listingUpdateSchema,
 } from "@tokyo-listings/validators/listing";
+import {
+  scrapingPreviewInputSchema,
+  scrapingPreviewOutputSchema,
+} from "@tokyo-listings/validators/scraping";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { geocodeAddress } from "../../lib/geocoding";
 import { buildListingWhereClause } from "../../lib/listing-filters";
+import { createLogger } from "../../lib/logger";
 import { protectedProcedure, router } from "../trpc";
+
+const log = createLogger();
 
 function requireUserId(userId: string | null): string {
   if (!userId) {
@@ -19,8 +27,45 @@ function requireUserId(userId: string | null): string {
 }
 
 export const listingRouter = router({
+  previewFromUrl: protectedProcedure
+    .input(scrapingPreviewInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = requireUserId(ctx.userId);
+      log.info({ userId, url: input.url }, "listing.previewFromUrl");
+      try {
+        const raw = await scrapeFromUrl(input.url);
+        return scrapingPreviewOutputSchema.parse(raw);
+      } catch (e) {
+        log.error({ err: e, userId }, "listing.previewFromUrl failed");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not preview listing from URL.",
+        });
+      }
+    }),
+
   create: protectedProcedure.input(listingCreateSchema).mutation(async ({ ctx, input }) => {
     const userId = requireUserId(ctx.userId);
+
+    let normalizedSourceUrl: string | null = null;
+    if (input.sourceUrl?.trim()) {
+      try {
+        normalizedSourceUrl = canonicalizeListingUrl(input.sourceUrl.trim());
+      } catch {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid source URL." });
+      }
+      const existing = await ctx.db
+        .select({ id: listing.id })
+        .from(listing)
+        .where(and(eq(listing.userId, userId), eq(listing.sourceUrl, normalizedSourceUrl)))
+        .limit(1);
+      if (existing.length > 0) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A listing with this source URL already exists.",
+        });
+      }
+    }
 
     const coords = await geocodeAddress(input.addressText);
     const hasKey = Boolean(process.env.GOOGLE_MAPS_API_KEY_SERVER?.trim());
@@ -61,29 +106,43 @@ export const listingRouter = router({
       propertyId = createdProperty?.id ?? null;
     }
 
-    const [row] = await ctx.db
-      .insert(listing)
-      .values({
-        userId,
-        propertyId,
-        title: input.title,
-        monthlyRentYen: input.monthlyRentYen,
-        addressText: input.addressText,
-        latitude: input.latitude ?? coords?.lat ?? null,
-        longitude: input.longitude ?? coords?.lng ?? null,
-        geocodeStatus: (coords ? "ok" : hasKey ? "failed" : "pending") as
-          | "pending"
-          | "ok"
-          | "failed",
-        sourceUrl: input.sourceUrl ?? null,
-        reikinMonths: input.reikinMonths?.toString() ?? null,
-        securityDepositMonths: input.securityDepositMonths?.toString() ?? null,
-        squareM: input.squareM?.toString() ?? null,
-        closestStation: input.closestStation ?? null,
-        walkingTimeMin: input.walkingTimeMin ?? null,
-        availability: input.availability ?? null,
-      })
-      .returning();
+    let row: typeof listing.$inferSelect | undefined;
+    try {
+      const [inserted] = await ctx.db
+        .insert(listing)
+        .values({
+          userId,
+          propertyId,
+          title: input.title,
+          monthlyRentYen: input.monthlyRentYen,
+          addressText: input.addressText,
+          latitude: input.latitude ?? coords?.lat ?? null,
+          longitude: input.longitude ?? coords?.lng ?? null,
+          geocodeStatus: (coords ? "ok" : hasKey ? "failed" : "pending") as
+            | "pending"
+            | "ok"
+            | "failed",
+          sourceUrl: normalizedSourceUrl ?? input.sourceUrl ?? null,
+          sourcePortal: input.sourcePortal ?? null,
+          sourceFetchedAt: input.sourceFetchedAt ?? null,
+          reikinMonths: input.reikinMonths?.toString() ?? null,
+          securityDepositMonths: input.securityDepositMonths?.toString() ?? null,
+          squareM: input.squareM?.toString() ?? null,
+          closestStation: input.closestStation ?? null,
+          walkingTimeMin: input.walkingTimeMin ?? null,
+          availability: input.availability ?? null,
+        })
+        .returning();
+      row = inserted;
+    } catch (e) {
+      if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "23505") {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A listing with this source URL already exists.",
+        });
+      }
+      throw e;
+    }
 
     if (!row) {
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to create listing" });

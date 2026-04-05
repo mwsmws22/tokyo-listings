@@ -2,3 +2,44 @@
 @import "tailwindcss";
 @import "uniwind";
 @import "../styles/rose-pine-tailwind-v4/rose-pine-pine.css";
+
+/* Listing URL field: a highlight travels CCW along the border; only the inner rotor rotates. */
+@keyframes url-preview-border-ccw {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.url-preview-loading-ring {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 0.375rem;
+  pointer-events: none;
+  overflow: hidden;
+  padding: 2px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box exclude, linear-gradient(#fff 0 0);
+}
+
+.url-preview-loading-ring__rotor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 180%;
+  height: 180%;
+  margin: -90% 0 0 -90%;
+  transform-origin: center center;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 235deg,
+    var(--color-rose-pine-foam) 258deg,
+    var(--color-rose-pine-muted) 268deg,
+    transparent 295deg,
+    transparent 360deg
+  );
+  animation: url-preview-border-ccw 1.15s linear infinite;
+  will-change: transform;
+}

@@ -9,7 +9,7 @@ description: "Task list for feature 004 — listing URL scraping"
 
 **Tests**: Included per plan (Vitest for `packages/scraping`, integration for tRPC); parsers/normalization follow test-first where noted.
 
-**Organization**: Phases follow **base scraper → athome → suumo → homes → integration (US1) → US2 → US3 → US4 → polish**, aligned with spec priorities.
+**Organization**: Phases follow **base scraper → Node LTS + Vitest (2.5) → athome → suumo → homes → integration (US1) → US2 → US3 → US4 → polish**, aligned with spec priorities.
 
 ## Format: `[ID] [P?] [Story?] Description`
 
@@ -28,10 +28,10 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: `packages/scraping` installs, `bun test` (or `vitest`) runs empty suite.
 
-- [ ] T001 Create `packages/scraping/package.json` with workspace name `@tokyo-listings/scraping`, `src/index.ts` entry, and `tsconfig.json` extending repo TS settings
-- [ ] T002 Register `packages/scraping` in root `/home/smbuser/mws-server/tokyo-listings/package.json` workspaces and add path dependency from `apps/api` when wiring is needed
-- [ ] T003 Add dependencies in `packages/scraping/package.json`: `cheerio`, `vitest` (and `@types/node` if needed); add `test` script
-- [ ] T004 [P] Append scrape-related keys (`SCRAPE_GLOBAL_MAX_CONCURRENT`, `SCRAPE_PER_HOST_MIN_INTERVAL_MS`, `SCRAPE_FETCH_TIMEOUT_MS`, `SCRAPE_MAX_BODY_BYTES`) with comments to `/home/smbuser/mws-server/tokyo-listings/.env.template` and mirror values into local `/home/smbuser/mws-server/tokyo-listings/.env` per project conventions
+- [x] T001 Create `packages/scraping/package.json` with workspace name `@tokyo-listings/scraping`, `src/index.ts` entry, and `tsconfig.json` extending repo TS settings
+- [x] T002 Register `packages/scraping` in root `/home/smbuser/mws-server/tokyo-listings/package.json` workspaces and add path dependency from `apps/api` when wiring is needed
+- [x] T003 Add dependencies in `packages/scraping/package.json`: `cheerio`, `vitest` (and `@types/node` if needed); add `test` script
+- [x] T004 [P] Append scrape-related keys (`SCRAPE_GLOBAL_MAX_CONCURRENT`, `SCRAPE_PER_HOST_MIN_INTERVAL_MS`, `SCRAPE_FETCH_TIMEOUT_MS`, `SCRAPE_MAX_BODY_BYTES`) with comments to `/home/smbuser/mws-server/tokyo-listings/.env.template` and mirror values into local `/home/smbuser/mws-server/tokyo-listings/.env` per project conventions
 
 ---
 
@@ -43,18 +43,32 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: Unit tests pass for normalization; `scrapeFromUrl` rejects unknown hosts without calling fetch; fetch path uses timeouts and size cap (mocked).
 
-- [ ] T005 Define `PortalId`, `ScrapeStatus`, `ScrapedListingDraft`, `ScrapeResult` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/types.ts`
-- [ ] T006 Implement hostname allowlist and `canonicalizeListingUrl` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/url.ts` (strip tracking params per research; document rules in file comment)
-- [ ] T007 Implement `resolvePortalFromUrl` returning portal or null in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts`
-- [ ] T008 Add failing Vitest tests for yen/㎡/walk-minute helpers in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/money-area.test.ts` then implement `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/money-area.ts` until green
-- [ ] T009 [P] Add failing tests then implement Japanese address split wrapper using `jp-address-parser` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/address.ts` (re-export minimal surface for draft property fields)
-- [ ] T010 Implement `createFetchLimiter` (global concurrency + per-host min interval + per-host max in-flight) in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/fetch/limiter.ts` reading env defaults
-- [ ] T011 Implement `fetchListingHtml` with `AbortController` timeout, max body bytes, stable User-Agent, and structured error mapping in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/fetch/fetchListingHtml.ts`
-- [ ] T012 Wire `scrapeFromUrl` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/scrapeFromUrl.ts`: canonicalize → portal → limiter-wrapped fetch → dispatch to portal parser (stub throws `parse_failed` until Phase 3–5 register real parsers)
-- [ ] T013 Export public API from `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/index.ts` and add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/vitest.config.ts` (or root vitest workspace)
-- [ ] T014 Add root `/home/smbuser/mws-server/tokyo-listings/package.json` `test` script to run `vitest` for `packages/scraping` (replace placeholder `echo` when ready)
+- [x] T005 Define `PortalId`, `ScrapeStatus`, `ScrapedListingDraft`, `ScrapeResult` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/types.ts`
+- [x] T006 Implement hostname allowlist and `canonicalizeListingUrl` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/url.ts` (strip tracking params per research; document rules in file comment)
+- [x] T007 Implement `resolvePortalFromUrl` returning portal or null in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts`
+- [x] T008 Add failing Vitest tests for yen/㎡/walk-minute helpers in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/money-area.test.ts` then implement `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/money-area.ts` until green
+- [x] T009 [P] Add failing tests then implement Japanese address split wrapper using `jp-address-parser` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/address.ts` (re-export minimal surface for draft property fields)
+- [x] T010 Implement `createFetchLimiter` (global concurrency + per-host min interval + per-host max in-flight) in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/fetch/limiter.ts` reading env defaults
+- [x] T011 Implement `fetchListingHtml` with `AbortController` timeout, max body bytes, stable User-Agent, and structured error mapping in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/fetch/fetchListingHtml.ts`
+- [x] T012 Wire `scrapeFromUrl` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/scrapeFromUrl.ts`: canonicalize → portal → limiter-wrapped fetch → dispatch to portal parser (stub throws `parse_failed` until Phase 3–5 register real parsers)
+- [x] T013 Export public API from `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/index.ts` and add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/vitest.config.ts` (or root vitest workspace)
+- [x] T014 Add root `/home/smbuser/mws-server/tokyo-listings/package.json` `test` script to run `vitest` for `packages/scraping` (replace placeholder `echo` when ready)
 
 **Checkpoint**: Base pipeline runs; portal-specific extractors still stubs or missing.
+
+---
+
+## Phase 2.5: Toolchain — system Node.js (LTS) + Vitest (unblock portal work)
+
+**Purpose**: The scraping package temporarily used `bun:test` because the SSH/dev host had **Node 12** (Vitest cannot run). Before **Phase 3+**, upgrade the **system `node`** on that host to the **latest Node.js Active LTS** and restore the **original plan: Vitest** for `packages/scraping` unit tests.
+
+**Independent test**: `node -v` reports current Active LTS; `cd packages/scraping && npx vitest run` (or `bunx vitest run`) passes all tests; root `bun run test` still green.
+
+- [x] T015 Upgrade the development/CI host’s **system Node.js** to the **latest Active LTS** (e.g. via `nvm`, `fnm`, or OS packages). Document the required major version and install path in `/home/smbuser/mws-server/tokyo-listings/README.md` or `/home/smbuser/mws-server/tokyo-listings/docs/dev-environment.md` (new file if needed) so SSH sessions and CI use a compatible `node` for Vitest.
+- [x] T016 Restore **Vitest** for `packages/scraping`: add `vitest` to `/home/smbuser/mws-server/tokyo-listings/packages/scraping/package.json` devDependencies; add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/vitest.config.ts`; change imports in `*.test.ts` from `bun:test` to `vitest`; set `test` script to `vitest run`; update `/home/smbuser/mws-server/tokyo-listings/package.json` root `test` script if needed; trim `@types/bun` from scraping package if it was only for `bun:test` (keep only if still required).
+- [x] T017 Run `/home/smbuser/mws-server/tokyo-listings/package.json` `test`, `typecheck`, and `lint`; fix any regressions from the Vitest migration.
+
+**Checkpoint**: Node LTS + Vitest match [plan.md](./plan.md); safe to continue **Phase 3** (portal parsers).
 
 ---
 
@@ -64,10 +78,10 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: `athome.test.ts` passes against committed fixture HTML.
 
-- [ ] T015 [US1] Add minimal redacted `athome-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/athome-detail.sample.html`
-- [ ] T016 [US1] Implement `parseAthomeDetail` (pure: html string → partial draft) in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/athome.ts` using `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/app/services/ScrapingService.js` as selector reference only
-- [ ] T017 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/athome.test.ts` asserting golden fields (rent, address, area, station/walk) vs fixture
-- [ ] T018 [US1] Register Athome parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `athome` / `www.athome.co.jp` hosts
+- [x] T018 [US1] Add minimal redacted `athome-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/athome-detail.sample.html`
+- [x] T019 [US1] Implement `parseAthomeDetail` (pure: html string → partial draft) in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/athome.ts` using `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/app/services/ScrapingService.js` as selector reference only
+- [x] T020 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/athome.test.ts` asserting golden fields (rent, address, area, station/walk) vs fixture
+- [x] T021 [US1] Register Athome parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `athome` / `www.athome.co.jp` hosts
 
 ---
 
@@ -77,10 +91,10 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: `suumo.test.ts` passes on fixture.
 
-- [ ] T019 [US1] Add `suumo-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/suumo-detail.sample.html`
-- [ ] T020 [US1] Implement `parseSuumoDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/suumo.ts` referencing legacy `parseSuumo` in ScrapingService.js
-- [ ] T021 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/suumo.test.ts` with golden assertions
-- [ ] T022 [US1] Register Suumo parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `suumo.jp` / `www.suumo.jp`
+- [ ] T022 [US1] Add `suumo-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/suumo-detail.sample.html`
+- [ ] T023 [US1] Implement `parseSuumoDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/suumo.ts` referencing legacy `parseSuumo` in ScrapingService.js
+- [ ] T024 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/suumo.test.ts` with golden assertions
+- [ ] T025 [US1] Register Suumo parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `suumo.jp` / `www.suumo.jp`
 
 ---
 
@@ -90,10 +104,10 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: `homes.test.ts` passes on fixture.
 
-- [ ] T023 [US1] Add `homes-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/homes-detail.sample.html`
-- [ ] T024 [US1] Implement `parseLifullHomesDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/homes.ts` referencing legacy `parseLifullHomes`
-- [ ] T025 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/homes.test.ts` with golden assertions
-- [ ] T026 [US1] Register Homes parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `www.homes.co.jp` / `homes.co.jp`
+- [ ] T026 [US1] Add `homes-detail.sample.html` under `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/fixtures/homes-detail.sample.html`
+- [ ] T027 [US1] Implement `parseLifullHomesDetail` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/portals/homes.ts` referencing legacy `parseLifullHomes`
+- [ ] T028 [US1] Add `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/portals/homes.test.ts` with golden assertions
+- [ ] T029 [US1] Register Homes parser in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts` for `www.homes.co.jp` / `homes.co.jp`
 
 **Checkpoint**: All three portals extract on fixtures; `scrapeFromUrl` returns `ok` or `partial` with warnings for fixture URLs.
 
@@ -105,16 +119,16 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: Manual or E2E: preview tRPC + create listing; DB row has `sourceUrl`, `sourceFetchedAt`, optional `sourcePortal`.
 
-- [ ] T027 [US1] Add Zod schemas `scrapingPreviewInputSchema`, `scrapingPreviewOutputSchema` (discriminated union) in `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/scraping.ts` and export from `packages/validators/package.json` entry
-- [ ] T028 [US1] Map `ScrapeResult` draft fields to `listingCreateSchema` partial shape in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/scraping/mapDraftToListingInput.ts`
-- [ ] T029 [US1] Implement `listing.previewFromUrl` in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` calling `scrapeFromUrl` with user id for logging only; return Zod-safe output
-- [ ] T030 [US1] Add Drizzle migration under `/home/smbuser/mws-server/tokyo-listings/packages/db/migrations/` for partial unique index on `(userId, sourceUrl)` where `sourceUrl` is not null and optional `sourcePortal` text column on `listing` per [data-model.md](./data-model.md); update `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts`
-- [ ] T031 [US1] On `listing.create` in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts`, enforce duplicate `sourceUrl` per user with `CONFLICT`-style error; set `sourceFetchedAt` when created from scrape flow if passed in input
-- [ ] T032 [P] [US1] Extend `listingCreateSchema` / input type if needed for `sourcePortal` and scrape timestamp in `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/listing.ts`
-- [ ] T033 [US1] Wire add-listing UI: trigger preview (button or blur), merge draft into form state, show loading/error in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` and parent route under `/home/smbuser/mws-server/tokyo-listings/apps/web/src/app/`
-- [ ] T034 [US1] Add TanStack Query hook for `previewFromUrl` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/lib/trpc/` (or equivalent client module)
-- [ ] T035 [P] [US1] Add integration test for `previewFromUrl` with mocked upstream HTML in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.preview.integration.test.ts` or `packages/scraping` boundary
-- [ ] T036 [US1] Align `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/contracts/listing-scrape-trpc.md` with final procedure names and Zod types
+- [x] T030 [US1] Add Zod schemas `scrapingPreviewInputSchema`, `scrapingPreviewOutputSchema` (discriminated union) in `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/scraping.ts` and export from `packages/validators/package.json` entry
+- [x] T031 [US1] Map `ScrapeResult` draft fields to `listingCreateSchema` partial shape in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/scraping/mapDraftToListingInput.ts`
+- [x] T032 [US1] Implement `listing.previewFromUrl` in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` calling `scrapeFromUrl` with user id for logging only; return Zod-safe output
+- [x] T033 [US1] Add Drizzle migration under `/home/smbuser/mws-server/tokyo-listings/packages/db/migrations/` for partial unique index on `(userId, sourceUrl)` where `sourceUrl` is not null and optional `sourcePortal` text column on `listing` per [data-model.md](./data-model.md); update `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts`
+- [x] T034 [US1] On `listing.create` in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts`, enforce duplicate `sourceUrl` per user with `CONFLICT`-style error; set `sourceFetchedAt` when created from scrape flow if passed in input
+- [x] T035 [P] [US1] Extend `listingCreateSchema` / input type if needed for `sourcePortal` and scrape timestamp in `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/listing.ts`
+- [x] T036 [US1] Wire add-listing UI: trigger preview (button or blur), merge draft into form state, show loading/error in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` and parent route under `/home/smbuser/mws-server/tokyo-listings/apps/web/src/app/`
+- [x] T037 [US1] Add TanStack Query hook for `previewFromUrl` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/lib/trpc/` (or equivalent client module)
+- [x] T038 [P] [US1] Add integration test for `previewFromUrl` with mocked upstream HTML in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.preview.integration.test.ts` or `packages/scraping` boundary
+- [x] T039 [US1] Align `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/contracts/listing-scrape-trpc.md` with final procedure names and Zod types
 
 **Checkpoint (MVP)**: US1 complete — three portals + save + duplicate URL.
 
@@ -126,9 +140,9 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: Trigger each error type; UI shows message; manual fields intact.
 
-- [ ] T037 [US2] Normalize API errors: map `unsupported_host`, `fetch_failed`, `parse_failed` to stable `TRPCError` codes/messages in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` (no raw upstream body)
-- [ ] T038 [US2] Add user-visible banners for `partial` vs `ok` and field-level hints from `fieldErrors` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`
-- [ ] T039 [US2] Add Vitest or component test for merge logic preserving user-typed fields when a second preview fails in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` (or extract pure helper tested in `*.test.ts`)
+- [ ] T040 [US2] Normalize API errors: map `unsupported_host`, `fetch_failed`, `parse_failed` to stable `TRPCError` codes/messages in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` (no raw upstream body)
+- [ ] T041 [US2] Add user-visible banners for `partial` vs `ok` and field-level hints from `fieldErrors` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`
+- [ ] T042 [US2] Add Vitest or component test for merge logic preserving user-typed fields when a second preview fails in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` (or extract pure helper tested in `*.test.ts`)
 
 ---
 
@@ -138,9 +152,9 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: Two listings same address → second prompts → DB shows shared `propertyId` when accepted.
 
-- [ ] T040 [US3] Implement address-normalization match query (same user) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` using existing `property` columns
-- [ ] T041 [US3] Extend `listing.create` input with optional `linkToPropertyId` or pre-check procedure in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` per contract decision
-- [ ] T042 [US3] Add confirmation modal flow on add-listing submit when match candidates exist in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` and add page route
+- [ ] T043 [US3] Implement address-normalization match query (same user) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` using existing `property` columns
+- [ ] T044 [US3] Extend `listing.create` input with optional `linkToPropertyId` or pre-check procedure in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` per contract decision
+- [ ] T045 [US3] Add confirmation modal flow on add-listing submit when match candidates exist in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` and add page route
 
 ---
 
@@ -150,9 +164,9 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: Move pin, save, reload map → marker at new position.
 
-- [ ] T043 [US4] Ensure geocoded coordinates flow from add form and `geocodeStatus` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` matches create/update behavior
-- [ ] T044 [US4] Implement draggable marker or “set pin” map interaction on add/edit listing map surface in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or dedicated map component) writing lat/lng + `pinExact` / manual geocode status via `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` `update`
-- [ ] T045 [US4] Persist `pinExact` and coordinates on `property`/`listing` per existing schema in `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts` and validators
+- [ ] T046 [US4] Ensure geocoded coordinates flow from add form and `geocodeStatus` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` matches create/update behavior
+- [ ] T047 [US4] Implement draggable marker or “set pin” map interaction on add/edit listing map surface in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or dedicated map component) writing lat/lng + `pinExact` / manual geocode status via `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` `update`
+- [ ] T048 [US4] Persist `pinExact` and coordinates on `property`/`listing` per existing schema in `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts` and validators
 
 ---
 
@@ -160,11 +174,11 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Purpose**: Observability, docs, optional dev script for live URLs.
 
-- [ ] T046 [P] Add structured scrape logs (portal, hostname, ms, outcome code) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` using existing `pino` logger
-- [ ] T047 [P] Add optional CLI or `bun run scripts/scrape-debug.ts` at `/home/smbuser/mws-server/tokyo-listings/scripts/scrape-debug.ts` that calls `scrapeFromUrl` with argv URL for manual loop (document in quickstart)
-- [ ] T048 [P] Update `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` with final test commands and env keys
-- [ ] T049 Run through `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` manually and fix gaps
-- [ ] T050 [P] Biome check touched packages: run `/home/smbuser/mws-server/tokyo-listings/package.json` `lint` after implementation
+- [ ] T049 [P] Add structured scrape logs (portal, hostname, ms, outcome code) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` using existing `pino` logger
+- [ ] T050 [P] Add optional CLI or `bun run scripts/scrape-debug.ts` at `/home/smbuser/mws-server/tokyo-listings/scripts/scrape-debug.ts` that calls `scrapeFromUrl` with argv URL for manual loop (document in quickstart)
+- [ ] T051 [P] Update `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` with final test commands and env keys
+- [ ] T052 Run through `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` manually and fix gaps
+- [ ] T053 [P] Biome check touched packages: run `/home/smbuser/mws-server/tokyo-listings/package.json` `lint` after implementation
 
 ---
 
@@ -176,7 +190,8 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 |-------|------------|
 | 1 Setup | — |
 | 2 Base scraper | Phase 1 |
-| 3 Athome | Phase 2 |
+| 2.5 Node LTS + Vitest | Phase 2 (do **before** Phase 3 portal work) |
+| 3 Athome | Phases 1–2 and **2.5** |
 | 4 Suumo | Phase 3 (can parallel with 3 only after dispatch pattern exists — **sequential recommended**: 3 → 4 → 5) |
 | 5 Homes | Phase 4 |
 | 6 US1 integration | Phase 5 |
@@ -187,7 +202,7 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 ### User story completion order
 
-1. **US1**: Phases 1–6 (MVP when Phase 6 done)
+1. **US1**: Phases 1–6 including **2.5** (MVP when Phase 6 done)
 2. **US2**: Phase 7
 3. **US3**: Phase 8
 4. **US4**: Phase 9
@@ -196,14 +211,14 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 - **T004** with **T001–T003** (env template vs package files) after paths agreed
 - **T009** parallel with **T008** once types exist (different files)
-- **T032** parallel with **T030–T031** (validators vs migration) with coordination on field names
-- **T035** parallel with **T033–T034** after API contract stable
-- **T046–T048** parallel in Phase 10
+- **T035** parallel with **T033–T034** (validators vs migration) with coordination on field names
+- **T038** parallel with **T036–T037** after API contract stable
+- **T049–T051** parallel in Phase 10
 
 ### Parallel example: Phase 3 (Athome)
 
 ```text
-Sequential: T015 fixture → T016 parser → T017 test → T018 dispatch
+Sequential: T018 fixture → T019 parser → T020 test → T021 dispatch
 ```
 
 ### Parallel example: Normalization (Phase 2)
@@ -218,20 +233,21 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 
 ### MVP (US1 only)
 
-1. Complete Phases **1–6** (T001–T036).
+1. Complete Phases **1–6** (T001–T039), including **Phase 2.5** (T015–T017).
 2. Stop and validate: three portals + preview + save + duplicate URL + fixtures green.
 
 ### Incremental delivery
 
 1. **1–2**: Base scraper ready for portal plugins.
-2. **3–5**: One portal at a time; keep CI green after each.
-3. **6**: Wire product-facing flow.
-4. **7**: Harden failure UX.
-5. **8–9**: Legacy parity for property link and pin.
+2. **2.5**: Node Active LTS + Vitest restored (per [plan.md](./plan.md)).
+3. **3–5**: One portal at a time; keep CI green after each.
+4. **6**: Wire product-facing flow.
+5. **7**: Harden failure UX.
+6. **8–9**: Legacy parity for property link and pin.
 
 ### Suggested sequencing (matches user request)
 
-**Base scraper (Phase 2) → Athome (3) → Suumo (4) → Homes (5) → everything else (6–10).**
+**Base scraper (Phase 2) → Node LTS + Vitest (2.5) → Athome (3) → Suumo (4) → Homes (5) → everything else (6–10).**
 
 ---
 
@@ -239,4 +255,4 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 
 - Legacy code path: `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/app/services/ScrapingService.js` — reference only.
 - Images / asset download: **out of scope**; do not add tasks until a future spec.
-- Total tasks: **50** (T001–T050).
+- Total tasks: **53** (T001–T053). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.

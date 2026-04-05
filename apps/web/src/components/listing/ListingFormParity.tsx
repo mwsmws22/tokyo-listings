@@ -1,8 +1,11 @@
 "use client";
 
 import { PreferenceToggleGroup } from "@/components/listing/ListingPreferenceToggles";
+import { UrlPreviewLoadingOverlay } from "@/components/listing/UrlPreviewLoadingOverlay";
+import { canonicalizeListingUrl } from "@/lib/canonicalizeListingUrl";
+import { isSupportedListingHostUrl } from "@/lib/supportedListingHosts";
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
 export type ListingCreateParityInput = {
@@ -10,6 +13,8 @@ export type ListingCreateParityInput = {
   monthlyRentYen: number;
   addressText: string;
   sourceUrl?: string;
+  sourcePortal?: "athome" | "suumo" | "lifull_homes";
+  sourceFetchedAt?: Date;
   reikinMonths?: number;
   securityDepositMonths?: number;
   squareM?: number;
@@ -39,6 +44,13 @@ type Props = {
   };
   showCheckDbButton?: boolean;
   requireSelections?: boolean;
+  /** Debounced server-side preview when `sourceUrl` is a supported portal host. */
+  onAutoPreviewFromUrl?: (url: string) => void;
+  /** Reset URL field border when the URL is empty or not a supported host. */
+  onUrlPreviewClear?: () => void;
+  urlPreviewStatus?: "idle" | "loading" | "success" | "error";
+  loadFromUrlError?: string | null;
+  loadFromUrlWarnings?: string[];
 };
 
 const inputClass =
@@ -58,6 +70,27 @@ function toInputValue(value: number | string | null | undefined): string {
   return String(value);
 }
 
+/** Display rent as 万円 (e.g. 12.5); API still uses integer yen. */
+function yenToManInput(yen: number | undefined): string {
+  if (yen === undefined || !Number.isFinite(yen)) {
+    return "";
+  }
+  const man = yen / 10_000;
+  return man.toFixed(2).replace(/\.?0+$/, "");
+}
+
+function parseManToYen(manStr: string): number | undefined {
+  const t = manStr.trim().replace(/,/g, "");
+  if (!t) {
+    return undefined;
+  }
+  const n = Number.parseFloat(t);
+  if (!Number.isFinite(n)) {
+    return undefined;
+  }
+  return Math.round(n * 10_000);
+}
+
 export function ListingFormParity({
   onSubmit,
   pending,
@@ -66,12 +99,20 @@ export function ListingFormParity({
   secondaryAction,
   showCheckDbButton = true,
   requireSelections = true,
+  onAutoPreviewFromUrl,
+  onUrlPreviewClear,
+  urlPreviewStatus = "idle",
+  loadFromUrlError = null,
+  loadFromUrlWarnings = [],
 }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
+  /** One automatic preview per canonical URL until the user edits the field. */
+  const lastPreviewCanonicalRef = useRef<string | null>(null);
+
   const [form, setForm] = useState({
     title: "",
-    monthlyRentYen: "",
+    monthlyRentMan: "",
     addressText: "",
     sourceUrl: "",
     reikinMonths: "",
@@ -95,9 +136,12 @@ export function ListingFormParity({
     setForm((s) => ({
       ...s,
       title: initialValues.title ?? "",
-      monthlyRentYen: toInputValue(initialValues.monthlyRentYen),
+      monthlyRentMan:
+        initialValues.monthlyRentYen !== undefined && initialValues.monthlyRentYen !== null
+          ? yenToManInput(initialValues.monthlyRentYen)
+          : "",
       addressText: initialValues.addressText ?? "",
-      sourceUrl: initialValues.sourceUrl ?? "",
+      ...(initialValues.sourceUrl !== undefined ? { sourceUrl: initialValues.sourceUrl } : {}),
       reikinMonths: toInputValue(initialValues.reikinMonths),
       securityDepositMonths: toInputValue(initialValues.securityDepositMonths),
       squareM: toInputValue(initialValues.squareM),
@@ -114,6 +158,33 @@ export function ListingFormParity({
       houseNumber: initialValues.houseNumber ?? "",
     }));
   }, [initialValues]);
+
+  useEffect(() => {
+    const url = form.sourceUrl.trim();
+    if (!onAutoPreviewFromUrl) {
+      return;
+    }
+    if (!url || !isSupportedListingHostUrl(url)) {
+      onUrlPreviewClear?.();
+      lastPreviewCanonicalRef.current = null;
+      return;
+    }
+    let canonicalKey: string;
+    try {
+      canonicalKey = canonicalizeListingUrl(url);
+    } catch {
+      lastPreviewCanonicalRef.current = null;
+      return;
+    }
+    const id = setTimeout(() => {
+      if (lastPreviewCanonicalRef.current === canonicalKey) {
+        return;
+      }
+      lastPreviewCanonicalRef.current = canonicalKey;
+      onAutoPreviewFromUrl(url);
+    }, 550);
+    return () => clearTimeout(id);
+  }, [form.sourceUrl, onAutoPreviewFromUrl, onUrlPreviewClear]);
 
   const normalized = useMemo(() => {
     const toNumber = (value: string): number | undefined => {
@@ -137,9 +208,10 @@ export function ListingFormParity({
       .join(" ")
       .trim();
 
+    const rentYen = parseManToYen(form.monthlyRentMan);
     return {
       title: form.title.trim() || fallbackTitle || "Listing",
-      monthlyRentYen: Number.parseInt(form.monthlyRentYen, 10),
+      monthlyRentYen: rentYen ?? Number.NaN,
       addressText: form.addressText.trim() || fallbackAddress || "Tokyo",
       sourceUrl: form.sourceUrl || undefined,
       reikinMonths: toNumber(form.reikinMonths),
@@ -181,13 +253,32 @@ export function ListingFormParity({
     <View className="gap-2">
       <Text className="text-xs text-rose-pine-text">Listing URL</Text>
       <View className="flex-row gap-1">
-        <TextInput
-          className={`${inputClass} flex-1`}
-          placeholder="Enter URL"
-          placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.sourceUrl}
-          onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
-        />
+        {urlPreviewStatus === "loading" ? (
+          <View className="relative z-0 min-w-0 flex-1">
+            <UrlPreviewLoadingOverlay />
+            <TextInput
+              className={`${inputClass} relative z-10 min-w-0 flex-1`}
+              placeholder="Enter URL"
+              placeholderTextColor="var(--color-rose-pine-muted)"
+              value={form.sourceUrl}
+              onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
+            />
+          </View>
+        ) : (
+          <TextInput
+            className={`${inputClass} min-w-0 flex-1 ${
+              urlPreviewStatus === "success"
+                ? "border-2 border-rose-pine-pine"
+                : urlPreviewStatus === "error"
+                  ? "border-2 border-rose-pine-love"
+                  : ""
+            }`}
+            placeholder="Enter URL"
+            placeholderTextColor="var(--color-rose-pine-muted)"
+            value={form.sourceUrl}
+            onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
+          />
+        )}
         {showCheckDbButton ? (
           <Pressable
             className="w-[84px] items-center justify-center rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-2 py-1.5"
@@ -197,6 +288,12 @@ export function ListingFormParity({
           </Pressable>
         ) : null}
       </View>
+      {loadFromUrlError ? (
+        <Text className="text-xs text-rose-pine-love">{loadFromUrlError}</Text>
+      ) : null}
+      {loadFromUrlWarnings.length > 0 ? (
+        <Text className="text-xs text-rose-pine-muted">{loadFromUrlWarnings.join(" · ")}</Text>
+      ) : null}
       <View className="hidden">
         <TextInput
           className={inputClass}
@@ -229,11 +326,11 @@ export function ListingFormParity({
       <View className="min-w-0 flex-row flex-nowrap gap-1">
         <TextInput
           className={fieldCell}
-          inputMode="numeric"
+          inputMode="decimal"
           placeholder="万円"
           placeholderTextColor="var(--color-rose-pine-muted)"
-          value={form.monthlyRentYen}
-          onChangeText={(monthlyRentYen) => setForm((s) => ({ ...s, monthlyRentYen }))}
+          value={form.monthlyRentMan}
+          onChangeText={(monthlyRentMan) => setForm((s) => ({ ...s, monthlyRentMan }))}
         />
         <TextInput
           className={fieldCell}

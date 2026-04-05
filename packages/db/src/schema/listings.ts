@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   doublePrecision,
   index,
@@ -7,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
@@ -66,6 +68,7 @@ export const listing = pgTable(
     stationDistanceM: integer("stationDistanceM"),
     interestTag: text("interestTag"),
     sourceUrl: text("sourceUrl"),
+    sourcePortal: text("sourcePortal"),
     sourceFetchedAt: timestamp("sourceFetchedAt", {
       withTimezone: true,
       mode: "date",
@@ -82,5 +85,8 @@ export const listing = pgTable(
   (t) => [
     index("listing_user_id_idx").on(t.userId),
     index("listing_user_rent_idx").on(t.userId, t.monthlyRentYen),
+    uniqueIndex("listing_user_source_url_unique_idx")
+      .on(t.userId, t.sourceUrl)
+      .where(sql`${t.sourceUrl} is not null`),
   ],
 );

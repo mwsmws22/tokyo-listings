@@ -1,0 +1,25 @@
+{
+  "name": "@tokyo-listings/scraping",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node ../../node_modules/vitest/vitest.mjs run",
+    "typecheck": "bun ../../node_modules/typescript/lib/tsc.js --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "jp-address-parser": "^1.1.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

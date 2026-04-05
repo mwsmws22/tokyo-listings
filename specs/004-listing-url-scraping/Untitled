@@ -1,5 +1,0 @@
-he main thrust of this spec will come in the plan phase (i think). I need to build out a robust modern webscraping architecture on the backend. tokyo-listings-old is just that, old. i need to build a reslient future proof scraping system for all the websites to come.
-
-you can rely on tokyo-listings-old purely for the scraping logic (fields and such)
-
-need to approach this with a big test loop mindset. get a link, test a listing, check the data against the site, improve test repeat etc

@@ -21,8 +21,13 @@ const propertyFieldsSchema = z.object({
   pinExact: z.boolean().optional(),
 });
 
+export const portalIdSchema = z.enum(["athome", "suumo", "lifull_homes"]);
+
 const listingParityFieldsSchema = z.object({
   sourceUrl: z.string().url().max(2000).optional(),
+  sourcePortal: portalIdSchema.optional(),
+  /** Set when the row was created from a successful scrape preview flow. */
+  sourceFetchedAt: z.coerce.date().optional(),
   reikinMonths: z.number().min(0).max(99).optional(),
   securityDepositMonths: z.number().min(0).max(99).optional(),
   squareM: z.number().positive().max(5000).optional(),

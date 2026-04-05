@@ -1,6 +1,9 @@
 {
   "name": "tokyo-listings",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev:api": "bun run --cwd apps/api --env-file ../../.env dev",
@@ -8,7 +11,7 @@
     "build": "echo \"Wire workspace builds in Phase 2+\"",
     "lint": "bun ./node_modules/@biomejs/biome/bin/biome check .",
     "format": "bun ./node_modules/@biomejs/biome/bin/biome format --write .",
-    "test": "echo \"No tests configured yet\"",
+    "test": "bash scripts/run-tests.sh",
     "typecheck": "bun ./node_modules/typescript/lib/tsc.js -b && bun ./node_modules/typescript/lib/tsc.js --noEmit -p apps/web/tsconfig.json",
     "db:generate": "bun run --cwd packages/db --env-file ../../.env db:generate",
     "db:migrate": "bun run --cwd packages/db --env-file ../../.env db:migrate"

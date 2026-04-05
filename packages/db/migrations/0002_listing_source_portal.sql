@@ -1,0 +1,2 @@
+ALTER TABLE "listing" ADD COLUMN "sourcePortal" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "listing_user_source_url_unique_idx" ON "listing" USING btree ("userId","sourceUrl") WHERE "listing"."sourceUrl" is not null;

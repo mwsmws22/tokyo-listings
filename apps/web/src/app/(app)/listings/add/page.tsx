@@ -1,16 +1,27 @@
 "use client";
 
+import type { ListingCreateParityInput } from "@/components/listing/ListingFormParity";
 import { ListingFormParity } from "@/components/listing/ListingFormParity";
 import { ListingsMapWorkspace } from "@/components/shell/ListingsMapWorkspace";
 import { trpc } from "@/lib/trpc/client";
 import { selectedListingIdAtom, selectedListingPreviewAtom } from "@/state/selectedListing";
 import type { ListingRow } from "@/types/trpc";
 import { useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 export default function AddListingsPage() {
   const [recent, setRecent] = useState<ListingRow[]>([]);
+  const [prefill, setPrefill] = useState<Partial<ListingCreateParityInput> | undefined>();
+  const [scrapeMeta, setScrapeMeta] = useState<{
+    portal?: "athome" | "suumo" | "lifull_homes";
+    fetchedAt?: Date;
+  }>({});
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadWarnings, setLoadWarnings] = useState<string[]>([]);
+  const [urlPreviewStatus, setUrlPreviewStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const utils = trpc.useUtils();
   const setSelectedId = useSetAtom(selectedListingIdAtom);
   const setSelectedPreview = useSetAtom(selectedListingPreviewAtom);
@@ -21,6 +32,64 @@ export default function AddListingsPage() {
       setRecent((prev) => [row as ListingRow, ...prev]);
     },
   });
+
+  const { mutate: previewFromUrlMutate } = trpc.listing.previewFromUrl.useMutation({
+    onMutate: () => {
+      setUrlPreviewStatus("loading");
+    },
+    onSuccess: (res) => {
+      if (
+        res.status === "unsupported_host" ||
+        res.status === "fetch_failed" ||
+        res.status === "parse_failed"
+      ) {
+        setLoadError(res.message);
+        setLoadWarnings([]);
+        setScrapeMeta({});
+        setUrlPreviewStatus("error");
+        return;
+      }
+      setLoadError(null);
+      setUrlPreviewStatus("success");
+      setLoadWarnings(res.status === "partial" ? res.draft.warnings : []);
+      setScrapeMeta({ portal: res.portal, fetchedAt: new Date() });
+      const d = res.draft;
+      setPrefill({
+        title: d.title ?? "",
+        monthlyRentYen: d.monthlyRentYen,
+        addressText: d.addressText ?? "",
+        reikinMonths: d.reikinMonths,
+        securityDepositMonths: d.securityDepositMonths,
+        squareM: d.squareM,
+        closestStation: d.closestStation ?? "",
+        walkingTimeMin: d.walkingTimeMin,
+        availability: d.availability,
+        propertyType: d.propertyType,
+        prefecture: d.prefecture ?? "",
+        municipality: d.municipality ?? "",
+        town: d.town ?? "",
+        district: d.district ?? "",
+        block: d.block ?? "",
+        houseNumber: d.houseNumber ?? "",
+      });
+    },
+    onError: (err) => {
+      setLoadError(err.message);
+      setUrlPreviewStatus("error");
+    },
+  });
+
+  const onAutoPreviewFromUrl = useCallback(
+    (url: string) => {
+      setLoadError(null);
+      previewFromUrlMutate({ url });
+    },
+    [previewFromUrlMutate],
+  );
+
+  const onUrlPreviewClear = useCallback(() => {
+    setUrlPreviewStatus("idle");
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -39,8 +108,20 @@ export default function AddListingsPage() {
               Add a Listing
             </Text>
             <ListingFormParity
+              initialValues={prefill}
               pending={createMut.isPending}
-              onSubmit={(input) => createMut.mutate(input)}
+              onAutoPreviewFromUrl={onAutoPreviewFromUrl}
+              onUrlPreviewClear={onUrlPreviewClear}
+              urlPreviewStatus={urlPreviewStatus}
+              loadFromUrlError={loadError}
+              loadFromUrlWarnings={loadWarnings}
+              onSubmit={(input) =>
+                createMut.mutate({
+                  ...input,
+                  sourcePortal: scrapeMeta.portal,
+                  sourceFetchedAt: scrapeMeta.fetchedAt,
+                })
+              }
             />
             {recent.length > 0 ? (
               <View className="gap-2 pt-2">
