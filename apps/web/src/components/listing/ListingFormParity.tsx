@@ -1,12 +1,11 @@
 "use client";
 
 import { PreferenceToggleGroup } from "@/components/listing/ListingPreferenceToggles";
-import { UrlPreviewLoadingOverlay } from "@/components/listing/UrlPreviewLoadingOverlay";
 import { canonicalizeListingUrl } from "@/lib/canonicalizeListingUrl";
 import { isSupportedListingHostUrl } from "@/lib/supportedListingHosts";
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 
 export type ListingCreateParityInput = {
   title: string;
@@ -48,6 +47,8 @@ type Props = {
   onAutoPreviewFromUrl?: (url: string) => void;
   /** Reset URL field border when the URL is empty or not a supported host. */
   onUrlPreviewClear?: () => void;
+  /** User edited listing URL text — clear scrape result borders / state in parent. */
+  onSourceUrlTextChange?: () => void;
   urlPreviewStatus?: "idle" | "loading" | "success" | "error";
   loadFromUrlError?: string | null;
   loadFromUrlWarnings?: string[];
@@ -60,6 +61,26 @@ const labelClass =
   "min-w-0 flex-1 text-left text-[10px] leading-tight text-rose-pine-text md:text-xs";
 
 const fieldCell = `${inputClass} min-w-[3.25rem] shrink grow basis-0`;
+
+/** Listing URL: idle/loading = same focus ring as other fields; success/error keep semantic border on focus. */
+const urlFieldIdleOrLoadingClass =
+  "min-w-0 flex-1 rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-1.5 py-1.5 text-xs text-rose-pine-text focus:outline-none focus:border-rose-pine-foam focus:ring-1 focus:ring-rose-pine-foam/30";
+
+const urlFieldSuccessClass =
+  "min-w-0 flex-1 rounded-md border-2 border-rose-pine-pine bg-rose-pine-surface px-1.5 py-1.5 text-xs text-rose-pine-text focus:outline-none focus:border-rose-pine-pine focus:ring-1 focus:ring-rose-pine-foam/35";
+
+const urlFieldErrorClass =
+  "min-w-0 flex-1 rounded-md border-2 border-rose-pine-love bg-rose-pine-surface px-1.5 py-1.5 text-xs text-rose-pine-text focus:outline-none focus:border-rose-pine-love focus:ring-1 focus:ring-rose-pine-foam/35";
+
+function urlFieldClassForPreviewStatus(status: "idle" | "loading" | "success" | "error"): string {
+  if (status === "success") {
+    return urlFieldSuccessClass;
+  }
+  if (status === "error") {
+    return urlFieldErrorClass;
+  }
+  return urlFieldIdleOrLoadingClass;
+}
 
 const interestOptions = ["Top", "Extremely", "KindaPlus", "KindaMinus", "Nah"] as const;
 const availabilityOptions = ["募集中", "契約済"] as const;
@@ -101,6 +122,7 @@ export function ListingFormParity({
   requireSelections = true,
   onAutoPreviewFromUrl,
   onUrlPreviewClear,
+  onSourceUrlTextChange,
   urlPreviewStatus = "idle",
   loadFromUrlError = null,
   loadFromUrlWarnings = [],
@@ -251,34 +273,30 @@ export function ListingFormParity({
 
   return (
     <View className="gap-2">
-      <Text className="text-xs text-rose-pine-text">Listing URL</Text>
-      <View className="flex-row gap-1">
-        {urlPreviewStatus === "loading" ? (
-          <View className="relative z-0 min-w-0 flex-1">
-            <UrlPreviewLoadingOverlay />
-            <TextInput
-              className={`${inputClass} relative z-10 min-w-0 flex-1`}
-              placeholder="Enter URL"
-              placeholderTextColor="var(--color-rose-pine-muted)"
-              value={form.sourceUrl}
-              onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
+      <View className="flex-row items-center gap-1.5">
+        <Text className="text-xs text-rose-pine-text">Listing URL</Text>
+        <View className="h-[10px] w-[10px] shrink-0 items-center justify-center overflow-visible">
+          {urlPreviewStatus === "loading" ? (
+            <ActivityIndicator
+              color="#9ccfd8"
+              size="small"
+              style={{ transform: [{ scale: 0.42 }] }}
             />
-          </View>
-        ) : (
-          <TextInput
-            className={`${inputClass} min-w-0 flex-1 ${
-              urlPreviewStatus === "success"
-                ? "border-2 border-rose-pine-pine"
-                : urlPreviewStatus === "error"
-                  ? "border-2 border-rose-pine-love"
-                  : ""
-            }`}
-            placeholder="Enter URL"
-            placeholderTextColor="var(--color-rose-pine-muted)"
-            value={form.sourceUrl}
-            onChangeText={(sourceUrl) => setForm((s) => ({ ...s, sourceUrl }))}
-          />
-        )}
+          ) : null}
+        </View>
+      </View>
+      <View className="flex-row gap-1">
+        <TextInput
+          className={urlFieldClassForPreviewStatus(urlPreviewStatus)}
+          placeholder="Enter URL"
+          placeholderTextColor="var(--color-rose-pine-muted)"
+          value={form.sourceUrl}
+          onChangeText={(sourceUrl) => {
+            lastPreviewCanonicalRef.current = null;
+            setForm((s) => ({ ...s, sourceUrl }));
+            onSourceUrlTextChange?.();
+          }}
+        />
         {showCheckDbButton ? (
           <Pressable
             className="w-[84px] items-center justify-center rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-2 py-1.5"

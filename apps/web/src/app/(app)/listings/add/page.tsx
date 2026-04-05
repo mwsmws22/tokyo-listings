@@ -91,6 +91,13 @@ export default function AddListingsPage() {
     setUrlPreviewStatus("idle");
   }, []);
 
+  const onSourceUrlTextChange = useCallback(() => {
+    setUrlPreviewStatus("idle");
+    setLoadError(null);
+    setLoadWarnings([]);
+    setScrapeMeta({});
+  }, []);
+
   useEffect(() => {
     return () => {
       setRecent([]);
@@ -112,6 +119,7 @@ export default function AddListingsPage() {
               pending={createMut.isPending}
               onAutoPreviewFromUrl={onAutoPreviewFromUrl}
               onUrlPreviewClear={onUrlPreviewClear}
+              onSourceUrlTextChange={onSourceUrlTextChange}
               urlPreviewStatus={urlPreviewStatus}
               loadFromUrlError={loadError}
               loadFromUrlWarnings={loadWarnings}
