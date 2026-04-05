@@ -102,6 +102,15 @@ api/
 
 ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
+
+# [REMOVE IF UNUSED] Option 4: Tokyo listings monorepo (apps + packages)
+apps/<name>/
+├── src/
+└── test/                 # mirrors src/: same relative paths, *.test.ts only here
+
+packages/<name>/
+├── src/
+└── test/                 # mirrors src/; fixtures under test/fixtures/ when needed
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real

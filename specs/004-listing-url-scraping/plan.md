@@ -71,9 +71,8 @@ packages/
 │   │   core/                     # types, url canonicalization, ScrapeResult
 │   │   normalize/                # yen, area, station, address helpers
 │   │   portals/                  # athome, suumo, lifullHomes (pure parse(html))
-│   └── test/
+│   └── test/                     # mirrors src/: normalize/*.test.ts, portals/*.test.ts, fixtures/
 │       fixtures/                 # HTML snapshots per portal
-│       portals/*.test.ts
 ├── validators/                   # Zod: scrape input/output + shared listing schemas
 └── db/                           # migrations: unique sourceUrl, optional sourcePortal
 

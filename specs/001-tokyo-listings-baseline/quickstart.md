@@ -1,7 +1,8 @@
 # Quickstart (local) — Tokyo Listings Baseline
 
-**Target**: Operator machine with **Docker Desktop** (or Docker Engine) + **Bun** (optional for
-host-side scripts) + **Node 22** (if not using Docker for dev).
+**Target**: Operator machine with **Docker Desktop** (or Docker Engine) for Postgres (and optional
+full stack), **Bun 1.2.x** for local dev (`bun run dev:api`, `bun run dev:web`, `db:*`, `lint`,
+`test`), and **Node 22** only if a tool outside Bun requires it.
 
 ## 1. Clone and branch
 
@@ -49,6 +50,24 @@ Equivalent: `docker compose -f docker/docker-compose.yml up --build` (same file 
 - Map keys for the web build: **`GOOGLE_MAPS_API_KEY_CLIENT`** / optional **`GOOGLE_MAPS_MAP_ID`** must be available at **`docker compose build`** time (see Dockerfile and compose comments).
 - The API container runs **Drizzle migrations on startup** before listening, so a fresh Postgres volume gets schema without a manual migrate inside the container workflow.
 
+### Start API and Web with Bun (host)
+
+Use this for hot reload on your machine while Postgres runs in Docker (or any Postgres reachable via
+`DATABASE_URL` in the root `.env`). You do **not** need the API/Web Compose services for this path.
+
+1. **Install** (repo root): `bun install` (after clone or when `bun.lock` changes).
+2. **Database**: start Postgres — `docker compose up -d postgres` from the repo root — then apply
+   migrations: `bun run db:migrate` (see **Migrations** below).
+3. **Two terminals**, both from the **repository root**:
+   - API: `bun run dev:api` — Hono on `API_LISTEN_PORT` (default `4001`).
+   - Web: `bun run dev:web` — Next.js at `http://localhost:3000`.
+
+Root [`package.json`](../../../package.json) defines these as
+`bun run --cwd apps/<api|web> --env-file ../../.env dev`, so the root `.env` loads without
+`apps/web/.env.local` or `apps/api/.env`. Set `API_DEV_ORIGIN` to match the API (e.g.
+`http://localhost:4001`) so Next rewrites work. For Better Auth, cookies, and rewrites details, see
+**Local dev: API + web (auth)** below.
+
 ## 4. Migrations
 
 **Host / Bun dev** — from the repository root (with a root `.env` containing `DATABASE_URL`; `bun run db:*` loads it automatically):
@@ -67,6 +86,11 @@ bun run db:migrate    # apply migrations to Postgres
 bun run lint
 bun run test
 ```
+
+**Test layout**: For `apps/api` and `packages/scraping`, automated tests live under a sibling
+`test/` directory that **mirrors** `src/` (e.g. `apps/api/src/lib/listing-filters.ts` ↔
+`apps/api/test/lib/listing-filters.test.ts`). Vitest is configured to pick up `test/**/*.test.ts`
+only. Do not add `*.test.ts` next to files under `src/`.
 
 ## 6. Open app
 

@@ -6,7 +6,7 @@ alwaysApply: true
 
 # tokyo-listings Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-29
+Auto-generated from all feature plans. Last updated: 2026-04-05
 
 ## Active Technologies
 
@@ -17,9 +17,17 @@ Auto-generated from all feature plans. Last updated: 2026-03-29
 ```text
 apps/web/
 apps/api/
+  src/
+  test/          # mirrors src/ — *.test.ts live here, not under src/
 packages/db/
-tests/
+packages/scraping/
+  src/
+  test/          # mirrors src/; fixtures under test/fixtures/
 ```
+
+Automated tests for app and package code use a sibling **`test/`** tree that **mirrors** **`src/`**
+(same relative paths). Do not add colocated `*.test.ts` under `src/`. API unit tests live under
+`apps/api/test/`, not a separate repo-root `tests/` folder.
 
 ## Commands
 
