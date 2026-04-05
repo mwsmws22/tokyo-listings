@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { scrapeFromUrl } from "./scrapeFromUrl";
+import { scrapeFromUrl } from "../src/scrapeFromUrl";
 
 describe("scrapeFromUrl", () => {
   it("returns unsupported_host without fetching for unknown host", async () => {
@@ -30,12 +33,9 @@ describe("scrapeFromUrl", () => {
   });
 
   it("returns ok when mock fetch returns Athome fixture HTML", async () => {
-    const { readFileSync } = await import("node:fs");
-    const { dirname, join } = await import("node:path");
-    const { fileURLToPath } = await import("node:url");
     const fixturePath = join(
       dirname(fileURLToPath(import.meta.url)),
-      "../test/fixtures/athome-detail.sample.html",
+      "fixtures/athome-detail.sample.html",
     );
     const html = readFileSync(fixturePath, "utf8");
     const r = await scrapeFromUrl("https://www.athome.co.jp/chintai/1107585425/", {

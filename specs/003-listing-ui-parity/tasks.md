@@ -33,7 +33,7 @@
 - [x] T004 Extend Drizzle `listing` and `property` column definitions in `packages/db/src/schema/listings.ts` per `specs/003-listing-ui-parity/data-model.md`
 - [x] T005 Generate and commit Drizzle migration under `packages/db/` for new columns; verify `drizzle.config.ts` and local apply path
 - [x] T006 Extend Zod `listingCreateSchema`, `listingUpdateSchema`, and `listingListSchema` in `packages/validators/src/listing.ts` for parity fields and filter inputs per `specs/003-listing-ui-parity/contracts/listing-trpc.md`
-- [x] T007 Write failing Vitest tests in `tests/unit/listing-filters.test.ts` for pure filter composition, then implement matching logic in `apps/api/src/lib/listing-filters.ts`
+- [x] T007 Write failing Vitest tests in `apps/api/test/lib/listing-filters.test.ts` for pure filter composition, then implement matching logic in `apps/api/src/lib/listing-filters.ts`
 - [x] T008 Update `listing.list` in `apps/api/src/trpc/routers/listing.ts` to accept filter DTO, join `property` when needed, and apply AND semantics server-side
 - [x] T009 Update `listing.create` and `listing.update` in `apps/api/src/trpc/routers/listing.ts` to persist parity fields and create/update linked `property` rows when structured address fields are provided
 - [x] T010 Update `listing.getById` in `apps/api/src/trpc/routers/listing.ts` to return listing plus joined property fields for the detail panel

@@ -77,6 +77,9 @@ Follow-up TODOs: none
 - The Complexity Tracking table in `plan.md` MUST be completed when a design intentionally
   violates a default principle (e.g., extra service or bypassing test-first for a stated
   exception).
+- Automated test files for workspace apps and packages MUST live under a `test/` directory that
+  mirrors the sibling `src/` layout (parallel relative paths); new colocated `*.test.*` files
+  under `src/` MUST NOT be added.
 
 ## Governance
 
@@ -93,4 +96,4 @@ Follow-up TODOs: none
   until then, `.specify/memory/constitution.md` and `.specify/templates/` define process
   expectations for SpecKit workflows.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-03-28
+**Version**: 1.1.0 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-04-05

@@ -23,6 +23,10 @@ description: "Task list template for feature implementation"
 - **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- **Tokyo listings monorepo**: workspace members under `apps/*` and `packages/*` keep `src/` for
+  implementation and a sibling `test/` tree that **mirrors** `src/` paths (e.g.
+  `apps/api/test/lib/foo.test.ts` ↔ `apps/api/src/lib/foo.ts`); fixtures live under `test/fixtures/`
+  where needed. Do not colocate `*.test.ts` under `src/`.
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!-- 
@@ -155,7 +159,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
 - [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
+- [ ] TXXX [P] Additional unit tests (if requested) under `apps/<app>/test/` or `packages/<pkg>/test/` mirroring `src/`
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
 

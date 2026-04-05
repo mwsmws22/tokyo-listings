@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseJapaneseAddressStructured } from "./address";
+import { parseJapaneseAddressStructured } from "../../src/normalize/address";
 
 describe("parseJapaneseAddressStructured", () => {
   it("parses a Tokyo ward address starting with 東京都", async () => {

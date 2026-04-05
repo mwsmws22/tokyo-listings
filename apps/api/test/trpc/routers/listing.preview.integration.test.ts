@@ -1,6 +1,6 @@
 import { scrapingPreviewOutputSchema } from "@tokyo-listings/validators/scraping";
 import { describe, expect, it } from "vitest";
-import { mapScrapeDraftToListingPrefill } from "../../lib/scraping/mapDraftToListingInput";
+import { mapScrapeDraftToListingPrefill } from "../../../src/lib/scraping/mapDraftToListingInput";
 
 describe("listing.previewFromUrl data layer", () => {
   it("scrapingPreviewOutputSchema accepts ok athome-shaped payloads", () => {

@@ -46,7 +46,7 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 - [x] T005 Define `PortalId`, `ScrapeStatus`, `ScrapedListingDraft`, `ScrapeResult` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/types.ts`
 - [x] T006 Implement hostname allowlist and `canonicalizeListingUrl` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/url.ts` (strip tracking params per research; document rules in file comment)
 - [x] T007 Implement `resolvePortalFromUrl` returning portal or null in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/core/dispatch.ts`
-- [x] T008 Add failing Vitest tests for yen/㎡/walk-minute helpers in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/money-area.test.ts` then implement `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/money-area.ts` until green
+- [x] T008 Add failing Vitest tests for yen/㎡/walk-minute helpers in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/test/normalize/money-area.test.ts` then implement `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/money-area.ts` until green
 - [x] T009 [P] Add failing tests then implement Japanese address split wrapper using `jp-address-parser` in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/normalize/address.ts` (re-export minimal surface for draft property fields)
 - [x] T010 Implement `createFetchLimiter` (global concurrency + per-host min interval + per-host max in-flight) in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/fetch/limiter.ts` reading env defaults
 - [x] T011 Implement `fetchListingHtml` with `AbortController` timeout, max body bytes, stable User-Agent, and structured error mapping in `/home/smbuser/mws-server/tokyo-listings/packages/scraping/src/fetch/fetchListingHtml.ts`
@@ -127,7 +127,7 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 - [x] T035 [P] [US1] Extend `listingCreateSchema` / input type if needed for `sourcePortal` and scrape timestamp in `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/listing.ts`
 - [x] T036 [US1] Wire add-listing UI: trigger preview (button or blur), merge draft into form state, show loading/error in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` and parent route under `/home/smbuser/mws-server/tokyo-listings/apps/web/src/app/`
 - [x] T037 [US1] Add TanStack Query hook for `previewFromUrl` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/lib/trpc/` (or equivalent client module)
-- [x] T038 [P] [US1] Add integration test for `previewFromUrl` with mocked upstream HTML in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.preview.integration.test.ts` or `packages/scraping` boundary
+- [x] T038 [P] [US1] Add integration test for `previewFromUrl` with mocked upstream HTML in `/home/smbuser/mws-server/tokyo-listings/apps/api/test/trpc/routers/listing.preview.integration.test.ts` or `packages/scraping` boundary
 - [x] T039 [US1] Align `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/contracts/listing-scrape-trpc.md` with final procedure names and Zod types
 
 **Checkpoint (MVP)**: US1 complete — three portals + save + duplicate URL.

@@ -3,7 +3,7 @@ import {
   parseMonthlyRentYenFromText,
   parseSquareMetersFromText,
   parseWalkingMinutesFromText,
-} from "./money-area";
+} from "../../src/normalize/money-area";
 
 describe("parseMonthlyRentYenFromText", () => {
   it("parses 万円 with decimal", () => {
