@@ -7,9 +7,22 @@
 export const DEFAULT_SCRAPE_USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
+/** Optional Firefox-style UA for sites that challenge Chromium-like clients. */
+export const DEFAULT_SCRAPE_USER_AGENT_FIREFOX =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0";
+
+export type BrowserHeaderProfile = "auto" | "chrome" | "firefox";
+
 export function chromeMajorVersionFromUserAgent(userAgent: string): string {
   const m = /Chrome\/(\d+)/.exec(userAgent);
   return m?.[1] ?? "131";
+}
+
+function inferProfileFromUserAgent(userAgent: string): Exclude<BrowserHeaderProfile, "auto"> {
+  if (/Firefox\//i.test(userAgent)) {
+    return "firefox";
+  }
+  return "chrome";
 }
 
 /**
@@ -25,7 +38,7 @@ export function inferRefererForListingUrl(url: string): string | undefined {
   }
 
   if (hostname === "www.homes.co.jp" || hostname === "homes.co.jp") {
-    return "https://www.homes.co.jp/chintai/";
+    return "https://www.homes.co.jp/chintai/tokyo/23ku-mcity/";
   }
   if (hostname === "www.suumo.jp" || hostname === "suumo.jp") {
     return "https://suumo.jp/chintai/";
@@ -36,25 +49,35 @@ export function inferRefererForListingUrl(url: string): string | undefined {
   return undefined;
 }
 
-export function buildBrowserLikeHeaders(targetUrl: string, userAgent: string): Record<string, string> {
+export function buildBrowserLikeHeaders(
+  targetUrl: string,
+  userAgent: string,
+  profile: BrowserHeaderProfile = "auto",
+  acceptLanguage = "en-US,en;q=0.5",
+): Record<string, string> {
+  const resolvedProfile = profile === "auto" ? inferProfileFromUserAgent(userAgent) : profile;
   const v = chromeMajorVersionFromUserAgent(userAgent);
   const referer = inferRefererForListingUrl(targetUrl);
 
   const headers: Record<string, string> = {
     "User-Agent": userAgent,
-    Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-    "Accept-Language": "ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7",
-    "Accept-Encoding": "gzip, deflate, br",
+    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": acceptLanguage,
+    "Accept-Encoding": "gzip, deflate, br, zstd",
     "Upgrade-Insecure-Requests": "1",
     "Sec-Fetch-Dest": "document",
     "Sec-Fetch-Mode": "navigate",
     "Sec-Fetch-User": "?1",
-    // Client hints (Chrome sends these on navigation)
-    "Sec-CH-UA": `"Google Chrome";v="${v}", "Chromium";v="${v}", "Not_A Brand";v="24"`,
-    "Sec-CH-UA-Mobile": "?0",
-    "Sec-CH-UA-Platform": '"Windows"',
+    Priority: "u=0, i",
+    TE: "trailers",
   };
+
+  if (resolvedProfile === "chrome") {
+    // Client hints for Chromium profile.
+    headers["Sec-CH-UA"] = `"Google Chrome";v="${v}", "Chromium";v="${v}", "Not_A Brand";v="24"`;
+    headers["Sec-CH-UA-Mobile"] = "?0";
+    headers["Sec-CH-UA-Platform"] = '"Windows"';
+  }
 
   if (referer) {
     headers.Referer = referer;

@@ -1,4 +1,11 @@
-import { buildBrowserLikeHeaders, DEFAULT_SCRAPE_USER_AGENT } from "./browserHeaders";
+import {
+  buildBrowserLikeHeaders,
+  DEFAULT_SCRAPE_USER_AGENT,
+  DEFAULT_SCRAPE_USER_AGENT_FIREFOX,
+  type BrowserHeaderProfile,
+} from "./browserHeaders";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 
 export { DEFAULT_SCRAPE_USER_AGENT } from "./browserHeaders";
 
@@ -30,6 +37,8 @@ export type FetchListingHtmlOptions = {
   maxBodyBytes: number;
   fetchImpl?: FetchLike;
   userAgent?: string;
+  headerProfile?: BrowserHeaderProfile;
+  acceptLanguage?: string;
   /**
    * Extra full fetch attempts after retriable HTTP failures (202/403/429/503).
    * Default 0. Set via `SCRAPE_FETCH_RETRIES` for flaky WAF or rate limits.
@@ -38,6 +47,36 @@ export type FetchListingHtmlOptions = {
   /** Base delay before each retry; small jitter is added. Default 1000 ms. */
   retryDelayMs?: number;
 };
+
+async function dumpHomes202HtmlForDebug(url: string, html: string): Promise<void> {
+  let hostname = "";
+  try {
+    hostname = new URL(url).hostname.toLowerCase();
+  } catch {
+    return;
+  }
+  if (hostname !== "www.homes.co.jp" && hostname !== "homes.co.jp") {
+    return;
+  }
+
+  const ts = new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
+  const fileName = `homes-202-${ts}.html`;
+  const outputDirs = [
+    "/home/smbuser/mws-server/tokyo-listings/output",
+    "/app/output",
+    path.resolve(process.cwd(), "output"),
+  ];
+  for (const outputDir of outputDirs) {
+    const filePath = path.join(outputDir, fileName);
+    try {
+      await mkdir(outputDir, { recursive: true });
+      await writeFile(filePath, html, "utf-8");
+      return;
+    } catch {
+      // Temporary best-effort debug path; keep scraper behavior unchanged on write failures.
+    }
+  }
+}
 
 function isRetriableHttpErrorMessage(message: string): boolean {
   return /\bHTTP (202|403|429|503)\b/.test(message);
@@ -63,7 +102,12 @@ async function fetchListingHtmlOnce(
   try {
     const res = await fetchFn(options.url, {
       signal: controller.signal,
-      headers: buildBrowserLikeHeaders(options.url, options.userAgent),
+      headers: buildBrowserLikeHeaders(
+        options.url,
+        options.userAgent,
+        options.headerProfile,
+        options.acceptLanguage,
+      ),
       redirect: "follow",
     });
 
@@ -76,6 +120,9 @@ async function fetchListingHtmlOnce(
 
     // Many CDNs/WAFs return 202 with a challenge or empty shell; `fetch` still treats that as `ok`.
     if (res.status !== 200) {
+      if (res.status === 202) {
+        await dumpHomes202HtmlForDebug(options.url, html);
+      }
       const hint =
         res.status === 202
           ? " — server returned a challenge or placeholder page, not the listing HTML (often bot protection)"
@@ -110,7 +157,8 @@ async function fetchListingHtmlOnce(
 }
 
 export async function fetchListingHtml(options: FetchListingHtmlOptions): Promise<FetchListingHtmlResult> {
-  const userAgent = options.userAgent ?? DEFAULT_SCRAPE_USER_AGENT;
+  const pinnedUserAgent = options.userAgent;
+  const profile = options.headerProfile ?? "auto";
   const maxAttempts = 1 + Math.max(0, options.retries ?? 0);
   const baseDelay = Math.max(0, options.retryDelayMs ?? 1000);
 
@@ -120,7 +168,20 @@ export async function fetchListingHtml(options: FetchListingHtmlOptions): Promis
       await sleep(retryDelayWithJitter(baseDelay));
     }
     try {
-      return await fetchListingHtmlOnce({ ...options, userAgent });
+      const alternate = attempt % 2 === 1;
+      const useFirefox = profile === "auto" && !pinnedUserAgent && alternate;
+      const attemptUserAgent = pinnedUserAgent
+        ? pinnedUserAgent
+        : useFirefox
+          ? DEFAULT_SCRAPE_USER_AGENT_FIREFOX
+          : DEFAULT_SCRAPE_USER_AGENT;
+      const attemptProfile: BrowserHeaderProfile =
+        profile === "auto" ? (useFirefox ? "firefox" : "chrome") : profile;
+      return await fetchListingHtmlOnce({
+        ...options,
+        userAgent: attemptUserAgent,
+        headerProfile: attemptProfile,
+      });
     } catch (e) {
       lastError = e;
       const canRetry =

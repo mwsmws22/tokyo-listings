@@ -78,6 +78,8 @@ export async function scrapeFromUrl(
         maxBodyBytes: env.maxBodyBytes,
         fetchImpl: options.fetchImpl,
         userAgent: env.userAgent,
+        headerProfile: env.headerProfile,
+        acceptLanguage: env.acceptLanguage,
         retries: env.fetchRetries,
         retryDelayMs: env.fetchRetryDelayMs,
       }),

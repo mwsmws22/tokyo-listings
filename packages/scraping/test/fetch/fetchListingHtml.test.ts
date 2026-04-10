@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { FetchListingHtmlError, fetchListingHtml } from "../../src/fetch/fetchListingHtml";
+import {
+  DEFAULT_SCRAPE_USER_AGENT,
+  DEFAULT_SCRAPE_USER_AGENT_FIREFOX,
+} from "../../src/fetch/browserHeaders";
 
 function mockResponse(init: {
   status: number;
@@ -84,5 +88,38 @@ describe("fetchListingHtml", () => {
     expect(calls).toBe(2);
     expect(out.status).toBe(200);
     expect(out.html).toContain("ok");
+  });
+
+  test("auto profile alternates UA fingerprint on retry (Chrome -> Firefox)", async () => {
+    const userAgents: string[] = [];
+    let calls = 0;
+    const fetchImpl: typeof fetch = async (_input, init) => {
+      calls += 1;
+      const h = init?.headers as Record<string, string>;
+      userAgents.push(h["User-Agent"]);
+      if (calls === 1) {
+        return mockResponse({
+          status: 202,
+          body: "<!DOCTYPE html><html></html>",
+        });
+      }
+      return mockResponse({
+        status: 200,
+        body: "<!DOCTYPE html><html>ok</html>",
+      });
+    };
+
+    await fetchListingHtml({
+      url: "https://example.com/",
+      timeoutMs: 5000,
+      maxBodyBytes: 1_000_000,
+      fetchImpl,
+      retries: 1,
+      retryDelayMs: 1,
+      headerProfile: "auto",
+    });
+
+    expect(userAgents[0]).toBe(DEFAULT_SCRAPE_USER_AGENT);
+    expect(userAgents[1]).toBe(DEFAULT_SCRAPE_USER_AGENT_FIREFOX);
   });
 });

@@ -6,8 +6,10 @@
   },
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev:api": "bun run --cwd apps/api --env-file ../../.env dev",
-    "dev:web": "bun run --cwd apps/web --env-file ../../.env dev",
+    "dev:up": "bash scripts/dev-runtime.sh up",
+    "down": "bash scripts/dev-runtime.sh down",
+    "docker:up": "bash scripts/dev-runtime.sh docker-up",
+    "status": "bash scripts/dev-runtime.sh status",
     "build": "echo \"Wire workspace builds in Phase 2+\"",
     "lint": "bun ./node_modules/@biomejs/biome/bin/biome check .",
     "format": "bun ./node_modules/@biomejs/biome/bin/biome format --write .",
