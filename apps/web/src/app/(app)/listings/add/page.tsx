@@ -3,6 +3,11 @@
 import type { ListingCreateParityInput } from "@/components/listing/ListingFormParity";
 import { ListingFormParity } from "@/components/listing/ListingFormParity";
 import { ListingsMapWorkspace } from "@/components/shell/ListingsMapWorkspace";
+import {
+  createPreviewSuccessState,
+  preservePreviewStateOnFailure,
+  type PreviewStatus,
+} from "@/lib/listing/previewState";
 import { trpc } from "@/lib/trpc/client";
 import { selectedListingIdAtom, selectedListingPreviewAtom } from "@/state/selectedListing";
 import type { ListingRow } from "@/types/trpc";
@@ -19,6 +24,8 @@ export default function AddListingsPage() {
   }>({});
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadWarnings, setLoadWarnings] = useState<string[]>([]);
+  const [loadFieldErrors, setLoadFieldErrors] = useState<Record<string, string>>({});
+  const [loadPreviewStatus, setLoadPreviewStatus] = useState<PreviewStatus>(null);
   const [mapPreviewAddress, setMapPreviewAddress] = useState<string | null>(null);
   const [urlPreviewStatus, setUrlPreviewStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -45,43 +52,36 @@ export default function AddListingsPage() {
         res.status === "fetch_failed" ||
         res.status === "parse_failed"
       ) {
+        const preserved = preservePreviewStateOnFailure({
+          prefill,
+          warnings: loadWarnings,
+          fieldErrors: loadFieldErrors,
+          status: loadPreviewStatus,
+          mapPreviewAddress,
+        });
         setLoadError(res.message);
-        setLoadWarnings([]);
+        setPrefill(preserved.prefill);
+        setLoadWarnings(preserved.warnings);
+        setLoadFieldErrors(preserved.fieldErrors);
+        setLoadPreviewStatus(preserved.status);
+        setMapPreviewAddress(preserved.mapPreviewAddress);
         setScrapeMeta({});
         setUrlPreviewStatus("error");
-        setMapPreviewAddress(null);
         return;
       }
       setLoadError(null);
       setUrlPreviewStatus("success");
-      setLoadWarnings(res.status === "partial" ? res.draft.warnings : []);
+      const next = createPreviewSuccessState(res);
+      setLoadWarnings(next.warnings);
+      setLoadFieldErrors(next.fieldErrors);
+      setLoadPreviewStatus(next.status);
       setScrapeMeta({ portal: res.portal, fetchedAt: new Date() });
-      const d = res.draft;
-      const addr = d.addressText?.trim();
-      setMapPreviewAddress(addr && addr.length >= 4 ? addr : null);
-      setPrefill({
-        title: d.title ?? "",
-        monthlyRentYen: d.monthlyRentYen,
-        addressText: d.addressText ?? "",
-        reikinMonths: d.reikinMonths,
-        securityDepositMonths: d.securityDepositMonths,
-        squareM: d.squareM,
-        closestStation: d.closestStation ?? "",
-        walkingTimeMin: d.walkingTimeMin,
-        availability: d.availability,
-        propertyType: d.propertyType,
-        prefecture: d.prefecture ?? "",
-        municipality: d.municipality ?? "",
-        town: d.town ?? "",
-        district: d.district ?? "",
-        block: d.block ?? "",
-        houseNumber: d.houseNumber ?? "",
-      });
+      setMapPreviewAddress(next.mapPreviewAddress);
+      setPrefill(next.prefill);
     },
     onError: (err) => {
       setLoadError(err.message);
       setUrlPreviewStatus("error");
-      setMapPreviewAddress(null);
     },
   });
 
@@ -96,12 +96,17 @@ export default function AddListingsPage() {
   const onUrlPreviewClear = useCallback(() => {
     setUrlPreviewStatus("idle");
     setMapPreviewAddress(null);
+    setLoadWarnings([]);
+    setLoadFieldErrors({});
+    setLoadPreviewStatus(null);
   }, []);
 
   const onSourceUrlTextChange = useCallback(() => {
     setUrlPreviewStatus("idle");
     setLoadError(null);
     setLoadWarnings([]);
+    setLoadFieldErrors({});
+    setLoadPreviewStatus(null);
     setScrapeMeta({});
     setMapPreviewAddress(null);
   }, []);
@@ -132,6 +137,8 @@ export default function AddListingsPage() {
               urlPreviewStatus={urlPreviewStatus}
               loadFromUrlError={loadError}
               loadFromUrlWarnings={loadWarnings}
+              loadFromUrlFieldErrors={loadFieldErrors}
+              loadFromUrlPreviewStatus={loadPreviewStatus}
               onSubmit={(input) =>
                 createMut.mutate({
                   ...input,

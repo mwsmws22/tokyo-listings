@@ -6,6 +6,7 @@ import { isSupportedListingHostUrl } from "@/lib/supportedListingHosts";
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
+import type { PreviewStatus } from "@/lib/listing/previewState";
 
 export type ListingCreateParityInput = {
   title: string;
@@ -52,6 +53,8 @@ type Props = {
   urlPreviewStatus?: "idle" | "loading" | "success" | "error";
   loadFromUrlError?: string | null;
   loadFromUrlWarnings?: string[];
+  loadFromUrlFieldErrors?: Record<string, string>;
+  loadFromUrlPreviewStatus?: PreviewStatus;
 };
 
 const inputClass =
@@ -126,6 +129,8 @@ export function ListingFormParity({
   urlPreviewStatus = "idle",
   loadFromUrlError = null,
   loadFromUrlWarnings = [],
+  loadFromUrlFieldErrors = {},
+  loadFromUrlPreviewStatus = null,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
@@ -152,6 +157,29 @@ export function ListingFormParity({
     block: "",
     houseNumber: "",
   });
+
+  function resetScrapedFieldsKeepingSourceUrl(sourceUrl: string) {
+    setForm({
+      title: "",
+      monthlyRentMan: "",
+      addressText: "",
+      sourceUrl,
+      reikinMonths: "",
+      securityDepositMonths: "",
+      squareM: "",
+      closestStation: "",
+      walkingTimeMin: "",
+      availability: undefined,
+      propertyType: undefined,
+      interest: undefined,
+      prefecture: "",
+      municipality: "",
+      town: "",
+      district: "",
+      block: "",
+      houseNumber: "",
+    });
+  }
 
   useEffect(() => {
     if (!initialValues) return;
@@ -293,7 +321,7 @@ export function ListingFormParity({
           value={form.sourceUrl}
           onChangeText={(sourceUrl) => {
             lastPreviewCanonicalRef.current = null;
-            setForm((s) => ({ ...s, sourceUrl }));
+            resetScrapedFieldsKeepingSourceUrl(sourceUrl);
             onSourceUrlTextChange?.();
           }}
         />
@@ -309,8 +337,20 @@ export function ListingFormParity({
       {loadFromUrlError ? (
         <Text className="text-xs text-rose-pine-love">{loadFromUrlError}</Text>
       ) : null}
+      {loadFromUrlPreviewStatus === "partial" ? (
+        <Text className="text-xs text-rose-pine-gold">
+          Partial preview loaded. Some fields need manual review.
+        </Text>
+      ) : null}
       {loadFromUrlWarnings.length > 0 ? (
         <Text className="text-xs text-rose-pine-muted">{loadFromUrlWarnings.join(" · ")}</Text>
+      ) : null}
+      {Object.keys(loadFromUrlFieldErrors).length > 0 ? (
+        <Text className="text-xs text-rose-pine-muted">
+          {Object.entries(loadFromUrlFieldErrors)
+            .map(([field, msg]) => `${field}: ${msg}`)
+            .join(" · ")}
+        </Text>
       ) : null}
       <View className="hidden">
         <TextInput

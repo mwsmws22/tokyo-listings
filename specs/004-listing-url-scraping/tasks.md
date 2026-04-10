@@ -140,9 +140,9 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: Trigger each error type; UI shows message; manual fields intact.
 
-- [ ] T040 [US2] Normalize API errors: map `unsupported_host`, `fetch_failed`, `parse_failed` to stable `TRPCError` codes/messages in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` (no raw upstream body)
-- [ ] T041 [US2] Add user-visible banners for `partial` vs `ok` and field-level hints from `fieldErrors` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`
-- [ ] T042 [US2] Add Vitest or component test for merge logic preserving user-typed fields when a second preview fails in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` (or extract pure helper tested in `*.test.ts`)
+- [x] T040 [US2] Normalize API errors: map `unsupported_host`, `fetch_failed`, `parse_failed` to stable `TRPCError` codes/messages in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` (no raw upstream body)
+- [x] T041 [US2] Add user-visible banners for `partial` vs `ok` and field-level hints from `fieldErrors` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`
+- [x] T042 [US2] Add Vitest or component test for merge logic preserving user-typed fields when a second preview fails in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` (or extract pure helper tested in `*.test.ts`)
 
 ---
 

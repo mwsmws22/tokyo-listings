@@ -19,6 +19,31 @@ import { protectedProcedure, router } from "../trpc";
 
 const log = createLogger();
 
+function normalizePreviewFailure(raw: ReturnType<typeof scrapingPreviewOutputSchema.parse>) {
+  if (raw.status === "unsupported_host") {
+    return {
+      ...raw,
+      message: "This portal is not supported yet. Supported: athome.co.jp, suumo.jp, homes.co.jp.",
+    };
+  }
+  if (raw.status === "fetch_failed") {
+    const isInvalidUrl = raw.code === "invalid_url";
+    return {
+      ...raw,
+      message: isInvalidUrl
+        ? "The URL is invalid. Please paste a full listing URL."
+        : "Could not fetch the listing page. Please retry or enter fields manually.",
+    };
+  }
+  if (raw.status === "parse_failed") {
+    return {
+      ...raw,
+      message: "Could not extract listing fields from this page. Please enter fields manually.",
+    };
+  }
+  return raw;
+}
+
 function requireUserId(userId: string | null): string {
   if (!userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -34,7 +59,8 @@ export const listingRouter = router({
       log.info({ userId, url: input.url }, "listing.previewFromUrl");
       try {
         const raw = await scrapeFromUrl(input.url);
-        return scrapingPreviewOutputSchema.parse(raw);
+        const parsed = scrapingPreviewOutputSchema.parse(raw);
+        return normalizePreviewFailure(parsed);
       } catch (e) {
         log.error({ err: e, userId }, "listing.previewFromUrl failed");
         throw new TRPCError({
