@@ -146,39 +146,58 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 ---
 
-## Phase 8: User Story 3 — Duplicate address → link listing to existing property
+## Phase 8: User Story 3 — Similar-property detection + add-page property picker UX
 
-**Goal**: When saving, suggest linking to an existing property if normalized address matches; user can confirm or decline.
+**Goal**: Replace “check DB” with a collapsed similar-property entry point (building icon). When address similarity exists, user can open a slick animated popup, inspect candidates, and selecting a candidate mirrors existing map/right-panel property selection behavior.
 
-**Independent test**: Two listings same address → second prompts → DB shows shared `propertyId` when accepted.
+**Independent test**: On add page with matching address, icon becomes active, popup lists candidates, selecting one highlights property in map + right panel exactly like home/recent selection.
 
-- [ ] T043 [US3] Implement address-normalization match query (same user) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` using existing `property` columns
-- [ ] T044 [US3] Extend `listing.create` input with optional `linkToPropertyId` or pre-check procedure in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` per contract decision
-- [ ] T045 [US3] Add confirmation modal flow on add-listing submit when match candidates exist in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` and add page route
+- [ ] T043 [US3] Implement same-user property similarity query by normalized address in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` returning property summary cards suitable for popup list
+- [ ] T044 [US3] Analyze legacy duplicate-address/property-linking behavior in `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/` and port the address-matching algorithm/threshold rules into `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` (document any intentional deviations inline)
+- [ ] T045 [US3] Add tRPC read procedure (e.g. `listing.findSimilarProperties`) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` that accepts current draft address + `squareM`, returns candidates from **address-matched properties only**, and ranks by closest area using absolute diff between scraped `squareM` and per-property average listing `squareM` (average rounded to 2 decimals); follow legacy behavior if materially similar, otherwise pause implementation and summarize legacy-vs-new diff for developer direction
+- [ ] T046 [US3] Remove “check DB” control and add collapsed building-icon trigger in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`; show greyed-out state when no candidates
+- [ ] T047 [US3] Implement animated popup open/close + candidate list interactions in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` (new component file) with smooth transition and keyboard-close support
+- [ ] T048 [US3] Wire candidate selection from popup into existing map/right-panel selection state in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` and add-page container so behavior matches home/recently-added selection flow
+- [ ] T049 [P] [US3] Add component/integration test for popup states (no match/has match/selected) in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` test file
 
 ---
 
-## Phase 9: User Story 4 — Adjust map pin after geocode
+## Phase 9: User Story 3 — Explicit association on save + property field lock rules
+
+**Goal**: Default remains “new property per listing”; when a candidate is selected and user explicitly confirms “associate to this property,” save links listing to that property and enforces immutable property fields with missing-part fill-in only.
+
+**Independent test**: With selected candidate but no confirm checkbox, save creates new property; with confirm checked, listing links to existing property and non-empty property address/type fields are locked against overwrite.
+
+- [ ] T050 [US3] Extend create payload contract in `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/listing.ts` and `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/scraping.ts` with `selectedPropertyId` + explicit `associateToSelectedProperty` flag
+- [ ] T051 [US3] Update add-listing submit flow in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` to send selected property id plus explicit association choice (checkbox/toggle) and keep default as new property
+- [ ] T052 [US3] Implement `listing.create` association branch in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts`: if confirmed, attach listing to selected property; otherwise create new property as before
+- [ ] T053 [US3] Enforce property-field immutability rules in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` and helper under `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/`: property type cannot be modified when linking; address parts cannot overwrite non-empty stored values; allow filling only missing address parts (e.g. unknown house number)
+- [ ] T054 [US3] Lock/disallow editing property-bound fields in add UI when association is confirmed in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` (keep listing fields editable: rent/reikin/shikikin/area/station/walk/availability)
+- [ ] T055 [P] [US3] Add API integration tests for associate-vs-new behavior and missing-address-part merge logic in `/home/smbuser/mws-server/tokyo-listings/apps/api/test/trpc/routers/listing.preview.integration.test.ts` (or new `listing.create.association.integration.test.ts`)
+
+---
+
+## Phase 10: User Story 4 — Adjust map pin after geocode
 
 **Goal**: User refines coordinates after automatic geocode; persisted on listing/property per spec P4.
 
 **Independent test**: Move pin, save, reload map → marker at new position.
 
-- [ ] T046 [US4] Ensure geocoded coordinates flow from add form and `geocodeStatus` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` matches create/update behavior
-- [ ] T047 [US4] Implement draggable marker or “set pin” map interaction on add/edit listing map surface in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or dedicated map component) writing lat/lng + `pinExact` / manual geocode status via `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` `update`
-- [ ] T048 [US4] Persist `pinExact` and coordinates on `property`/`listing` per existing schema in `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts` and validators
+- [ ] T056 [US4] Ensure geocoded coordinates flow from add form and `geocodeStatus` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` matches create/update behavior
+- [ ] T057 [US4] Implement draggable marker or “set pin” map interaction on add/edit listing map surface in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or dedicated map component) writing lat/lng + `pinExact` / manual geocode status via `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` `update`
+- [ ] T058 [US4] Persist `pinExact` and coordinates on `property`/`listing` per existing schema in `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts` and validators
 
 ---
 
-## Phase 10: Polish & cross-cutting
+## Phase 11: Polish & cross-cutting
 
 **Purpose**: Observability, docs, optional dev script for live URLs.
 
-- [ ] T049 [P] Add structured scrape logs (portal, hostname, ms, outcome code) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` using existing `pino` logger
-- [ ] T050 [P] Add optional CLI or `bun run scripts/scrape-debug.ts` at `/home/smbuser/mws-server/tokyo-listings/scripts/scrape-debug.ts` that calls `scrapeFromUrl` with argv URL for manual loop (document in quickstart)
-- [ ] T051 [P] Update `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` with final test commands and env keys
-- [ ] T052 Run through `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` manually and fix gaps
-- [ ] T053 [P] Biome check touched packages: run `/home/smbuser/mws-server/tokyo-listings/package.json` `lint` after implementation
+- [ ] T059 [P] Add structured scrape logs (portal, hostname, ms, outcome code) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` using existing `pino` logger
+- [ ] T060 [P] Add optional CLI or `bun run scripts/scrape-debug.ts` at `/home/smbuser/mws-server/tokyo-listings/scripts/scrape-debug.ts` that calls `scrapeFromUrl` with argv URL for manual loop (document in quickstart)
+- [ ] T061 [P] Update `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` with final test commands and env keys
+- [ ] T062 Run through `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` manually and fix gaps
+- [ ] T063 [P] Biome check touched packages: run `/home/smbuser/mws-server/tokyo-listings/package.json` `lint` after implementation
 
 ---
 
@@ -196,16 +215,17 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 | 5 Homes | Phase 4 |
 | 6 US1 integration | Phase 5 |
 | 7 US2 | Phase 6 |
-| 8 US3 | Phase 6 (can overlap with 7 after API stable) |
-| 9 US4 | Phase 6 (independent of 7–8 for map-only work) |
-| 10 Polish | Phases 6–9 as needed |
+| 8 US3 (picker UX) | Phase 6 (can overlap with 7 after API stable) |
+| 9 US3 (association rules) | Phase 8 |
+| 10 US4 | Phase 6 (independent of 7–9 for map-only work) |
+| 11 Polish | Phases 6–10 as needed |
 
 ### User story completion order
 
 1. **US1**: Phases 1–6 including **2.5** (MVP when Phase 6 done)
 2. **US2**: Phase 7
-3. **US3**: Phase 8
-4. **US4**: Phase 9
+3. **US3**: Phases 8–9
+4. **US4**: Phase 10
 
 ### Parallel opportunities
 
@@ -213,7 +233,7 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 - **T009** parallel with **T008** once types exist (different files)
 - **T035** parallel with **T033–T034** (validators vs migration) with coordination on field names
 - **T038** parallel with **T036–T037** after API contract stable
-- **T049–T051** parallel in Phase 10
+- **T059–T061** parallel in Phase 11
 
 ### Parallel example: Phase 3 (Athome)
 
@@ -243,7 +263,8 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 3. **3–5**: One portal at a time; keep CI green after each.
 4. **6**: Wire product-facing flow.
 5. **7**: Harden failure UX.
-6. **8–9**: Legacy parity for property link and pin.
+6. **8–9**: Property matching popup + explicit association rules/field locks.
+7. **10**: Map pin parity.
 
 ### Suggested sequencing (matches user request)
 
@@ -255,4 +276,4 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 
 - Legacy code path: `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/app/services/ScrapingService.js` — reference only.
 - Images / asset download: **out of scope**; do not add tasks until a future spec.
-- Total tasks: **53** (T001–T053). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.
+- Total tasks: **63** (T001–T063). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.
