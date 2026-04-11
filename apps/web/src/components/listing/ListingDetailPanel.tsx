@@ -222,7 +222,7 @@ export function ListingDetailPanel() {
             pending={updateMut.isPending}
             initialValues={editInitialValues}
             submitLabel="Update"
-            showCheckDbButton={false}
+            showSimilarPropertiesButton={false}
             secondaryAction={{
               label: "Delete Listing",
               onPress: () => deleteMut.mutate({ id: effectiveSelectedId }),

@@ -152,13 +152,26 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Independent test**: On add page with matching address, icon becomes active, popup lists candidates, selecting one highlights property in map + right panel exactly like home/recent selection.
 
-- [ ] T043 [US3] Implement same-user property similarity query by normalized address in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` returning property summary cards suitable for popup list
-- [ ] T044 [US3] Analyze legacy duplicate-address/property-linking behavior in `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/` and port the address-matching algorithm/threshold rules into `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` (document any intentional deviations inline)
-- [ ] T045 [US3] Add tRPC read procedure (e.g. `listing.findSimilarProperties`) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` that accepts current draft address + `squareM`, returns candidates from **address-matched properties only**, and ranks by closest area using absolute diff between scraped `squareM` and per-property average listing `squareM` (average rounded to 2 decimals); follow legacy behavior if materially similar, otherwise pause implementation and summarize legacy-vs-new diff for developer direction
-- [ ] T046 [US3] Remove “check DB” control and add collapsed building-icon trigger in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`; show greyed-out state when no candidates
-- [ ] T047 [US3] Implement animated popup open/close + candidate list interactions in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` (new component file) with smooth transition and keyboard-close support
-- [ ] T048 [US3] Wire candidate selection from popup into existing map/right-panel selection state in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` and add-page container so behavior matches home/recently-added selection flow
-- [ ] T049 [P] [US3] Add component/integration test for popup states (no match/has match/selected) in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` test file
+- [x] T043 [US3] Implement same-user property similarity query by normalized address in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` returning property summary cards suitable for popup list
+- [x] T044 [US3] Analyze legacy duplicate-address/property-linking behavior in `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/` and port the address-matching algorithm/threshold rules into `/home/smbuser/mws-server/tokyo-listings/apps/api/src/lib/property-matching.ts` (document any intentional deviations inline)
+- [x] T045 [US3] Add tRPC read procedure (e.g. `listing.findSimilarProperties`) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` that accepts current draft address + `squareM`, returns candidates from **address-matched properties only**, and ranks by closest area using absolute diff between scraped `squareM` and per-property average listing `squareM` (average rounded to 2 decimals); follow legacy behavior if materially similar, otherwise pause implementation and summarize legacy-vs-new diff for developer direction
+- [x] T046 [US3] Remove “check DB” control and add collapsed building-icon trigger in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`; show greyed-out state when no candidates
+- [x] T047 [US3] Implement animated popup open/close + candidate list interactions in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` (new component file) with smooth transition and keyboard-close support
+- [x] T048 [US3] Wire candidate selection from popup into existing map/right-panel selection state in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` and add-page container so behavior matches home/recently-added selection flow
+- [x] T049 [P] [US3] Add component/integration test for popup states (no match/has match/selected) in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/` test file
+
+---
+
+## Phase 8.5: Similar-properties popup — map-anchored layout + density
+
+**Goal**: Float the similar-properties list over the map, anchored to the 🏢 control (top-aligned, to the right of the button); no page dimming; toggle closed by pressing 🏢 again; condensed rows (address + ㎡ + clear rank/delta); remove redundant subtitle and footer close control.
+
+**Independent test**: Open add listing, get candidates; panel appears beside 🏢 over map without backdrop; 🏢 toggles; list is compact and ordered meaningfully.
+
+- [x] T064 [US3] Anchor similar-properties panel with `fixed` positioning from measured 🏢 bounds (top-align; prefer right of button with viewport clamp) via portal in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/SimilarPropertiesPicker.tsx` and ref wiring from `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` + `/home/smbuser/mws-server/tokyo-listings/apps/web/src/app/(app)/listings/add/page.tsx`
+- [x] T065 [US3] Remove modal backdrop/dimming and remove separate close row; close only by toggling 🏢 (and keep selection closing panel) in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/SimilarPropertiesPicker.tsx` and add-page toggle handler
+- [x] T066 [US3] Condense candidate rows to single tight line: rank + address + ㎡; optional muted ±㎡ vs draft when `areaDiffAbs` present; drop subtitle, second address line, listing count, and “avg” copy in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/SimilarPropertiesPicker.tsx`
+- [x] T067 [P] [US3] Adjust or add unit tests for pure helpers if extracted in `/home/smbuser/mws-server/tokyo-listings/apps/web/test/lib/` (optional: layout-only remains manual)
 
 ---
 
@@ -216,7 +229,8 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 | 6 US1 integration | Phase 5 |
 | 7 US2 | Phase 6 |
 | 8 US3 (picker UX) | Phase 6 (can overlap with 7 after API stable) |
-| 9 US3 (association rules) | Phase 8 |
+| 8.5 Similar popup polish | Phase 8 |
+| 9 US3 (association rules) | Phase 8.5 |
 | 10 US4 | Phase 6 (independent of 7–9 for map-only work) |
 | 11 Polish | Phases 6–10 as needed |
 
@@ -224,7 +238,7 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 1. **US1**: Phases 1–6 including **2.5** (MVP when Phase 6 done)
 2. **US2**: Phase 7
-3. **US3**: Phases 8–9
+3. **US3**: Phases 8–8.5–9
 4. **US4**: Phase 10
 
 ### Parallel opportunities
@@ -263,7 +277,7 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 3. **3–5**: One portal at a time; keep CI green after each.
 4. **6**: Wire product-facing flow.
 5. **7**: Harden failure UX.
-6. **8–9**: Property matching popup + explicit association rules/field locks.
+6. **8–8.5–9**: Property matching popup + popup polish + explicit association rules/field locks.
 7. **10**: Map pin parity.
 
 ### Suggested sequencing (matches user request)
@@ -276,4 +290,4 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 
 - Legacy code path: `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/app/services/ScrapingService.js` — reference only.
 - Images / asset download: **out of scope**; do not add tasks until a future spec.
-- Total tasks: **63** (T001–T063). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.
+- Total tasks: **67** (T001–T063, T064–T067). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.

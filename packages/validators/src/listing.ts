@@ -101,3 +101,37 @@ export const listingIdSchema = z.object({
 export const mapGeocodeSchema = z.object({
   address: z.string().min(1).max(2000),
 });
+
+/** Draft address + optional ㎡ for similar-property ranking (Phase 8). */
+export const findSimilarPropertiesInputSchema = z.object({
+  prefecture: z.string().max(255).optional(),
+  municipality: z.string().max(255).optional(),
+  town: z.string().max(255).optional(),
+  district: z.string().max(255).optional(),
+  block: z.string().max(255).optional(),
+  houseNumber: z.string().max(255).optional(),
+  squareM: z.number().positive().max(5000).optional(),
+});
+
+export const findSimilarPropertiesOutputSchema = z.object({
+  candidates: z.array(
+    z.object({
+      propertyId: z.string().uuid(),
+      prefecture: z.string().nullable(),
+      municipality: z.string().nullable(),
+      town: z.string().nullable(),
+      district: z.string().nullable(),
+      block: z.string().nullable(),
+      houseNumber: z.string().nullable(),
+      propertyType: propertyTypeSchema.nullable(),
+      label: z.string().nullable(),
+      averageSquareM: z.number().nullable(),
+      listingCount: z.number().int(),
+      areaDiffAbs: z.number().nullable(),
+    }),
+  ),
+});
+
+export type FindSimilarPropertyCandidate = z.infer<
+  typeof findSimilarPropertiesOutputSchema
+>["candidates"][number];

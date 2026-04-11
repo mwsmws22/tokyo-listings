@@ -20,3 +20,7 @@ fi
   cd "$ROOT/apps/api"
   node "$ROOT/node_modules/vitest/vitest.mjs" run
 )
+(
+  cd "$ROOT"
+  bun test apps/web/test
+)

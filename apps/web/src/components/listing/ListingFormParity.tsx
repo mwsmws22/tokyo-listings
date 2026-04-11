@@ -2,11 +2,13 @@
 
 import { PreferenceToggleGroup } from "@/components/listing/ListingPreferenceToggles";
 import { canonicalizeListingUrl } from "@/lib/canonicalizeListingUrl";
+import type { PreviewStatus } from "@/lib/listing/previewState";
+import type { SimilarPropertiesDraft } from "@/lib/similarDraft";
 import { isSupportedListingHostUrl } from "@/lib/supportedListingHosts";
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
+import type { RefObject } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
-import type { PreviewStatus } from "@/lib/listing/previewState";
 
 export type ListingCreateParityInput = {
   title: string;
@@ -42,7 +44,17 @@ type Props = {
     destructive?: boolean;
     disabled?: boolean;
   };
-  showCheckDbButton?: boolean;
+  /** When true, show the similar-properties control (add page). Hidden on edit flows. */
+  showSimilarPropertiesButton?: boolean;
+  /** Debounced snapshot of structured address + ㎡ for similar-property search. */
+  onDraftForSimilarChange?: (draft: SimilarPropertiesDraft) => void;
+  similarPropertyCandidateCount?: number;
+  /** Toggle similar-properties panel (add page). */
+  onSimilarPropertiesButtonPress?: () => void;
+  /** Ref for the 🏢 control — used to anchor the floating panel over the map. */
+  similarPropertiesButtonRef?: RefObject<View | null>;
+  /** When the similar-properties panel is open (visual pressed state). */
+  similarPropertiesMenuOpen?: boolean;
   requireSelections?: boolean;
   /** Debounced server-side preview when `sourceUrl` is a supported portal host. */
   onAutoPreviewFromUrl?: (url: string) => void;
@@ -121,7 +133,12 @@ export function ListingFormParity({
   initialValues,
   submitLabel = "Submit",
   secondaryAction,
-  showCheckDbButton = true,
+  showSimilarPropertiesButton = true,
+  onDraftForSimilarChange,
+  similarPropertyCandidateCount = 0,
+  onSimilarPropertiesButtonPress,
+  similarPropertiesButtonRef,
+  similarPropertiesMenuOpen = false,
   requireSelections = true,
   onAutoPreviewFromUrl,
   onUrlPreviewClear,
@@ -236,6 +253,37 @@ export function ListingFormParity({
     return () => clearTimeout(id);
   }, [form.sourceUrl, onAutoPreviewFromUrl, onUrlPreviewClear]);
 
+  useEffect(() => {
+    if (!onDraftForSimilarChange) return;
+    const id = setTimeout(() => {
+      const toNum = (s: string): number | undefined => {
+        const t = s.trim();
+        if (!t) return undefined;
+        const n = Number(t);
+        return Number.isFinite(n) ? n : undefined;
+      };
+      onDraftForSimilarChange({
+        prefecture: form.prefecture,
+        municipality: form.municipality,
+        town: form.town,
+        district: form.district,
+        block: form.block,
+        houseNumber: form.houseNumber,
+        squareM: toNum(form.squareM),
+      });
+    }, 400);
+    return () => clearTimeout(id);
+  }, [
+    onDraftForSimilarChange,
+    form.prefecture,
+    form.municipality,
+    form.town,
+    form.district,
+    form.block,
+    form.houseNumber,
+    form.squareM,
+  ]);
+
   const normalized = useMemo(() => {
     const toNumber = (value: string): number | undefined => {
       if (!value.trim()) return undefined;
@@ -325,13 +373,30 @@ export function ListingFormParity({
             onSourceUrlTextChange?.();
           }}
         />
-        {showCheckDbButton ? (
-          <Pressable
-            className="w-[84px] items-center justify-center rounded-md border border-rose-pine-highlight-med bg-rose-pine-surface px-2 py-1.5"
-            onPress={() => setPinMessage("DB duplicate check will be added in ingest phase.")}
+        {showSimilarPropertiesButton ? (
+          <View
+            ref={similarPropertiesButtonRef}
+            collapsable={false}
+            className={`h-[34px] w-[44px] select-none rounded-md outline-none ${
+              similarPropertyCandidateCount <= 0 || !onSimilarPropertiesButtonPress
+                ? "border border-rose-pine-highlight-med bg-rose-pine-overlay opacity-50"
+                : similarPropertiesMenuOpen
+                  ? "border border-rose-pine-foam bg-rose-pine-surface ring-1 ring-rose-pine-foam/30"
+                  : "border border-rose-pine-highlight-med bg-rose-pine-surface"
+            }`}
           >
-            <Text className="text-xs font-semibold text-rose-pine-text">Check DB</Text>
-          </Pressable>
+            <Pressable
+              accessibilityLabel="Similar properties"
+              accessibilityState={{ expanded: similarPropertiesMenuOpen }}
+              className="h-full w-full select-none items-center justify-center px-1 outline-none active:opacity-90"
+              disabled={similarPropertyCandidateCount <= 0 || !onSimilarPropertiesButtonPress}
+              onPress={() => onSimilarPropertiesButtonPress?.()}
+            >
+              <Text className="text-lg leading-none select-none" selectable={false}>
+                🏢
+              </Text>
+            </Pressable>
+          </View>
         ) : null}
       </View>
       {loadFromUrlError ? (

@@ -1,6 +1,8 @@
 import { listing, property } from "@tokyo-listings/db";
 import { canonicalizeListingUrl, scrapeFromUrl } from "@tokyo-listings/scraping";
 import {
+  findSimilarPropertiesInputSchema,
+  findSimilarPropertiesOutputSchema,
   listingCreateSchema,
   listingIdSchema,
   listingListSchema,
@@ -14,6 +16,11 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { geocodeAddress } from "../../lib/geocoding";
 import { buildListingWhereClause } from "../../lib/listing-filters";
+import {
+  buildSimilarPropertyCandidates,
+  hasMinimumAddressForMatch,
+  type PropertyRowShape,
+} from "../../lib/property-matching";
 import { createLogger } from "../../lib/logger";
 import { protectedProcedure, router } from "../trpc";
 
@@ -52,6 +59,47 @@ function requireUserId(userId: string | null): string {
 }
 
 export const listingRouter = router({
+  findSimilarProperties: protectedProcedure
+    .input(findSimilarPropertiesInputSchema)
+    .query(async ({ ctx, input }) => {
+      const userId = requireUserId(ctx.userId);
+      if (!hasMinimumAddressForMatch(input)) {
+        return findSimilarPropertiesOutputSchema.parse({ candidates: [] });
+      }
+
+      const props = await ctx.db.select().from(property).where(eq(property.userId, userId));
+
+      const listingRows = await ctx.db
+        .select({ propertyId: listing.propertyId, squareM: listing.squareM })
+        .from(listing)
+        .where(eq(listing.userId, userId));
+
+      const squareMetersByPropertyId = new Map<string, number[]>();
+      for (const row of listingRows) {
+        if (!row.propertyId) continue;
+        const v = row.squareM != null ? Number(row.squareM) : Number.NaN;
+        if (!Number.isFinite(v)) continue;
+        const arr = squareMetersByPropertyId.get(row.propertyId) ?? [];
+        arr.push(v);
+        squareMetersByPropertyId.set(row.propertyId, arr);
+      }
+
+      const shapes: PropertyRowShape[] = props.map((p) => ({
+        id: p.id,
+        label: p.label,
+        prefecture: p.prefecture,
+        municipality: p.municipality,
+        town: p.town,
+        district: p.district,
+        block: p.block,
+        houseNumber: p.houseNumber,
+        propertyType: p.propertyType,
+      }));
+
+      const candidates = buildSimilarPropertyCandidates(input, shapes, squareMetersByPropertyId);
+      return findSimilarPropertiesOutputSchema.parse({ candidates });
+    }),
+
   previewFromUrl: protectedProcedure
     .input(scrapingPreviewInputSchema)
     .mutation(async ({ ctx, input }) => {

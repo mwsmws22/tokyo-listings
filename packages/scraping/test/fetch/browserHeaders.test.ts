@@ -1,8 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
-  buildBrowserLikeHeaders,
   DEFAULT_SCRAPE_USER_AGENT,
   DEFAULT_SCRAPE_USER_AGENT_FIREFOX,
+  buildBrowserLikeHeaders,
   inferRefererForListingUrl,
 } from "../../src/fetch/browserHeaders";
 
@@ -11,7 +11,9 @@ describe("browserHeaders", () => {
     expect(inferRefererForListingUrl("https://www.homes.co.jp/chintai/room/abc/")).toBe(
       "https://www.homes.co.jp/chintai/tokyo/23ku-mcity/",
     );
-    expect(inferRefererForListingUrl("https://suumo.jp/chintai/jnc_000/")).toBe("https://suumo.jp/chintai/");
+    expect(inferRefererForListingUrl("https://suumo.jp/chintai/jnc_000/")).toBe(
+      "https://suumo.jp/chintai/",
+    );
     expect(inferRefererForListingUrl("https://www.athome.co.jp/chintai/1/")).toBe(
       "https://www.athome.co.jp/chintai/",
     );

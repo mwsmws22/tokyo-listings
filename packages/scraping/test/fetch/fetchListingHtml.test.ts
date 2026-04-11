@@ -1,9 +1,9 @@
-import { describe, expect, test } from "bun:test";
-import { FetchListingHtmlError, fetchListingHtml } from "../../src/fetch/fetchListingHtml";
+import { describe, expect, test } from "vitest";
 import {
   DEFAULT_SCRAPE_USER_AGENT,
   DEFAULT_SCRAPE_USER_AGENT_FIREFOX,
 } from "../../src/fetch/browserHeaders";
+import { FetchListingHtmlError, fetchListingHtml } from "../../src/fetch/fetchListingHtml";
 
 function mockResponse(init: {
   status: number;
