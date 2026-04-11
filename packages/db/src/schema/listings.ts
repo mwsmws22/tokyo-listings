@@ -56,9 +56,9 @@ export const listing = pgTable(
     userId: text("userId")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    propertyId: uuid("propertyId").references(() => property.id, {
-      onDelete: "set null",
-    }),
+    propertyId: uuid("propertyId")
+      .notNull()
+      .references(() => property.id, { onDelete: "restrict" }),
     title: text("title").notNull(),
     monthlyRentYen: integer("monthlyRentYen").notNull(),
     addressText: text("addressText").notNull(),

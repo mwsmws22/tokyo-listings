@@ -34,9 +34,16 @@ export function ListingDetailPanel() {
     detailsQuery.data ??
     preview ??
     (effectiveSelectedId ? listings.find((item) => item.id === effectiveSelectedId) : null);
-  const selectedIndex = effectiveSelectedId
-    ? listings.findIndex((item) => item.id === effectiveSelectedId)
-    : -1;
+
+  /** Listings that share the same property as the selected row (1:N: property → many listings). */
+  const propertyListings = useMemo(() => {
+    const pid = row?.property?.id;
+    if (!pid) {
+      return effectiveSelectedId ? listings.filter((l) => l.id === effectiveSelectedId) : [];
+    }
+    return listings.filter((l) => l.property?.id === pid);
+  }, [listings, row?.property?.id, effectiveSelectedId]);
+
   const updateMut = trpc.listing.update.useMutation({
     onSuccess: async () => {
       await utils.listing.list.invalidate();
@@ -102,11 +109,13 @@ export function ListingDetailPanel() {
     setSelectedPreview(match);
   }
 
+  const propertyIdTitle = row.property?.id ?? "—";
+
   return (
     <View className="min-h-0 flex-1 gap-3">
       <View className="flex-row items-center justify-between border-b border-rose-pine-highlight-med pb-2">
-        <Text className="text-base font-semibold text-rose-pine-text">
-          Property #{selectedIndex >= 0 ? selectedIndex + 1 : "?"}
+        <Text className="font-mono text-xs font-semibold text-rose-pine-text" numberOfLines={2}>
+          {propertyIdTitle}
         </Text>
         <View className="flex-row gap-2">
           <Pressable onPress={() => setTab("info")}>
@@ -199,10 +208,10 @@ export function ListingDetailPanel() {
           <Text className="text-center text-sm font-semibold text-rose-pine-text">Listings</Text>
           <ScrollView className="min-h-0 flex-1">
             <View className="overflow-hidden rounded-md border border-rose-pine-highlight-med">
-              {listings.map((item, index) => (
+              {propertyListings.map((item, index) => (
                 <Pressable
                   key={item.id}
-                  className={`px-2.5 py-2 ${item.id === effectiveSelectedId ? "border-l-2 border-l-rose-pine-foam bg-rose-pine-foam/10" : "bg-rose-pine-base"} ${index < listings.length - 1 ? "border-b border-rose-pine-highlight-med" : ""}`}
+                  className={`px-2.5 py-2 ${item.id === effectiveSelectedId ? "border-l-2 border-l-rose-pine-foam bg-rose-pine-foam/10" : "bg-rose-pine-base"} ${index < propertyListings.length - 1 ? "border-b border-rose-pine-highlight-med" : ""}`}
                   onPress={() => selectListing(item.id)}
                 >
                   <Text className="text-[11px] text-rose-pine-text" numberOfLines={1}>

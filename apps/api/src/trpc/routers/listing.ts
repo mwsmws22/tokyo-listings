@@ -16,12 +16,12 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { geocodeAddress } from "../../lib/geocoding";
 import { buildListingWhereClause } from "../../lib/listing-filters";
+import { createLogger } from "../../lib/logger";
 import {
+  type PropertyRowShape,
   buildSimilarPropertyCandidates,
   hasMinimumAddressForMatch,
-  type PropertyRowShape,
 } from "../../lib/property-matching";
-import { createLogger } from "../../lib/logger";
 import { protectedProcedure, router } from "../trpc";
 
 const log = createLogger();
@@ -76,7 +76,6 @@ export const listingRouter = router({
 
       const squareMetersByPropertyId = new Map<string, number[]>();
       for (const row of listingRows) {
-        if (!row.propertyId) continue;
         const v = row.squareM != null ? Number(row.squareM) : Number.NaN;
         if (!Number.isFinite(v)) continue;
         const arr = squareMetersByPropertyId.get(row.propertyId) ?? [];
@@ -157,57 +156,68 @@ export const listingRouter = router({
       pinExact: input.pinExact ? 1 : 0,
       updatedAt: new Date(),
     };
-    const hasStructuredProperty = Boolean(
-      input.prefecture ||
-        input.municipality ||
-        input.town ||
-        input.district ||
-        input.block ||
-        input.houseNumber ||
-        input.propertyType ||
-        input.interest,
-    );
-
-    let propertyId = input.propertyId ?? null;
-    if (!propertyId && hasStructuredProperty) {
-      const [createdProperty] = await ctx.db
-        .insert(property)
-        .values({
-          userId,
-          ...propertyPayload,
-        })
-        .returning({ id: property.id });
-      propertyId = createdProperty?.id ?? null;
-    }
 
     let row: typeof listing.$inferSelect | undefined;
     try {
-      const [inserted] = await ctx.db
-        .insert(listing)
-        .values({
-          userId,
-          propertyId,
-          title: input.title,
-          monthlyRentYen: input.monthlyRentYen,
-          addressText: input.addressText,
-          latitude: input.latitude ?? coords?.lat ?? null,
-          longitude: input.longitude ?? coords?.lng ?? null,
-          geocodeStatus: (coords ? "ok" : hasKey ? "failed" : "pending") as
-            | "pending"
-            | "ok"
-            | "failed",
-          sourceUrl: normalizedSourceUrl ?? input.sourceUrl ?? null,
-          sourcePortal: input.sourcePortal ?? null,
-          sourceFetchedAt: input.sourceFetchedAt ?? null,
-          reikinMonths: input.reikinMonths?.toString() ?? null,
-          securityDepositMonths: input.securityDepositMonths?.toString() ?? null,
-          squareM: input.squareM?.toString() ?? null,
-          closestStation: input.closestStation ?? null,
-          walkingTimeMin: input.walkingTimeMin ?? null,
-          availability: input.availability ?? null,
-        })
-        .returning();
-      row = inserted;
+      row = await ctx.db.transaction(async (tx) => {
+        let propertyId = input.propertyId ?? null;
+        if (propertyId) {
+          const [owned] = await tx
+            .select({ id: property.id })
+            .from(property)
+            .where(and(eq(property.id, propertyId), eq(property.userId, userId)))
+            .limit(1);
+          if (!owned) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Invalid property reference.",
+            });
+          }
+        } else {
+          const [createdProperty] = await tx
+            .insert(property)
+            .values({
+              userId,
+              ...propertyPayload,
+            })
+            .returning({ id: property.id });
+          propertyId = createdProperty?.id ?? null;
+        }
+
+        if (!propertyId) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to attach property to listing.",
+          });
+        }
+
+        const [inserted] = await tx
+          .insert(listing)
+          .values({
+            userId,
+            propertyId,
+            title: input.title,
+            monthlyRentYen: input.monthlyRentYen,
+            addressText: input.addressText,
+            latitude: input.latitude ?? coords?.lat ?? null,
+            longitude: input.longitude ?? coords?.lng ?? null,
+            geocodeStatus: (coords ? "ok" : hasKey ? "failed" : "pending") as
+              | "pending"
+              | "ok"
+              | "failed",
+            sourceUrl: normalizedSourceUrl ?? input.sourceUrl ?? null,
+            sourcePortal: input.sourcePortal ?? null,
+            sourceFetchedAt: input.sourceFetchedAt ?? null,
+            reikinMonths: input.reikinMonths?.toString() ?? null,
+            securityDepositMonths: input.securityDepositMonths?.toString() ?? null,
+            squareM: input.squareM?.toString() ?? null,
+            closestStation: input.closestStation ?? null,
+            walkingTimeMin: input.walkingTimeMin ?? null,
+            availability: input.availability ?? null,
+          })
+          .returning();
+        return inserted;
+      });
     } catch (e) {
       if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "23505") {
         throw new TRPCError({
@@ -330,16 +340,6 @@ export const listingRouter = router({
       updatePayload.geocodeStatus = "manual";
     }
 
-    const [row] = await ctx.db
-      .update(listing)
-      .set(updatePayload)
-      .where(and(eq(listing.id, id), eq(listing.userId, userId)))
-      .returning();
-
-    if (!row) {
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to update listing" });
-    }
-
     const shouldPatchProperty =
       patch.prefecture !== undefined ||
       patch.municipality !== undefined ||
@@ -353,43 +353,93 @@ export const listingRouter = router({
       patch.latitude !== undefined ||
       patch.longitude !== undefined;
 
-    if (shouldPatchProperty) {
-      const propertyPatch: Partial<typeof property.$inferInsert> = {
-        updatedAt: new Date(),
-      };
-      if (patch.prefecture !== undefined) propertyPatch.prefecture = patch.prefecture;
-      if (patch.municipality !== undefined) propertyPatch.municipality = patch.municipality;
-      if (patch.town !== undefined) propertyPatch.town = patch.town;
-      if (patch.district !== undefined) propertyPatch.district = patch.district;
-      if (patch.block !== undefined) propertyPatch.block = patch.block;
-      if (patch.houseNumber !== undefined) propertyPatch.houseNumber = patch.houseNumber;
-      if (patch.propertyType !== undefined) propertyPatch.propertyType = patch.propertyType;
-      if (patch.interest !== undefined) propertyPatch.interest = patch.interest;
-      if (patch.pinExact !== undefined) propertyPatch.pinExact = patch.pinExact ? 1 : 0;
-      if (patch.latitude !== undefined) propertyPatch.latitude = patch.latitude;
-      if (patch.longitude !== undefined) propertyPatch.longitude = patch.longitude;
+    const row = await ctx.db.transaction(async (tx) => {
+      const [updated] = await tx
+        .update(listing)
+        .set(updatePayload)
+        .where(and(eq(listing.id, id), eq(listing.userId, userId)))
+        .returning();
 
-      if (row.propertyId) {
-        await ctx.db
-          .update(property)
-          .set(propertyPatch)
-          .where(and(eq(property.id, row.propertyId), eq(property.userId, userId)));
-      } else {
-        const [createdProperty] = await ctx.db
+      if (!updated) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to update listing" });
+      }
+
+      let current = updated;
+
+      if (shouldPatchProperty) {
+        const propertyPatch: Partial<typeof property.$inferInsert> = {
+          updatedAt: new Date(),
+        };
+        if (patch.prefecture !== undefined) propertyPatch.prefecture = patch.prefecture;
+        if (patch.municipality !== undefined) propertyPatch.municipality = patch.municipality;
+        if (patch.town !== undefined) propertyPatch.town = patch.town;
+        if (patch.district !== undefined) propertyPatch.district = patch.district;
+        if (patch.block !== undefined) propertyPatch.block = patch.block;
+        if (patch.houseNumber !== undefined) propertyPatch.houseNumber = patch.houseNumber;
+        if (patch.propertyType !== undefined) propertyPatch.propertyType = patch.propertyType;
+        if (patch.interest !== undefined) propertyPatch.interest = patch.interest;
+        if (patch.pinExact !== undefined) propertyPatch.pinExact = patch.pinExact ? 1 : 0;
+        if (patch.latitude !== undefined) propertyPatch.latitude = patch.latitude;
+        if (patch.longitude !== undefined) propertyPatch.longitude = patch.longitude;
+
+        if (current.propertyId) {
+          await tx
+            .update(property)
+            .set(propertyPatch)
+            .where(and(eq(property.id, current.propertyId), eq(property.userId, userId)));
+        } else {
+          const [createdProperty] = await tx
+            .insert(property)
+            .values({
+              userId,
+              ...propertyPatch,
+            })
+            .returning({ id: property.id });
+          if (createdProperty?.id) {
+            const [linked] = await tx
+              .update(listing)
+              .set({ propertyId: createdProperty.id, updatedAt: new Date() })
+              .where(and(eq(listing.id, id), eq(listing.userId, userId)))
+              .returning();
+            if (linked) {
+              current = linked;
+            }
+          }
+        }
+      }
+
+      if (!current.propertyId) {
+        const [createdProperty] = await tx
           .insert(property)
           .values({
             userId,
-            ...propertyPatch,
+            latitude: current.latitude,
+            longitude: current.longitude,
+            pinExact: 0,
+            updatedAt: new Date(),
           })
           .returning({ id: property.id });
         if (createdProperty?.id) {
-          await ctx.db
+          const [linked] = await tx
             .update(listing)
             .set({ propertyId: createdProperty.id, updatedAt: new Date() })
-            .where(and(eq(listing.id, id), eq(listing.userId, userId)));
+            .where(and(eq(listing.id, id), eq(listing.userId, userId)))
+            .returning();
+          if (linked) {
+            current = linked;
+          }
         }
       }
-    }
+
+      if (!current.propertyId) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Listing must be linked to a property.",
+        });
+      }
+
+      return current;
+    });
 
     return row;
   }),
@@ -397,14 +447,30 @@ export const listingRouter = router({
   delete: protectedProcedure.input(listingIdSchema).mutation(async ({ ctx, input }) => {
     const userId = requireUserId(ctx.userId);
 
-    const deleted = await ctx.db
-      .delete(listing)
-      .where(and(eq(listing.id, input.id), eq(listing.userId, userId)))
-      .returning({ id: listing.id });
+    await ctx.db.transaction(async (tx) => {
+      const deleted = await tx
+        .delete(listing)
+        .where(and(eq(listing.id, input.id), eq(listing.userId, userId)))
+        .returning({ id: listing.id, propertyId: listing.propertyId });
 
-    if (deleted.length === 0) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Listing not found" });
-    }
+      if (deleted.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Listing not found" });
+      }
+
+      const propertyId = deleted[0]!.propertyId;
+
+      const [stillLinked] = await tx
+        .select({ id: listing.id })
+        .from(listing)
+        .where(eq(listing.propertyId, propertyId))
+        .limit(1);
+
+      if (!stillLinked) {
+        await tx
+          .delete(property)
+          .where(and(eq(property.id, propertyId), eq(property.userId, userId)));
+      }
+    });
 
     return { ok: true as const };
   }),

@@ -50,6 +50,10 @@ Maps to **partial** `listingCreate` / property inputs:
 
 ## Relationships
 
+- **Cardinality (1:N)**: Each **listing** is associated with **at most one** **property** via `listing.propertyId → property.id`. Each **property** can have **many** listings. UI that shows “listings for this building/property” must filter by `propertyId`, not show all listings for the user.
+
+- **Avoid duplicate `property` rows** for the same real-world address: two rows with identical structured fields produce two similar-property candidates and two map pins for the same place. Prefer one `property` per building and many `listing` rows linked to it.
+
 - **Listing ↔ Property**: Unchanged; scraping only **proposes** field values. `propertyId` linkage rules stay as existing create flow.
 - **Future P3** (duplicate address): property matching is **not** part of scraping package; optional call from `listing.create` path later.
 

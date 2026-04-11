@@ -175,6 +175,18 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 ---
 
+## Phase 8.6: Property ↔ listings 1:N — correct right-panel listing list
+
+**Goal**: Enforce the data model mentally and in UI: each listing belongs to one `property`; a property has many listings. The home left list selects a **listing** (whose pin/property groups the unit); the right panel “Listings” table must list **only listings sharing that listing’s `propertyId`**, not every listing in the DB. Optional: fix dummy/seed rows so multiple properties have distinct listing sets for manual QA.
+
+**Independent test**: With ≥2 properties each having ≥1 listing, select listings from different rows on the home list; the right panel listing sub-list and counts change per property; switching between listings under the same property keeps the same sibling set.
+
+- [x] T068 [US3] Confirm `listing.propertyId` → `property.id` usage in `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts` and `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` list/get payloads; document 1:N in `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/data-model.md` if not already explicit
+- [x] T069 [US3] In `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingDetailPanel.tsx`, derive `propertyListings` from full `listing.list` data filtered by `row.property?.id`, render the scroll list from `propertyListings` only, and fix header index copy to be scoped to that property (not global list index)
+- [x] T070 [P] [US3] If dummy data ties every listing to one property, add or adjust SQL/seed or dev insert script under `/home/smbuser/mws-server/tokyo-listings/packages/db/` (or documented one-off) so multiple properties have distinct listings for local verification
+
+---
+
 ## Phase 9: User Story 3 — Explicit association on save + property field lock rules
 
 **Goal**: Default remains “new property per listing”; when a candidate is selected and user explicitly confirms “associate to this property,” save links listing to that property and enforces immutable property fields with missing-part fill-in only.
@@ -230,7 +242,8 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 | 7 US2 | Phase 6 |
 | 8 US3 (picker UX) | Phase 6 (can overlap with 7 after API stable) |
 | 8.5 Similar popup polish | Phase 8 |
-| 9 US3 (association rules) | Phase 8.5 |
+| 8.6 Property listing scope | Phase 8.5 |
+| 9 US3 (association rules) | Phase 8.6 |
 | 10 US4 | Phase 6 (independent of 7–9 for map-only work) |
 | 11 Polish | Phases 6–10 as needed |
 
@@ -238,7 +251,7 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 1. **US1**: Phases 1–6 including **2.5** (MVP when Phase 6 done)
 2. **US2**: Phase 7
-3. **US3**: Phases 8–8.5–9
+3. **US3**: Phases 8–8.5–8.6–9
 4. **US4**: Phase 10
 
 ### Parallel opportunities
@@ -277,7 +290,7 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 3. **3–5**: One portal at a time; keep CI green after each.
 4. **6**: Wire product-facing flow.
 5. **7**: Harden failure UX.
-6. **8–8.5–9**: Property matching popup + popup polish + explicit association rules/field locks.
+6. **8–8.5–8.6–9**: Property matching popup + popup polish + property-scoped listing panel + explicit association rules/field locks.
 7. **10**: Map pin parity.
 
 ### Suggested sequencing (matches user request)
@@ -290,4 +303,4 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 
 - Legacy code path: `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/app/services/ScrapingService.js` — reference only.
 - Images / asset download: **out of scope**; do not add tasks until a future spec.
-- Total tasks: **67** (T001–T063, T064–T067). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.
+- Total tasks: **70** (T001–T063, T064–T067, T068–T070). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.
