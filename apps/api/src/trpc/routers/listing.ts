@@ -17,6 +17,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { geocodeAddress } from "../../lib/geocoding";
 import { buildListingWhereClause } from "../../lib/listing-filters";
 import { createLogger } from "../../lib/logger";
+import { buildLinkedPropertyFillPatch } from "../../lib/property-association";
 import {
   type PropertyRowShape,
   buildSimilarPropertyCandidates,
@@ -93,6 +94,7 @@ export const listingRouter = router({
         block: p.block,
         houseNumber: p.houseNumber,
         propertyType: p.propertyType,
+        interest: p.interest,
       }));
 
       const candidates = buildSimilarPropertyCandidates(input, shapes, squareMetersByPropertyId);
@@ -160,10 +162,10 @@ export const listingRouter = router({
     let row: typeof listing.$inferSelect | undefined;
     try {
       row = await ctx.db.transaction(async (tx) => {
-        let propertyId = input.propertyId ?? null;
+        let propertyId = input.selectedPropertyId ?? input.propertyId ?? null;
         if (propertyId) {
           const [owned] = await tx
-            .select({ id: property.id })
+            .select()
             .from(property)
             .where(and(eq(property.id, propertyId), eq(property.userId, userId)))
             .limit(1);
@@ -172,6 +174,19 @@ export const listingRouter = router({
               code: "BAD_REQUEST",
               message: "Invalid property reference.",
             });
+          }
+
+          const linkedPatch = buildLinkedPropertyFillPatch(owned, {
+            prefecture: input.prefecture,
+            municipality: input.municipality,
+            town: input.town,
+            district: input.district,
+            block: input.block,
+            houseNumber: input.houseNumber,
+            interest: input.interest,
+          });
+          if (Object.keys(linkedPatch).length > 0) {
+            await tx.update(property).set(linkedPatch).where(eq(property.id, owned.id));
           }
         } else {
           const [createdProperty] = await tx

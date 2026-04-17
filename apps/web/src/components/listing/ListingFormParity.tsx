@@ -31,6 +31,7 @@ export type ListingCreateParityInput = {
   district?: number;
   block?: number;
   houseNumber?: number;
+  selectedPropertyId?: string;
 };
 
 type Props = {
@@ -55,6 +56,18 @@ type Props = {
   similarPropertiesButtonRef?: RefObject<View | null>;
   /** When the similar-properties panel is open (visual pressed state). */
   similarPropertiesMenuOpen?: boolean;
+  /** When selected, submit associates listing to this property. */
+  selectedPropertyId?: string | null;
+  selectedPropertyDefaults?: {
+    prefecture?: string | null;
+    municipality?: string | null;
+    town?: string | null;
+    district?: number | null;
+    block?: number | null;
+    houseNumber?: number | null;
+    propertyType?: "一戸建て" | "アパート" | null;
+    interest?: "Top" | "Extremely" | "KindaPlus" | "KindaMinus" | "Nah" | null;
+  } | null;
   requireSelections?: boolean;
   /** Debounced server-side preview when `sourceUrl` is a supported portal host. */
   onAutoPreviewFromUrl?: (url: string) => void;
@@ -76,6 +89,8 @@ const labelClass =
   "min-w-0 flex-1 text-left text-[10px] leading-tight text-rose-pine-text md:text-xs";
 
 const fieldCell = `${inputClass} min-w-[3.25rem] shrink grow basis-0`;
+const lockedFieldCell =
+  "min-w-[3.25rem] shrink grow basis-0 rounded-md border border-rose-pine-highlight-med bg-rose-pine-overlay px-1.5 py-1.5 text-xs text-rose-pine-muted opacity-80";
 
 /** Listing URL: idle/loading = same focus ring as other fields; success/error keep semantic border on focus. */
 const urlFieldIdleOrLoadingClass =
@@ -136,6 +151,17 @@ function parseAddressInteger(value: string): number | undefined {
   return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 
+function canonicalizeIfSupported(urlText: string): string {
+  const trimmed = urlText.trim();
+  if (!trimmed) return urlText;
+  if (!isSupportedListingHostUrl(trimmed)) return urlText;
+  try {
+    return canonicalizeListingUrl(trimmed);
+  } catch {
+    return urlText;
+  }
+}
+
 export function ListingFormParity({
   onSubmit,
   pending,
@@ -148,6 +174,8 @@ export function ListingFormParity({
   onSimilarPropertiesButtonPress,
   similarPropertiesButtonRef,
   similarPropertiesMenuOpen = false,
+  selectedPropertyId = null,
+  selectedPropertyDefaults = null,
   requireSelections = true,
   onAutoPreviewFromUrl,
   onUrlPreviewClear,
@@ -183,6 +211,21 @@ export function ListingFormParity({
     block: "",
     houseNumber: "",
   });
+  const propertyAssociationActive = Boolean(selectedPropertyId);
+  useEffect(() => {
+    if (!propertyAssociationActive || !selectedPropertyDefaults) return;
+    setForm((s) => ({
+      ...s,
+      prefecture: selectedPropertyDefaults.prefecture ?? s.prefecture,
+      municipality: selectedPropertyDefaults.municipality ?? s.municipality,
+      town: selectedPropertyDefaults.town ?? s.town,
+      district: toInputValue(selectedPropertyDefaults.district),
+      block: toInputValue(selectedPropertyDefaults.block),
+      houseNumber: toInputValue(selectedPropertyDefaults.houseNumber),
+      propertyType: selectedPropertyDefaults.propertyType ?? s.propertyType,
+      interest: selectedPropertyDefaults.interest ?? s.interest,
+    }));
+  }, [propertyAssociationActive, selectedPropertyDefaults]);
 
   function resetScrapedFieldsKeepingSourceUrl(sourceUrl: string) {
     setForm({
@@ -335,8 +378,9 @@ export function ListingFormParity({
       district: parseAddressInteger(form.district),
       block: parseAddressInteger(form.block),
       houseNumber: parseAddressInteger(form.houseNumber),
+      selectedPropertyId: selectedPropertyId ?? undefined,
     };
-  }, [form]);
+  }, [form, selectedPropertyId]);
 
   function submit() {
     if (requireSelections && (!form.propertyType || !form.availability || !form.interest)) {
@@ -377,8 +421,9 @@ export function ListingFormParity({
           placeholderTextColor="var(--color-rose-pine-muted)"
           value={form.sourceUrl}
           onChangeText={(sourceUrl) => {
+            const normalizedUrl = canonicalizeIfSupported(sourceUrl);
             lastPreviewCanonicalRef.current = null;
-            resetScrapedFieldsKeepingSourceUrl(sourceUrl);
+            resetScrapedFieldsKeepingSourceUrl(normalizedUrl);
             onSourceUrlTextChange?.();
           }}
         />
@@ -542,45 +587,51 @@ export function ListingFormParity({
         </View>
         <View className="min-w-0 flex-row flex-nowrap gap-1 overflow-x-auto">
           <TextInput
-            className={fieldCell}
+            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
             placeholder="都 / 県"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.prefecture}
+            editable={!propertyAssociationActive}
             onChangeText={(prefecture) => setForm((s) => ({ ...s, prefecture }))}
           />
           <TextInput
-            className={fieldCell}
+            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
             placeholder="市 / 区"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.municipality}
+            editable={!propertyAssociationActive}
             onChangeText={(municipality) => setForm((s) => ({ ...s, municipality }))}
           />
           <TextInput
-            className={fieldCell}
+            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
             placeholder="町"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.town}
+            editable={!propertyAssociationActive}
             onChangeText={(town) => setForm((s) => ({ ...s, town }))}
           />
           <TextInput
-            className={fieldCell}
+            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
             placeholder="丁目"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.district}
+            editable={!propertyAssociationActive}
             onChangeText={(district) => setForm((s) => ({ ...s, district }))}
           />
           <TextInput
-            className={fieldCell}
+            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
             placeholder="番"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.block}
+            editable={!propertyAssociationActive}
             onChangeText={(block) => setForm((s) => ({ ...s, block }))}
           />
           <TextInput
-            className={fieldCell}
+            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
             placeholder="号"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.houseNumber}
+            editable={!propertyAssociationActive}
             onChangeText={(houseNumber) => setForm((s) => ({ ...s, houseNumber }))}
           />
         </View>
@@ -599,7 +650,11 @@ export function ListingFormParity({
             label="Property type"
             values={propertyTypeOptions}
             selected={form.propertyType}
-            onSelect={(propertyType) => setForm((s) => ({ ...s, propertyType }))}
+            onSelect={
+              propertyAssociationActive
+                ? () => {}
+                : (propertyType) => setForm((s) => ({ ...s, propertyType }))
+            }
           />
         </View>
       </View>

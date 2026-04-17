@@ -11,6 +11,7 @@ const optionalAddressInteger = z.coerce.number().int().positive().optional();
 
 const propertyFieldsSchema = z.object({
   propertyId: z.string().uuid().optional(),
+  selectedPropertyId: z.string().uuid().optional(),
   prefecture: optionalText,
   municipality: optionalText,
   town: optionalText,
@@ -125,6 +126,7 @@ export const findSimilarPropertiesOutputSchema = z.object({
       block: z.number().int().nullable(),
       houseNumber: z.number().int().nullable(),
       propertyType: propertyTypeSchema.nullable(),
+      interest: interestSchema.nullable(),
       label: z.string().nullable(),
       averageSquareM: z.number().nullable(),
       listingCount: z.number().int(),

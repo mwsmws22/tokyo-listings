@@ -45,6 +45,17 @@ export default function AddListingsPage() {
   >("idle");
   const [similarDraft, setSimilarDraft] = useState<SimilarPropertiesDraft>({});
   const [similarPickerOpen, setSimilarPickerOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [selectedPropertyDefaults, setSelectedPropertyDefaults] = useState<{
+    prefecture?: string | null;
+    municipality?: string | null;
+    town?: string | null;
+    district?: number | null;
+    block?: number | null;
+    houseNumber?: number | null;
+    propertyType?: "一戸建て" | "アパート" | null;
+    interest?: "Top" | "Extremely" | "KindaPlus" | "KindaMinus" | "Nah" | null;
+  } | null>(null);
   const [similarAnchorRect, setSimilarAnchorRect] = useState<SimilarPropertiesAnchorRect | null>(
     null,
   );
@@ -64,6 +75,10 @@ export default function AddListingsPage() {
     onSuccess: async (row) => {
       await utils.listing.list.invalidate();
       setRecent((prev) => [row as ListingRow, ...prev]);
+      setSelectedPropertyId(null);
+      setSelectedPropertyDefaults(null);
+      setSelectedId(row.id);
+      setSelectedPreview(row as ListingRow);
     },
   });
 
@@ -136,6 +151,8 @@ export default function AddListingsPage() {
     setScrapeMeta({});
     setMapPreviewAddress(null);
     setSimilarDraft({});
+    setSelectedPropertyId(null);
+    setSelectedPropertyDefaults(null);
   }, []);
 
   const onDraftForSimilarChange = useCallback((draft: SimilarPropertiesDraft) => {
@@ -144,6 +161,31 @@ export default function AddListingsPage() {
 
   const onSelectSimilarProperty = useCallback(
     (propertyId: string) => {
+      const isDeselecting = selectedPropertyId === propertyId;
+      if (isDeselecting) {
+        setSelectedPropertyId(null);
+        setSelectedPropertyDefaults(null);
+        setSelectedId(null);
+        setSelectedPreview(null);
+        return;
+      }
+
+      setSelectedPropertyId(propertyId);
+      const candidate = (similarQuery.data?.candidates ?? []).find((c) => c.propertyId === propertyId);
+      setSelectedPropertyDefaults(
+        candidate
+          ? {
+              prefecture: candidate.prefecture,
+              municipality: candidate.municipality,
+              town: candidate.town,
+              district: candidate.district,
+              block: candidate.block,
+              houseNumber: candidate.houseNumber,
+              propertyType: candidate.propertyType,
+              interest: candidate.interest,
+            }
+          : null,
+      );
       const rows = listingsForMap.data ?? [];
       const row = rows.find((r) => r.property?.id === propertyId);
       if (row) {
@@ -151,7 +193,7 @@ export default function AddListingsPage() {
         setSelectedPreview(row);
       }
     },
-    [listingsForMap.data, setSelectedId, setSelectedPreview],
+    [listingsForMap.data, selectedPropertyId, setSelectedId, setSelectedPreview, similarQuery.data],
   );
 
   const updateSimilarAnchor = useCallback(() => {
@@ -163,17 +205,37 @@ export default function AddListingsPage() {
     if (similarCount === 0) return;
     if (similarPickerOpen) {
       setSimilarPickerOpen(false);
+      setSelectedId(null);
+      setSelectedPreview(null);
       return;
+    }
+    if (selectedPropertyId) {
+      const rows = listingsForMap.data ?? [];
+      const row = rows.find((r) => r.property?.id === selectedPropertyId);
+      if (row) {
+        setSelectedId(row.id);
+        setSelectedPreview(row);
+      }
     }
     updateSimilarAnchor();
     setSimilarPickerOpen(true);
-  }, [similarCount, similarPickerOpen, updateSimilarAnchor]);
+  }, [
+    listingsForMap.data,
+    selectedPropertyId,
+    setSelectedId,
+    setSelectedPreview,
+    similarCount,
+    similarPickerOpen,
+    updateSimilarAnchor,
+  ]);
 
   useEffect(() => {
     if (similarCount === 0) {
       setSimilarPickerOpen(false);
+      setSelectedPropertyId(null);
+      setSelectedPropertyDefaults(null);
     }
-  }, [similarCount]);
+  }, [similarCount, setSelectedId, setSelectedPreview]);
 
   useEffect(() => {
     if (!similarPickerOpen) return;
@@ -208,6 +270,8 @@ export default function AddListingsPage() {
               <ListingFormParity
                 initialValues={prefill}
                 pending={createMut.isPending}
+                selectedPropertyId={selectedPropertyId}
+                selectedPropertyDefaults={selectedPropertyDefaults}
                 onAutoPreviewFromUrl={onAutoPreviewFromUrl}
                 onUrlPreviewClear={onUrlPreviewClear}
                 onSourceUrlTextChange={onSourceUrlTextChange}
@@ -226,6 +290,7 @@ export default function AddListingsPage() {
                 onSubmit={(input) =>
                   createMut.mutate({
                     ...input,
+                    selectedPropertyId: selectedPropertyId ?? undefined,
                     sourcePortal: scrapeMeta.portal,
                     sourceFetchedAt: scrapeMeta.fetchedAt,
                   })
@@ -261,6 +326,7 @@ export default function AddListingsPage() {
         visible={similarPickerOpen}
         anchorRect={similarAnchorRect}
         candidates={similarQuery.data?.candidates ?? []}
+        selectedPropertyId={selectedPropertyId}
         onSelectProperty={onSelectSimilarProperty}
       />
     </>

@@ -11,12 +11,26 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 
-const PANEL_WIDTH = 280;
+const MIN_PANEL_WIDTH = 280;
+const MAX_PANEL_WIDTH = 640;
+
+function estimatePanelWidth(candidates: FindSimilarPropertyCandidate[]): number {
+  // Heuristic: rank + address + metrics; tune to keep compact but content-aware.
+  const widest = candidates.reduce((max, c, index) => {
+    const rankPart = `#${index + 1}`;
+    const addressPart = formatAddressLine(c);
+    const metricsPart = `${formatSquareM(c.averageSquareM)}${formatAreaDiff(c.areaDiffAbs) ? ` · ±${formatAreaDiff(c.areaDiffAbs)}` : ""}`;
+    const sample = `${rankPart} ${addressPart}  ${metricsPart}`;
+    return Math.max(max, sample.length);
+  }, 0);
+  return Math.ceil(130 + widest * 6.1);
+}
 
 type Props = {
   visible: boolean;
   anchorRect: SimilarPropertiesAnchorRect | null;
   candidates: FindSimilarPropertyCandidate[];
+  selectedPropertyId: string | null;
   onSelectProperty: (propertyId: string) => void;
 };
 
@@ -29,18 +43,24 @@ function formatSquareM(m: number | null): string {
   return `${m}㎡`;
 }
 
+function formatAreaDiff(m: number | null): string | null {
+  if (m == null || !Number.isFinite(m)) return null;
+  return `${Number(m.toFixed(2))}㎡`;
+}
+
 export { similarPropertiesIconDisabled } from "@/lib/similarPropertiesUi";
 
 export function SimilarPropertiesPicker({
   visible,
   anchorRect,
   candidates,
+  selectedPropertyId,
   onSelectProperty,
 }: Props) {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(-6)).current;
   const [mounted, setMounted] = useState(false);
-  const [layout, setLayout] = useState({ left: 0, top: 0, maxHeight: 360 });
+  const [layout, setLayout] = useState({ left: 0, top: 0, width: MIN_PANEL_WIDTH, maxHeight: 360 });
 
   useEffect(() => setMounted(true), []);
 
@@ -48,11 +68,14 @@ export function SimilarPropertiesPicker({
     if (!visible || !anchorRect || typeof window === "undefined") {
       return;
     }
-    const left = computeSimilarPanelLeft(anchorRect, PANEL_WIDTH, window.innerWidth);
+    const availableRight = Math.max(220, window.innerWidth - anchorRect.left - 12);
+    const estimated = estimatePanelWidth(candidates);
+    const width = Math.min(Math.min(MAX_PANEL_WIDTH, availableRight), Math.max(MIN_PANEL_WIDTH, estimated));
+    const left = computeSimilarPanelLeft(anchorRect, width, window.innerWidth);
     const top = anchorRect.top;
     const maxHeight = computeSimilarPanelMaxHeight(anchorRect.top, window.innerHeight);
-    setLayout({ left, top, maxHeight });
-  }, [visible, anchorRect]);
+    setLayout({ left, top, width, maxHeight });
+  }, [visible, anchorRect, candidates]);
 
   useEffect(() => {
     if (visible) {
@@ -89,7 +112,7 @@ export function SimilarPropertiesPicker({
       style={{
         left: layout.left,
         top: layout.top,
-        width: PANEL_WIDTH,
+        width: layout.width,
         maxHeight: layout.maxHeight,
       }}
     >
@@ -98,29 +121,40 @@ export function SimilarPropertiesPicker({
           {candidates.map((c, index) => {
             const rank = index + 1;
             const address = formatAddressLine(c);
+            const isSelected = selectedPropertyId === c.propertyId;
             const sq = formatSquareM(c.averageSquareM);
             const delta =
               c.areaDiffAbs != null && Number.isFinite(c.areaDiffAbs)
-                ? toFullWidthDash(`±${c.areaDiffAbs}㎡`)
+                ? toFullWidthDash(`±${formatAreaDiff(c.areaDiffAbs)}`)
                 : null;
             return (
               <Pressable
                 key={c.propertyId}
-                className="mb-0.5 flex-row items-center gap-1.5 rounded border border-transparent bg-rose-pine-surface/80 px-1.5 py-0.5 active:opacity-90"
+                className={`mb-0.5 flex-row items-center gap-1 rounded px-1.5 py-0.5 select-none active:opacity-90 ${
+                  isSelected
+                    ? "border border-rose-pine-foam bg-rose-pine-foam/10"
+                    : "border border-transparent bg-rose-pine-surface/80"
+                }`}
                 onPress={() => onSelectProperty(c.propertyId)}
               >
-                <Text className="w-5 shrink-0 text-[10px] font-semibold tabular-nums text-rose-pine-foam">
+                <Text
+                  className="w-5 shrink-0 text-[10px] font-semibold tabular-nums text-rose-pine-foam"
+                  selectable={false}
+                >
                   #{rank}
                 </Text>
                 <Text
                   className="min-w-0 flex-1 text-[10px] leading-snug text-rose-pine-text"
                   numberOfLines={1}
+                  selectable={false}
                 >
                   {address}
                 </Text>
                 <Text
-                  className="max-w-[7rem] shrink-0 text-right text-[10px] leading-snug tabular-nums"
+                  className="shrink-0 text-right text-[10px] leading-snug tabular-nums"
+                  style={{ marginLeft: 8 }}
                   numberOfLines={1}
+                  selectable={false}
                 >
                   <Text className="font-medium text-rose-pine-text">{sq}</Text>
                   {delta ? (

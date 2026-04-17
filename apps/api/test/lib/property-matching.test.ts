@@ -38,6 +38,7 @@ describe("property-matching", () => {
       block: null,
       houseNumber: null,
       propertyType: "アパート" as const,
+      interest: null,
     };
     const p2 = {
       id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -49,6 +50,7 @@ describe("property-matching", () => {
       block: null,
       houseNumber: null,
       propertyType: "アパート" as const,
+      interest: null,
     };
     const squareMetersByPropertyId = new Map<string, number[]>([
       [p1.id, [50, 52]],
@@ -66,5 +68,46 @@ describe("property-matching", () => {
     expect(candidates[0]!.propertyId).toBe(p1.id);
     expect(candidates[0]!.averageSquareM).toBe(round2(51));
     expect(candidates[0]!.areaDiffAbs).toBe(0);
+  });
+
+  test("buildSimilarPropertyCandidates: falls back to prefecture/city/town when no exact", () => {
+    const p1 = {
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      label: null,
+      prefecture: "東京都",
+      municipality: "八王子市",
+      town: "大和田町",
+      district: 5,
+      block: 5,
+      houseNumber: 4,
+      propertyType: "アパート" as const,
+      interest: null,
+    };
+    const p2 = {
+      id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      label: null,
+      prefecture: "東京都",
+      municipality: "八王子市",
+      town: "別町",
+      district: 3,
+      block: 8,
+      houseNumber: 13,
+      propertyType: "アパート" as const,
+      interest: null,
+    };
+    const candidates = buildSimilarPropertyCandidates(
+      {
+        prefecture: "東京都",
+        municipality: "八王子市",
+        town: "大和田町",
+        district: 3,
+        block: 8,
+        houseNumber: 13,
+      },
+      [p1, p2],
+      new Map(),
+    );
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]!.propertyId).toBe(p1.id);
   });
 });

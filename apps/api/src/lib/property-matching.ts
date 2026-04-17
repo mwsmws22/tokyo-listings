@@ -44,6 +44,38 @@ export function addressesStructurallyEqual(a: AddressParts, b: AddressParts): bo
   return addressPartsKey(a) === addressPartsKey(b);
 }
 
+function equalIfDraftProvided(
+  draftValue: string | number | null | undefined,
+  candidateValue: string | number | null | undefined,
+): boolean {
+  const d = normalizeAddressPart(draftValue);
+  if (!d) return true;
+  return d === normalizeAddressPart(candidateValue);
+}
+
+function matchesExactByProvidedParts(draft: AddressParts, candidate: AddressParts): boolean {
+  return (
+    equalIfDraftProvided(draft.prefecture, candidate.prefecture) &&
+    equalIfDraftProvided(draft.municipality, candidate.municipality) &&
+    equalIfDraftProvided(draft.town, candidate.town) &&
+    equalIfDraftProvided(draft.district, candidate.district) &&
+    equalIfDraftProvided(draft.block, candidate.block) &&
+    equalIfDraftProvided(draft.houseNumber, candidate.houseNumber)
+  );
+}
+
+function matchesLooseAreaOnly(draft: AddressParts, candidate: AddressParts): boolean {
+  const pref = normalizeAddressPart(draft.prefecture);
+  const muni = normalizeAddressPart(draft.municipality);
+  const town = normalizeAddressPart(draft.town);
+  if (!pref || !muni || !town) return false;
+  return (
+    pref === normalizeAddressPart(candidate.prefecture) &&
+    muni === normalizeAddressPart(candidate.municipality) &&
+    town === normalizeAddressPart(candidate.town)
+  );
+}
+
 /** True if we have enough structured address to run a DB match (not all empty). */
 export function hasMinimumAddressForMatch(parts: AddressParts): boolean {
   const k = addressPartsKey(parts);
@@ -61,6 +93,7 @@ export function round2(n: number): number {
 export type PropertyRowShape = AddressParts & {
   id: string;
   propertyType: "一戸建て" | "アパート" | null;
+  interest: "Top" | "Extremely" | "KindaPlus" | "KindaMinus" | "Nah" | null;
   label: string | null;
 };
 
@@ -73,6 +106,7 @@ export type SimilarPropertyCandidate = {
   block: number | null;
   houseNumber: number | null;
   propertyType: "一戸建て" | "アパート" | null;
+  interest: "Top" | "Extremely" | "KindaPlus" | "KindaMinus" | "Nah" | null;
   label: string | null;
   averageSquareM: number | null;
   listingCount: number;
@@ -90,7 +124,9 @@ export function buildSimilarPropertyCandidates(
   squareMetersByPropertyId: Map<string, number[]>,
 ): SimilarPropertyCandidate[] {
   const draft = { ...input };
-  const matched = properties.filter((p) => addressesStructurallyEqual(draft, p));
+  const exactMatches = properties.filter((p) => matchesExactByProvidedParts(draft, p));
+  const matched =
+    exactMatches.length > 0 ? exactMatches : properties.filter((p) => matchesLooseAreaOnly(draft, p));
 
   const out: SimilarPropertyCandidate[] = matched.map((p) => {
     const areas = squareMetersByPropertyId.get(p.id) ?? [];
@@ -110,6 +146,7 @@ export function buildSimilarPropertyCandidates(
       block: p.block ?? null,
       houseNumber: p.houseNumber ?? null,
       propertyType: p.propertyType ?? null,
+      interest: p.interest ?? null,
       label: p.label ?? null,
       averageSquareM,
       listingCount,
