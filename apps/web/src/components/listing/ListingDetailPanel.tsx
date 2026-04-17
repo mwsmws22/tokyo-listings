@@ -109,13 +109,14 @@ export function ListingDetailPanel() {
     setSelectedPreview(match);
   }
 
-  const propertyIdTitle = row.property?.id ?? "—";
+  const propertyTitle =
+    row.property?.displayNumber != null ? `Property #${row.property.displayNumber}` : "Property";
 
   return (
     <View className="min-h-0 flex-1 gap-3">
       <View className="flex-row items-center justify-between border-b border-rose-pine-highlight-med pb-2">
-        <Text className="font-mono text-xs font-semibold text-rose-pine-text" numberOfLines={2}>
-          {propertyIdTitle}
+        <Text className="text-sm font-semibold text-rose-pine-text" numberOfLines={2}>
+          {propertyTitle}
         </Text>
         <View className="flex-row gap-2">
           <Pressable onPress={() => setTab("info")}>

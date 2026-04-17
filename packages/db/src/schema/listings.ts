@@ -28,6 +28,9 @@ export const property = pgTable(
   "property",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    displayNumber: integer("displayNumber")
+      .notNull()
+      .default(sql`nextval('property_display_number_seq')`),
     userId: text("userId")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -46,7 +49,10 @@ export const property = pgTable(
     createdAt: timestamp("createdAt", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
     updatedAt: timestamp("updatedAt", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
   },
-  (t) => [index("property_user_id_idx").on(t.userId)],
+  (t) => [
+    index("property_user_id_idx").on(t.userId),
+    uniqueIndex("property_display_number_unique_idx").on(t.displayNumber),
+  ],
 );
 
 export const listing = pgTable(
