@@ -101,6 +101,7 @@ export function HomeListingFilters({ value, onChange }: Props) {
           />
           <TextInput
             className={`${inputClass} min-w-[3.25rem] shrink grow basis-0`}
+            inputMode="numeric"
             placeholder="丁目"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={value.district}
@@ -108,6 +109,7 @@ export function HomeListingFilters({ value, onChange }: Props) {
           />
           <TextInput
             className={`${inputClass} min-w-[3.25rem] shrink grow basis-0`}
+            inputMode="numeric"
             placeholder="番"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={value.block}

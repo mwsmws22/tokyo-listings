@@ -28,9 +28,9 @@ export type ListingCreateParityInput = {
   prefecture?: string;
   municipality?: string;
   town?: string;
-  district?: string;
-  block?: string;
-  houseNumber?: string;
+  district?: number;
+  block?: number;
+  houseNumber?: number;
 };
 
 type Props = {
@@ -127,6 +127,15 @@ function parseManToYen(manStr: string): number | undefined {
   return Math.round(n * 10_000);
 }
 
+function parseAddressInteger(value: string): number | undefined {
+  const ascii = value
+    .trim()
+    .replace(/[\uFF10-\uFF19]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xff10 + 0x30));
+  if (!ascii) return undefined;
+  const n = Number.parseInt(ascii, 10);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+}
+
 export function ListingFormParity({
   onSubmit,
   pending,
@@ -220,9 +229,9 @@ export function ListingFormParity({
       prefecture: initialValues.prefecture ?? "",
       municipality: initialValues.municipality ?? "",
       town: initialValues.town ?? "",
-      district: initialValues.district ?? "",
-      block: initialValues.block ?? "",
-      houseNumber: initialValues.houseNumber ?? "",
+      district: toInputValue(initialValues.district),
+      block: toInputValue(initialValues.block),
+      houseNumber: toInputValue(initialValues.houseNumber),
     }));
   }, [initialValues]);
 
@@ -266,9 +275,9 @@ export function ListingFormParity({
         prefecture: form.prefecture,
         municipality: form.municipality,
         town: form.town,
-        district: form.district,
-        block: form.block,
-        houseNumber: form.houseNumber,
+        district: parseAddressInteger(form.district),
+        block: parseAddressInteger(form.block),
+        houseNumber: parseAddressInteger(form.houseNumber),
         squareM: toNum(form.squareM),
       });
     }, 400);
@@ -323,9 +332,9 @@ export function ListingFormParity({
       prefecture: form.prefecture || undefined,
       municipality: form.municipality || undefined,
       town: form.town || undefined,
-      district: form.district || undefined,
-      block: form.block || undefined,
-      houseNumber: form.houseNumber || undefined,
+      district: parseAddressInteger(form.district),
+      block: parseAddressInteger(form.block),
+      houseNumber: parseAddressInteger(form.houseNumber),
     };
   }, [form]);
 

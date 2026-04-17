@@ -28,9 +28,9 @@ export const scrapedListingDraftSchema = z.object({
   prefecture: z.string().optional(),
   municipality: z.string().optional(),
   town: z.string().optional(),
-  district: z.string().optional(),
-  block: z.string().optional(),
-  houseNumber: z.string().optional(),
+  district: z.number().int().positive().optional(),
+  block: z.number().int().positive().optional(),
+  houseNumber: z.number().int().positive().optional(),
   warnings: z.array(z.string()),
   fieldErrors: z.record(z.string()).optional(),
 });

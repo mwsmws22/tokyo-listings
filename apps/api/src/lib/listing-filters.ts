@@ -9,8 +9,8 @@ export type ListingListInput = {
   prefecture?: string;
   municipality?: string;
   town?: string;
-  district?: string;
-  block?: string;
+  district?: number;
+  block?: number;
 };
 
 function hasText(value: string | undefined): value is string {
@@ -20,9 +20,7 @@ function hasText(value: string | undefined): value is string {
 type PropertyTextColumn =
   | typeof property.prefecture
   | typeof property.municipality
-  | typeof property.town
-  | typeof property.district
-  | typeof property.block;
+  | typeof property.town;
 
 function contains(column: PropertyTextColumn, value: string | undefined): SQL | undefined {
   if (!hasText(value)) {
@@ -47,8 +45,12 @@ export function buildListingWhereClause(userId: string, input: ListingListInput)
   filters.push(contains(property.prefecture, input.prefecture));
   filters.push(contains(property.municipality, input.municipality));
   filters.push(contains(property.town, input.town));
-  filters.push(contains(property.district, input.district));
-  filters.push(contains(property.block, input.block));
+  if (input.district !== undefined) {
+    filters.push(eq(property.district, input.district));
+  }
+  if (input.block !== undefined) {
+    filters.push(eq(property.block, input.block));
+  }
 
   return and(...filters.filter(Boolean)) as SQL;
 }

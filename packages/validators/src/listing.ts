@@ -7,15 +7,16 @@ export const interestSchema = z.enum(["Top", "Extremely", "KindaPlus", "KindaMin
 
 const nonEmptyTrimmed = z.string().trim().min(1);
 const optionalText = z.string().trim().min(1).max(255).optional();
+const optionalAddressInteger = z.coerce.number().int().positive().optional();
 
 const propertyFieldsSchema = z.object({
   propertyId: z.string().uuid().optional(),
   prefecture: optionalText,
   municipality: optionalText,
   town: optionalText,
-  district: optionalText,
-  block: optionalText,
-  houseNumber: optionalText,
+  district: optionalAddressInteger,
+  block: optionalAddressInteger,
+  houseNumber: optionalAddressInteger,
   propertyType: propertyTypeSchema.optional(),
   interest: interestSchema.optional(),
   pinExact: z.boolean().optional(),
@@ -90,8 +91,8 @@ export const listingListSchema = z.object({
   prefecture: z.string().trim().max(255).optional(),
   municipality: z.string().trim().max(255).optional(),
   town: z.string().trim().max(255).optional(),
-  district: z.string().trim().max(255).optional(),
-  block: z.string().trim().max(255).optional(),
+  district: z.coerce.number().int().positive().optional(),
+  block: z.coerce.number().int().positive().optional(),
 });
 
 export const listingIdSchema = z.object({
@@ -107,9 +108,9 @@ export const findSimilarPropertiesInputSchema = z.object({
   prefecture: z.string().max(255).optional(),
   municipality: z.string().max(255).optional(),
   town: z.string().max(255).optional(),
-  district: z.string().max(255).optional(),
-  block: z.string().max(255).optional(),
-  houseNumber: z.string().max(255).optional(),
+  district: z.number().int().positive().optional(),
+  block: z.number().int().positive().optional(),
+  houseNumber: z.number().int().positive().optional(),
   squareM: z.number().positive().max(5000).optional(),
 });
 
@@ -120,9 +121,9 @@ export const findSimilarPropertiesOutputSchema = z.object({
       prefecture: z.string().nullable(),
       municipality: z.string().nullable(),
       town: z.string().nullable(),
-      district: z.string().nullable(),
-      block: z.string().nullable(),
-      houseNumber: z.string().nullable(),
+      district: z.number().int().nullable(),
+      block: z.number().int().nullable(),
+      houseNumber: z.number().int().nullable(),
       propertyType: propertyTypeSchema.nullable(),
       label: z.string().nullable(),
       averageSquareM: z.number().nullable(),

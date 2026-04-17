@@ -5,6 +5,7 @@ import {
   computeSimilarPanelLeft,
   computeSimilarPanelMaxHeight,
 } from "@/lib/similarPropertiesUi";
+import { formatAddressPartsForDisplay, toFullWidthDash } from "@/lib/addressDisplay";
 import type { FindSimilarPropertyCandidate } from "@tokyo-listings/validators/listing";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -20,10 +21,7 @@ type Props = {
 };
 
 function formatAddressLine(c: FindSimilarPropertyCandidate): string {
-  const parts = [c.prefecture, c.municipality, c.town, c.district, c.block, c.houseNumber].filter(
-    (x): x is string => Boolean(x?.trim()),
-  );
-  return parts.join("") || "—";
+  return formatAddressPartsForDisplay(c);
 }
 
 function formatSquareM(m: number | null): string {
@@ -103,7 +101,7 @@ export function SimilarPropertiesPicker({
             const sq = formatSquareM(c.averageSquareM);
             const delta =
               c.areaDiffAbs != null && Number.isFinite(c.areaDiffAbs)
-                ? `±${c.areaDiffAbs}㎡`
+                ? toFullWidthDash(`±${c.areaDiffAbs}㎡`)
                 : null;
             return (
               <Pressable

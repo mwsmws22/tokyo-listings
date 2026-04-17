@@ -11,14 +11,15 @@ export type AddressParts = {
   prefecture?: string | null;
   municipality?: string | null;
   town?: string | null;
-  district?: string | null;
-  block?: string | null;
-  houseNumber?: string | null;
+  district?: number | null;
+  block?: number | null;
+  houseNumber?: number | null;
 };
 
 /** Normalize one address component for comparison. */
-export function normalizeAddressPart(value: string | null | undefined): string {
+export function normalizeAddressPart(value: string | number | null | undefined): string {
   if (value == null) return "";
+  if (typeof value === "number") return String(value);
   let s = value
     .normalize("NFKC")
     .trim()
@@ -68,9 +69,9 @@ export type SimilarPropertyCandidate = {
   prefecture: string | null;
   municipality: string | null;
   town: string | null;
-  district: string | null;
-  block: string | null;
-  houseNumber: string | null;
+  district: number | null;
+  block: number | null;
+  houseNumber: number | null;
   propertyType: "一戸建て" | "アパート" | null;
   label: string | null;
   averageSquareM: number | null;

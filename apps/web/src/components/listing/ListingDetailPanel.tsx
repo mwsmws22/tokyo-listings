@@ -4,6 +4,10 @@ import {
   type ListingCreateParityInput,
   ListingFormParity,
 } from "@/components/listing/ListingFormParity";
+import {
+  formatAddressPartsForDisplay,
+  formatFreeformAddressForDisplay,
+} from "@/lib/addressDisplay";
 import { formatAreaSqm, formatMonthsJa, formatRentYen } from "@/lib/listing-display";
 import { trpc } from "@/lib/trpc/client";
 import { selectedListingIdAtom, selectedListingPreviewAtom } from "@/state/selectedListing";
@@ -111,6 +115,17 @@ export function ListingDetailPanel() {
 
   const propertyTitle =
     row.property?.displayNumber != null ? `Property #${row.property.displayNumber}` : "Property";
+  const displayAddress =
+    row.property?.district != null || row.property?.block != null || row.property?.houseNumber != null
+      ? formatAddressPartsForDisplay({
+          prefecture: row.property?.prefecture,
+          municipality: row.property?.municipality,
+          town: row.property?.town,
+          district: row.property?.district,
+          block: row.property?.block,
+          houseNumber: row.property?.houseNumber,
+        })
+      : formatFreeformAddressForDisplay(row.addressText);
 
   return (
     <View className="min-h-0 flex-1 gap-3">
@@ -201,7 +216,7 @@ export function ListingDetailPanel() {
                 Address
               </Text>
               <Text className="w-3/4 px-2 py-1 text-xs text-rose-pine-text">
-                {valueOrNA(row.addressText)}
+                {valueOrNA(displayAddress)}
               </Text>
             </View>
           </View>

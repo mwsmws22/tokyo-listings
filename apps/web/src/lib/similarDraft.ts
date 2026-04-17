@@ -6,7 +6,7 @@ export type SimilarPropertiesDraft = z.infer<typeof findSimilarPropertiesInputSc
 /** Mirrors `hasMinimumAddressForMatch` in `apps/api/src/lib/property-matching.ts` for query `enabled`. */
 export function similarDraftIsQueryable(d: SimilarPropertiesDraft): boolean {
   const compact = [d.prefecture, d.municipality, d.town, d.district, d.block, d.houseNumber]
-    .map((x) => (x ?? "").trim())
+    .map((x) => String(x ?? "").trim())
     .join("");
   return compact.length >= 2;
 }

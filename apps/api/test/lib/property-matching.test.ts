@@ -10,6 +10,7 @@ import {
 describe("property-matching", () => {
   test("normalizeAddressPart folds full-width digits and NFKC", () => {
     expect(normalizeAddressPart("１丁目２番")).toBe("1丁目2番");
+    expect(normalizeAddressPart(12)).toBe("12");
   });
 
   test("hasMinimumAddressForMatch matches API gate", () => {
@@ -33,7 +34,7 @@ describe("property-matching", () => {
       prefecture: "東京都",
       municipality: "渋谷区",
       town: "恵比寿",
-      district: "1丁目",
+      district: 1,
       block: null,
       houseNumber: null,
       propertyType: "アパート" as const,
@@ -44,7 +45,7 @@ describe("property-matching", () => {
       prefecture: "東京都",
       municipality: "渋谷区",
       town: "恵比寿",
-      district: "2丁目",
+      district: 2,
       block: null,
       houseNumber: null,
       propertyType: "アパート" as const,
@@ -57,7 +58,7 @@ describe("property-matching", () => {
       prefecture: "東京都",
       municipality: "渋谷区",
       town: "恵比寿",
-      district: "1丁目",
+      district: 1,
       squareM: 51,
     };
     const candidates = buildSimilarPropertyCandidates(draft, [p1, p2], squareMetersByPropertyId);

@@ -20,9 +20,9 @@ export type ScrapedListingDraft = {
   prefecture?: string;
   municipality?: string;
   town?: string;
-  district?: string;
-  block?: string;
-  houseNumber?: string;
+  district?: number;
+  block?: number;
+  houseNumber?: number;
   warnings: string[];
   fieldErrors?: Record<string, string>;
 };

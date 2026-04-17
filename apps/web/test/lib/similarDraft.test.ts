@@ -15,9 +15,9 @@ describe("similarDraftIsQueryable", () => {
         prefecture: "東京都",
         municipality: "",
         town: "",
-        district: "",
-        block: "",
-        houseNumber: "",
+        district: undefined,
+        block: undefined,
+        houseNumber: undefined,
       }),
     ).toBe(true);
   });

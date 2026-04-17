@@ -14,6 +14,15 @@ import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
 export default function HomePage() {
+  const toAddressFilterNumber = (value: string): number | undefined => {
+    const ascii = value
+      .trim()
+      .replace(/[\uFF10-\uFF19]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xff10 + 0x30));
+    if (!ascii) return undefined;
+    const n = Number.parseInt(ascii, 10);
+    return Number.isFinite(n) && n > 0 ? n : undefined;
+  };
+
   const selectedId = useAtomValue(selectedListingIdAtom);
   const setSelectedId = useSetAtom(selectedListingIdAtom);
   const setSelectedPreview = useSetAtom(selectedListingPreviewAtom);
@@ -35,8 +44,8 @@ export default function HomePage() {
       prefecture: filters.prefecture || undefined,
       municipality: filters.municipality || undefined,
       town: filters.town || undefined,
-      district: filters.district || undefined,
-      block: filters.block || undefined,
+      district: toAddressFilterNumber(filters.district),
+      block: toAddressFilterNumber(filters.block),
     }),
     [filters],
   );
