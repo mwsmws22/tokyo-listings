@@ -61,6 +61,9 @@ export default function AddListingsPage() {
     null,
   );
   const similarBtnRef = useRef<View>(null);
+  /** Draft pin before selecting a similar property — restored on deselect (3.7). */
+  const pinBeforeSimilarRef = useRef<{ lat: number; lng: number } | null>(null);
+  const prevSimilarCountRef = useRef(0);
   const utils = trpc.useUtils();
 
   const similarQuery = trpc.listing.findSimilarProperties.useQuery(similarDraft, {
@@ -179,13 +182,19 @@ export default function AddListingsPage() {
     (propertyId: string) => {
       const isDeselecting = selectedPropertyId === propertyId;
       if (isDeselecting) {
+        const saved = pinBeforeSimilarRef.current;
+        pinBeforeSimilarRef.current = null;
         setSelectedPropertyId(null);
         setSelectedPropertyDefaults(null);
         setSelectedId(null);
         setSelectedPreview(null);
+        if (saved) {
+          setDraftPin(saved);
+        }
         return;
       }
 
+      pinBeforeSimilarRef.current = draftPin;
       setSelectedPropertyId(propertyId);
       const candidate = (similarQuery.data?.candidates ?? []).find((c) => c.propertyId === propertyId);
       setSelectedPropertyDefaults(
@@ -207,12 +216,22 @@ export default function AddListingsPage() {
       if (row) {
         setSelectedId(row.id);
         setSelectedPreview(row);
-        if (row.property?.latitude != null && row.property?.longitude != null) {
-          setDraftPin({ lat: row.property.latitude, lng: row.property.longitude });
-        }
+      } else {
+        setSelectedId(null);
+        setSelectedPreview(null);
+      }
+      if (row?.property?.latitude != null && row?.property?.longitude != null) {
+        setDraftPin({ lat: row.property.latitude, lng: row.property.longitude });
       }
     },
-    [listingsForMap.data, selectedPropertyId, setSelectedId, setSelectedPreview, similarQuery.data],
+    [
+      draftPin,
+      listingsForMap.data,
+      selectedPropertyId,
+      setSelectedId,
+      setSelectedPreview,
+      similarQuery.data,
+    ],
   );
 
   const onAddPinChange = useCallback((lat: number, lng: number) => {
@@ -257,8 +276,21 @@ export default function AddListingsPage() {
       setSimilarPickerOpen(false);
       setSelectedPropertyId(null);
       setSelectedPropertyDefaults(null);
+      pinBeforeSimilarRef.current = null;
     }
   }, [similarCount, setSelectedId, setSelectedPreview]);
+
+  /** Auto-open similar-properties panel when matches first appear (do not select). */
+  useEffect(() => {
+    if (similarCount > 0 && prevSimilarCountRef.current === 0) {
+      setSimilarPickerOpen(true);
+      queueMicrotask(() => {
+        const r = readSimilarButtonRect(similarBtnRef.current);
+        if (r) setSimilarAnchorRect(r);
+      });
+    }
+    prevSimilarCountRef.current = similarCount;
+  }, [similarCount]);
 
   useEffect(() => {
     if (!similarPickerOpen) return;

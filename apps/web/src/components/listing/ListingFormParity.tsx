@@ -5,6 +5,7 @@ import { canonicalizeListingUrl } from "@/lib/canonicalizeListingUrl";
 import type { PreviewStatus } from "@/lib/listing/previewState";
 import type { SimilarPropertiesDraft } from "@/lib/similarDraft";
 import { isSupportedListingHostUrl } from "@/lib/supportedListingHosts";
+import { trpc } from "@/lib/trpc/client";
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
 import type { RefObject } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -94,8 +95,9 @@ const labelClass =
   "min-w-0 flex-1 text-left text-[10px] leading-tight text-rose-pine-text md:text-xs";
 
 const fieldCell = `${inputClass} min-w-[3.25rem] shrink grow basis-0`;
-const lockedFieldCell =
-  "min-w-[3.25rem] shrink grow basis-0 rounded-md border border-rose-pine-highlight-med bg-rose-pine-overlay px-1.5 py-1.5 text-xs text-rose-pine-muted opacity-80";
+/** Single bold border when address rows are read-only (similar-property association). */
+const associationLockedFieldCell =
+  "min-w-[3.25rem] shrink grow basis-0 rounded-md border-2 border-rose-pine-muted bg-rose-pine-overlay px-1.5 py-1.5 text-xs text-rose-pine-muted opacity-90 focus:outline-none focus:border-rose-pine-muted focus:ring-0";
 
 /** Listing URL: idle/loading = same focus ring as other fields; success/error keep semantic border on focus. */
 const urlFieldIdleOrLoadingClass =
@@ -107,7 +109,16 @@ const urlFieldSuccessClass =
 const urlFieldErrorClass =
   "min-w-0 flex-1 rounded-md border-2 border-rose-pine-love bg-rose-pine-surface px-1.5 py-1.5 text-xs text-rose-pine-text focus:outline-none focus:border-rose-pine-love focus:ring-1 focus:ring-rose-pine-foam/35";
 
-function urlFieldClassForPreviewStatus(status: "idle" | "loading" | "success" | "error"): string {
+/** Same emphasis as error — URL already saved for another listing. */
+const urlFieldDuplicateClass = urlFieldErrorClass;
+
+function urlFieldClassForPreviewStatus(
+  status: "idle" | "loading" | "success" | "error",
+  sourceUrlTaken: boolean,
+): string {
+  if (sourceUrlTaken) {
+    return urlFieldDuplicateClass;
+  }
   if (status === "success") {
     return urlFieldSuccessClass;
   }
@@ -216,7 +227,31 @@ export function ListingFormParity({
     block: "",
     houseNumber: "",
   });
+
+  const [debouncedSourceUrl, setDebouncedSourceUrl] = useState("");
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSourceUrl(form.sourceUrl.trim()), 550);
+    return () => clearTimeout(id);
+  }, [form.sourceUrl]);
+
+  const conflictQueryEnabled =
+    Boolean(debouncedSourceUrl) && isSupportedListingHostUrl(debouncedSourceUrl);
+  const conflictQuery = trpc.listing.sourceUrlConflict.useQuery(
+    { url: debouncedSourceUrl },
+    { enabled: conflictQueryEnabled },
+  );
+  const sourceUrlTaken = conflictQueryEnabled && conflictQuery.data?.exists === true;
+  const blockSubmitForUrlConflict =
+    sourceUrlTaken ||
+    (conflictQueryEnabled && (conflictQuery.isLoading || conflictQuery.isFetching));
+
   const propertyAssociationActive = Boolean(selectedPropertyId);
+  const defaults = selectedPropertyDefaults;
+  const districtLocked = propertyAssociationActive && defaults?.district != null;
+  const blockLocked = propertyAssociationActive && defaults?.block != null;
+  const houseLocked = propertyAssociationActive && defaults?.houseNumber != null;
+  const propertyTypeLockedFull = propertyAssociationActive && defaults?.propertyType != null;
+  const interestLockedFull = propertyAssociationActive && defaults?.interest != null;
   const commitManualAddress = () => {
     const prefecture = form.prefecture.trim();
     const municipality = form.municipality.trim();
@@ -291,13 +326,26 @@ export function ListingFormParity({
   }, [initialValues]);
 
   useEffect(() => {
-    const url = form.sourceUrl.trim();
+    if (sourceUrlTaken) {
+      lastPreviewCanonicalRef.current = null;
+      onUrlPreviewClear?.();
+    }
+  }, [sourceUrlTaken, onUrlPreviewClear]);
+
+  useEffect(() => {
+    const url = debouncedSourceUrl;
     if (!onAutoPreviewFromUrl) {
       return;
     }
     if (!url || !isSupportedListingHostUrl(url)) {
       onUrlPreviewClear?.();
       lastPreviewCanonicalRef.current = null;
+      return;
+    }
+    if (conflictQueryEnabled && (conflictQuery.isLoading || conflictQuery.isFetching)) {
+      return;
+    }
+    if (sourceUrlTaken) {
       return;
     }
     let canonicalKey: string;
@@ -307,15 +355,20 @@ export function ListingFormParity({
       lastPreviewCanonicalRef.current = null;
       return;
     }
-    const id = setTimeout(() => {
-      if (lastPreviewCanonicalRef.current === canonicalKey) {
-        return;
-      }
-      lastPreviewCanonicalRef.current = canonicalKey;
-      onAutoPreviewFromUrl(url);
-    }, 550);
-    return () => clearTimeout(id);
-  }, [form.sourceUrl, onAutoPreviewFromUrl, onUrlPreviewClear]);
+    if (lastPreviewCanonicalRef.current === canonicalKey) {
+      return;
+    }
+    lastPreviewCanonicalRef.current = canonicalKey;
+    onAutoPreviewFromUrl(url);
+  }, [
+    debouncedSourceUrl,
+    onAutoPreviewFromUrl,
+    onUrlPreviewClear,
+    conflictQueryEnabled,
+    conflictQuery.isLoading,
+    conflictQuery.isFetching,
+    sourceUrlTaken,
+  ]);
 
   useEffect(() => {
     if (!onDraftForSimilarChange) return;
@@ -413,7 +466,8 @@ export function ListingFormParity({
       <View className="flex-row items-center gap-1.5">
         <Text className="text-xs text-rose-pine-text">Listing URL</Text>
         <View className="h-[10px] w-[10px] shrink-0 items-center justify-center overflow-visible">
-          {urlPreviewStatus === "loading" ? (
+          {urlPreviewStatus === "loading" ||
+          (conflictQueryEnabled && (conflictQuery.isLoading || conflictQuery.isFetching)) ? (
             <ActivityIndicator
               color="#9ccfd8"
               size="small"
@@ -424,7 +478,7 @@ export function ListingFormParity({
       </View>
       <View className="flex-row gap-1">
         <TextInput
-          className={urlFieldClassForPreviewStatus(urlPreviewStatus)}
+          className={urlFieldClassForPreviewStatus(urlPreviewStatus, sourceUrlTaken)}
           placeholder="Enter URL"
           placeholderTextColor="var(--color-rose-pine-muted)"
           value={form.sourceUrl}
@@ -461,6 +515,11 @@ export function ListingFormParity({
           </View>
         ) : null}
       </View>
+      {sourceUrlTaken ? (
+        <Text className="text-xs text-rose-pine-love">
+          A listing with this source URL already exists.
+        </Text>
+      ) : null}
       {loadFromUrlError ? (
         <Text className="text-xs text-rose-pine-love">{loadFromUrlError}</Text>
       ) : null}
@@ -595,7 +654,7 @@ export function ListingFormParity({
         </View>
         <View className="min-w-0 flex-row flex-nowrap gap-1 overflow-x-auto">
           <TextInput
-            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
+            className={propertyAssociationActive ? associationLockedFieldCell : fieldCell}
             placeholder="都 / 県"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.prefecture}
@@ -604,7 +663,7 @@ export function ListingFormParity({
             onChangeText={(prefecture) => setForm((s) => ({ ...s, prefecture }))}
           />
           <TextInput
-            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
+            className={propertyAssociationActive ? associationLockedFieldCell : fieldCell}
             placeholder="市 / 区"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.municipality}
@@ -613,7 +672,7 @@ export function ListingFormParity({
             onChangeText={(municipality) => setForm((s) => ({ ...s, municipality }))}
           />
           <TextInput
-            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
+            className={propertyAssociationActive ? associationLockedFieldCell : fieldCell}
             placeholder="町"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.town}
@@ -622,27 +681,27 @@ export function ListingFormParity({
             onChangeText={(town) => setForm((s) => ({ ...s, town }))}
           />
           <TextInput
-            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
+            className={districtLocked ? associationLockedFieldCell : fieldCell}
             placeholder="丁目"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.district}
-            editable={!propertyAssociationActive}
+            editable={!districtLocked}
             onChangeText={(district) => setForm((s) => ({ ...s, district }))}
           />
           <TextInput
-            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
+            className={blockLocked ? associationLockedFieldCell : fieldCell}
             placeholder="番"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.block}
-            editable={!propertyAssociationActive}
+            editable={!blockLocked}
             onChangeText={(block) => setForm((s) => ({ ...s, block }))}
           />
           <TextInput
-            className={propertyAssociationActive ? lockedFieldCell : fieldCell}
+            className={houseLocked ? associationLockedFieldCell : fieldCell}
             placeholder="号"
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.houseNumber}
-            editable={!propertyAssociationActive}
+            editable={!houseLocked}
             onChangeText={(houseNumber) => setForm((s) => ({ ...s, houseNumber }))}
           />
         </View>
@@ -662,7 +721,7 @@ export function ListingFormParity({
             values={propertyTypeOptions}
             selected={form.propertyType}
             onSelect={
-              propertyAssociationActive
+              propertyTypeLockedFull
                 ? () => {}
                 : (propertyType) => setForm((s) => ({ ...s, propertyType }))
             }
@@ -675,7 +734,11 @@ export function ListingFormParity({
             label="Interest"
             values={interestOptions}
             selected={form.interest}
-            onSelect={(interest) => setForm((s) => ({ ...s, interest }))}
+            onSelect={
+              interestLockedFull
+                ? () => {}
+                : (interest) => setForm((s) => ({ ...s, interest }))
+            }
           />
         </View>
       </View>
@@ -683,7 +746,7 @@ export function ListingFormParity({
       <View className="mt-[15px] flex-row justify-center gap-2 pt-0">
         <Pressable
           className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80 disabled:opacity-50"
-          disabled={pending}
+          disabled={pending || blockSubmitForUrlConflict}
           onPress={submit}
         >
           <Text className="text-xs font-semibold text-rose-pine-base">

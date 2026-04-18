@@ -118,7 +118,11 @@ export function ListingsMapWorkspace({
           {addListingMapAddress !== undefined ? (
             <AddListingGeocodeCoordinator
               address={addListingMapAddress ?? ""}
-              onGeocoded={enableAddPinPlacement && onAddPinChange ? onAddPinChange : undefined}
+              onGeocoded={
+                enableAddPinPlacement && !lockAddPinPlacement && onAddPinChange
+                  ? onAddPinChange
+                  : undefined
+              }
             />
           ) : null}
           <ListingMarkers
@@ -127,11 +131,7 @@ export function ListingsMapWorkspace({
             selectedListingId={selectedId}
             onSelectListing={onSelectListing}
             onPinDragEnd={onPinDragEnd}
-            draftPin={
-              enableAddPinPlacement && !lockAddPinPlacement
-                ? addDraftPin ?? undefined
-                : undefined
-            }
+            draftPin={enableAddPinPlacement && addDraftPin ? addDraftPin : undefined}
           />
           <MapSelectionCoordinator />
           <MapPinClickCoordinator

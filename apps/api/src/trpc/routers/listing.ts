@@ -6,6 +6,7 @@ import {
   listingCreateSchema,
   listingIdSchema,
   listingListSchema,
+  listingSourceUrlConflictInputSchema,
   listingUpdateSchema,
 } from "@tokyo-listings/validators/listing";
 import {
@@ -60,6 +61,32 @@ function requireUserId(userId: string | null): string {
 }
 
 export const listingRouter = router({
+  /**
+   * Returns whether a listing already exists for this user with the same canonical source URL
+   * (after portal-specific canonicalization). Used to block duplicate submissions and skip scrape.
+   */
+  sourceUrlConflict: protectedProcedure
+    .input(listingSourceUrlConflictInputSchema)
+    .query(async ({ ctx, input }) => {
+      const userId = requireUserId(ctx.userId);
+      const trimmed = input.url.trim();
+      if (!trimmed) {
+        return { exists: false as const };
+      }
+      let normalizedSourceUrl: string;
+      try {
+        normalizedSourceUrl = canonicalizeListingUrl(trimmed);
+      } catch {
+        return { exists: false as const };
+      }
+      const existing = await ctx.db
+        .select({ id: listing.id })
+        .from(listing)
+        .where(and(eq(listing.userId, userId), eq(listing.sourceUrl, normalizedSourceUrl)))
+        .limit(1);
+      return { exists: existing.length > 0, canonicalSourceUrl: normalizedSourceUrl };
+    }),
+
   findSimilarProperties: protectedProcedure
     .input(findSimilarPropertiesInputSchema)
     .query(async ({ ctx, input }) => {

@@ -104,6 +104,11 @@ export const mapGeocodeSchema = z.object({
   address: z.string().min(1).max(2000),
 });
 
+/** Check whether the current user already has a listing with this canonical source URL. */
+export const listingSourceUrlConflictInputSchema = z.object({
+  url: z.string().min(1).max(2000),
+});
+
 /** Draft address + optional ㎡ for similar-property ranking (Phase 8). */
 export const findSimilarPropertiesInputSchema = z.object({
   prefecture: z.string().max(255).optional(),
