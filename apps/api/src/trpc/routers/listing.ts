@@ -27,6 +27,7 @@ import {
 import { protectedProcedure, router } from "../trpc";
 
 const log = createLogger();
+const showScrapeDebugInfo = process.env.NODE_ENV !== "production";
 
 function normalizePreviewFailure(raw: ReturnType<typeof scrapingPreviewOutputSchema.parse>) {
   if (raw.status === "unsupported_host") {
@@ -37,11 +38,17 @@ function normalizePreviewFailure(raw: ReturnType<typeof scrapingPreviewOutputSch
   }
   if (raw.status === "fetch_failed") {
     const isInvalidUrl = raw.code === "invalid_url";
+    const debugCaptureId = showScrapeDebugInfo ? raw.debugCaptureId : undefined;
+    const debugHtmlPath = debugCaptureId ? `/api/scrape-debug/${debugCaptureId}.html` : undefined;
+    const debugJsonPath = debugCaptureId ? `/api/scrape-debug/${debugCaptureId}.json` : undefined;
     return {
       ...raw,
       message: isInvalidUrl
         ? "The URL is invalid. Please paste a full listing URL."
         : "Could not fetch the listing page. Please retry or enter fields manually.",
+      debugCaptureId,
+      debugHtmlPath,
+      debugJsonPath,
     };
   }
   if (raw.status === "parse_failed") {

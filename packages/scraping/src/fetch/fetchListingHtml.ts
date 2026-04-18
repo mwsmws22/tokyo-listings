@@ -4,7 +4,7 @@ import {
   DEFAULT_SCRAPE_USER_AGENT_FIREFOX,
   type BrowserHeaderProfile,
 } from "./browserHeaders";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export { DEFAULT_SCRAPE_USER_AGENT } from "./browserHeaders";
@@ -17,14 +17,17 @@ export type FetchListingHtmlResult = {
 
 export class FetchListingHtmlError extends Error {
   readonly code: "timeout" | "too_large" | "http_error" | "network" | "not_html";
+  readonly debugCaptureId?: string;
 
   constructor(
     message: string,
     code: "timeout" | "too_large" | "http_error" | "network" | "not_html",
+    options?: { debugCaptureId?: string },
   ) {
     super(message);
     this.name = "FetchListingHtmlError";
     this.code = code;
+    this.debugCaptureId = options?.debugCaptureId;
   }
 }
 
@@ -48,33 +51,83 @@ export type FetchListingHtmlOptions = {
   retryDelayMs?: number;
 };
 
-async function dumpHomes202HtmlForDebug(url: string, html: string): Promise<void> {
-  let hostname = "";
-  try {
-    hostname = new URL(url).hostname.toLowerCase();
-  } catch {
-    return;
-  }
-  if (hostname !== "www.homes.co.jp" && hostname !== "homes.co.jp") {
-    return;
-  }
+const SCRAPE_DEBUG_OUTPUT_DIR = path.resolve(process.cwd(), "output/scrape-debug");
+const SCRAPE_DEBUG_MAX_FILES = 200;
 
-  const ts = new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
-  const fileName = `homes-202-${ts}.html`;
-  const outputDirs = [
-    "/home/smbuser/mws-server/tokyo-listings/output",
-    "/app/output",
-    path.resolve(process.cwd(), "output"),
-  ];
-  for (const outputDir of outputDirs) {
-    const filePath = path.join(outputDir, fileName);
-    try {
-      await mkdir(outputDir, { recursive: true });
-      await writeFile(filePath, html, "utf-8");
-      return;
-    } catch {
-      // Temporary best-effort debug path; keep scraper behavior unchanged on write failures.
+function isSupportedScrapeDebugHost(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    return (
+      hostname === "www.athome.co.jp" ||
+      hostname === "athome.co.jp" ||
+      hostname === "www.suumo.jp" ||
+      hostname === "suumo.jp" ||
+      hostname === "www.homes.co.jp" ||
+      hostname === "homes.co.jp"
+    );
+  } catch {
+    return false;
+  }
+}
+
+type DebugCaptureInput = {
+  url: string;
+  finalUrl?: string;
+  portal?: "athome" | "suumo" | "lifull_homes";
+  status?: number;
+  errorCode: "timeout" | "too_large" | "http_error" | "network" | "not_html";
+  message: string;
+  contentType?: string;
+  responseHeaders?: Record<string, string>;
+  html?: string;
+};
+
+async function pruneScrapeDebugDirectory(maxFiles: number): Promise<void> {
+  const entries = await readdir(SCRAPE_DEBUG_OUTPUT_DIR).catch(() => []);
+  if (entries.length <= maxFiles) {
+    return;
+  }
+  const details = await Promise.all(
+    entries.map(async (name) => {
+      const filePath = path.join(SCRAPE_DEBUG_OUTPUT_DIR, name);
+      const s = await stat(filePath);
+      return { filePath, mtimeMs: s.mtimeMs };
+    }),
+  );
+  details.sort((a, b) => a.mtimeMs - b.mtimeMs);
+  const toDelete = details.slice(0, Math.max(0, details.length - maxFiles));
+  await Promise.all(toDelete.map((entry) => rm(entry.filePath, { force: true })));
+}
+
+async function writeFetchDebugCapture(input: DebugCaptureInput): Promise<string | undefined> {
+  if (!isSupportedScrapeDebugHost(input.url)) {
+    return undefined;
+  }
+  const captureId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const htmlFilePath = path.join(SCRAPE_DEBUG_OUTPUT_DIR, `${captureId}.html`);
+  const jsonFilePath = path.join(SCRAPE_DEBUG_OUTPUT_DIR, `${captureId}.json`);
+  const payload = {
+    captureId,
+    url: input.url,
+    finalUrl: input.finalUrl ?? null,
+    portal: input.portal ?? null,
+    status: input.status ?? null,
+    contentType: input.contentType ?? null,
+    responseHeaders: input.responseHeaders ?? {},
+    errorCode: input.errorCode,
+    message: input.message,
+    timestamp: new Date().toISOString(),
+  };
+  try {
+    await mkdir(SCRAPE_DEBUG_OUTPUT_DIR, { recursive: true });
+    await writeFile(jsonFilePath, JSON.stringify(payload, null, 2), "utf-8");
+    if (input.html) {
+      await writeFile(htmlFilePath, input.html, "utf-8");
     }
+    await pruneScrapeDebugDirectory(SCRAPE_DEBUG_MAX_FILES);
+    return captureId;
+  } catch {
+    return undefined;
   }
 }
 
@@ -117,22 +170,47 @@ async function fetchListingHtmlOnce(
     }
 
     const html = new TextDecoder("utf-8").decode(buf);
+    const responseHeaders = {
+      "content-type": res.headers.get("content-type") ?? "",
+      server: res.headers.get("server") ?? "",
+      "cf-ray": res.headers.get("cf-ray") ?? "",
+      "x-cache": res.headers.get("x-cache") ?? "",
+    };
 
     // Many CDNs/WAFs return 202 with a challenge or empty shell; `fetch` still treats that as `ok`.
     if (res.status !== 200) {
-      if (res.status === 202) {
-        await dumpHomes202HtmlForDebug(options.url, html);
-      }
+      const debugCaptureId = await writeFetchDebugCapture({
+        url: options.url,
+        finalUrl: res.url,
+        status: res.status,
+        errorCode: "http_error",
+        message: `HTTP ${res.status}`,
+        contentType: res.headers.get("content-type") ?? "",
+        responseHeaders,
+        html,
+      });
       const hint =
         res.status === 202
           ? " — server returned a challenge or placeholder page, not the listing HTML (often bot protection)"
           : "";
-      throw new FetchListingHtmlError(`HTTP ${res.status}${hint}`, "http_error");
+      throw new FetchListingHtmlError(`HTTP ${res.status}${hint}`, "http_error", {
+        debugCaptureId,
+      });
     }
 
     const ct = res.headers.get("content-type") ?? "";
     if (!ct.includes("text/html") && !ct.includes("application/xhtml")) {
-      throw new FetchListingHtmlError(`Unexpected content type: ${ct}`, "not_html");
+      const debugCaptureId = await writeFetchDebugCapture({
+        url: options.url,
+        finalUrl: res.url,
+        status: res.status,
+        errorCode: "not_html",
+        message: `Unexpected content type: ${ct}`,
+        contentType: ct,
+        responseHeaders,
+        html,
+      });
+      throw new FetchListingHtmlError(`Unexpected content type: ${ct}`, "not_html", { debugCaptureId });
     }
 
     return {

@@ -19,6 +19,24 @@
 3. **Adjust extractor** until golden output matches visible on-page fields.
 4. **Manual spot-check**: Call the preview procedure with a live URL in a logged-in session (or a small script) and compare UI prefill to the browser.
 
+## Fetch-failure debug capture (dev only)
+
+When URL preview returns a fetch failure on the add-listing page, the error line shows:
+
+- `Could not fetch the listing page. More info.`
+
+Click **More info** to open a compact popup with:
+
+- Capture ID
+- Link to `output/scrape-debug/<id>.html` (best-effort response body)
+- Link to `output/scrape-debug/<id>.json` (URL, canonical URL, portal, status, selected headers, error code, timestamp)
+
+Notes:
+
+- This debug flow is enabled in local dev runtime (`bun dev:up`) and disabled in production/Docker runtime (`docker compose up`).
+- Links open in a new tab via `/api/scrape-debug/<id>.html` and `/api/scrape-debug/<id>.json`.
+- The capture directory is bounded (oldest files are pruned).
+
 ## Rate limit tuning
 
 - Configure per-host delay and global concurrency via **environment variables** (documented in `.env.template` when added)—tune down if seeing HTTP 429 or captcha pages.

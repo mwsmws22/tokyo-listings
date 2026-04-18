@@ -50,6 +50,7 @@ export type ScrapeResult =
       canonicalUrl: string;
       message: string;
       code?: "timeout" | "too_large" | "http_error" | "invalid_url" | "network";
+      debugCaptureId?: string;
     }
   | {
       status: "parse_failed";

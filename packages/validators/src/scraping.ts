@@ -62,6 +62,9 @@ export const scrapingPreviewOutputSchema = z.discriminatedUnion("status", [
     canonicalUrl: z.string(),
     message: z.string(),
     code: fetchErrorCodeSchema.optional(),
+    debugCaptureId: z.string().min(1).optional(),
+    debugHtmlPath: z.string().min(1).optional(),
+    debugJsonPath: z.string().min(1).optional(),
   }),
   z.object({
     status: z.literal("parse_failed"),

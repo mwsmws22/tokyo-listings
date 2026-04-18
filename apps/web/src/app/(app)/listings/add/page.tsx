@@ -38,6 +38,11 @@ export default function AddListingsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadWarnings, setLoadWarnings] = useState<string[]>([]);
   const [loadFieldErrors, setLoadFieldErrors] = useState<Record<string, string>>({});
+  const [loadDebugCapture, setLoadDebugCapture] = useState<{
+    captureId: string;
+    htmlPath: string;
+    jsonPath: string;
+  } | null>(null);
   const [loadPreviewStatus, setLoadPreviewStatus] = useState<PreviewStatus>(null);
   const [mapPreviewAddress, setMapPreviewAddress] = useState<string | null>(null);
   const [urlPreviewStatus, setUrlPreviewStatus] = useState<
@@ -114,6 +119,18 @@ export default function AddListingsPage() {
         setLoadFieldErrors(preserved.fieldErrors);
         setLoadPreviewStatus(preserved.status);
         setMapPreviewAddress(preserved.mapPreviewAddress);
+        setLoadDebugCapture(
+          res.status === "fetch_failed" &&
+            res.debugCaptureId &&
+            res.debugHtmlPath &&
+            res.debugJsonPath
+            ? {
+                captureId: res.debugCaptureId,
+                htmlPath: res.debugHtmlPath,
+                jsonPath: res.debugJsonPath,
+              }
+            : null,
+        );
         setScrapeMeta({});
         setUrlPreviewStatus("error");
         return;
@@ -123,6 +140,7 @@ export default function AddListingsPage() {
       const next = createPreviewSuccessState(res);
       setLoadWarnings(next.warnings);
       setLoadFieldErrors(next.fieldErrors);
+      setLoadDebugCapture(null);
       setLoadPreviewStatus(next.status);
       setScrapeMeta({ portal: res.portal, fetchedAt: new Date() });
       setMapPreviewAddress(next.mapPreviewAddress);
@@ -150,6 +168,7 @@ export default function AddListingsPage() {
     setMapPreviewAddress(null);
     setLoadWarnings([]);
     setLoadFieldErrors({});
+    setLoadDebugCapture(null);
     setLoadPreviewStatus(null);
   }, []);
 
@@ -158,6 +177,7 @@ export default function AddListingsPage() {
     setLoadError(null);
     setLoadWarnings([]);
     setLoadFieldErrors({});
+    setLoadDebugCapture(null);
     setLoadPreviewStatus(null);
     setScrapeMeta({});
     setMapPreviewAddress(null);
@@ -348,6 +368,7 @@ export default function AddListingsPage() {
                 loadFromUrlError={loadError}
                 loadFromUrlWarnings={loadWarnings}
                 loadFromUrlFieldErrors={loadFieldErrors}
+                loadFromUrlDebugCapture={loadDebugCapture}
                 loadFromUrlPreviewStatus={loadPreviewStatus}
                 onSubmit={(input) =>
                   createMut.mutate({

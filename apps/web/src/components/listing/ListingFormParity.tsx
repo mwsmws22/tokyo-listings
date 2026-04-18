@@ -9,7 +9,7 @@ import { trpc } from "@/lib/trpc/client";
 import { listingCreateSchema } from "@tokyo-listings/validators/listing";
 import type { RefObject } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, Text, TextInput, View } from "react-native";
 
 export type ListingCreateParityInput = {
   title: string;
@@ -85,6 +85,11 @@ type Props = {
   loadFromUrlError?: string | null;
   loadFromUrlWarnings?: string[];
   loadFromUrlFieldErrors?: Record<string, string>;
+  loadFromUrlDebugCapture?: {
+    captureId: string;
+    htmlPath: string;
+    jsonPath: string;
+  } | null;
   loadFromUrlPreviewStatus?: PreviewStatus;
 };
 
@@ -201,9 +206,11 @@ export function ListingFormParity({
   loadFromUrlError = null,
   loadFromUrlWarnings = [],
   loadFromUrlFieldErrors = {},
+  loadFromUrlDebugCapture = null,
   loadFromUrlPreviewStatus = null,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
+  const [debugPopupOpen, setDebugPopupOpen] = useState(false);
   /** One automatic preview per canonical URL until the user edits the field. */
   const lastPreviewCanonicalRef = useRef<string | null>(null);
 
@@ -461,6 +468,15 @@ export function ListingFormParity({
     onSubmit(parsed.data);
   }
 
+  const showMoreInfoHint =
+    Boolean(loadFromUrlDebugCapture) &&
+    loadFromUrlError === "Could not fetch the listing page. Please retry or enter fields manually.";
+
+  const openDebugPath = (path: string) => {
+    if (typeof window === "undefined") return;
+    window.open(path, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <View className="gap-2">
       <View className="flex-row items-center gap-1.5">
@@ -520,7 +536,15 @@ export function ListingFormParity({
           A listing with this source URL already exists.
         </Text>
       ) : null}
-      {loadFromUrlError ? (
+      {showMoreInfoHint ? (
+        <View className="flex-row flex-wrap items-center gap-1">
+          <Text className="text-xs text-rose-pine-love">Could not fetch the listing page.</Text>
+          <Pressable onPress={() => setDebugPopupOpen(true)}>
+            <Text className="text-xs text-rose-pine-foam underline">More info.</Text>
+          </Pressable>
+        </View>
+      ) : null}
+      {loadFromUrlError && !showMoreInfoHint ? (
         <Text className="text-xs text-rose-pine-love">{loadFromUrlError}</Text>
       ) : null}
       {loadFromUrlPreviewStatus === "partial" ? (
@@ -743,6 +767,47 @@ export function ListingFormParity({
         </View>
       </View>
       {error ? <Text className="text-sm text-rose-pine-love">{error}</Text> : null}
+      <Modal
+        animationType="fade"
+        transparent
+        visible={debugPopupOpen}
+        onRequestClose={() => setDebugPopupOpen(false)}
+      >
+        <View className="flex-1 items-center justify-center bg-black/35 px-4">
+          <View className="w-full max-w-md rounded-lg border border-rose-pine-highlight-med bg-rose-pine-base p-4">
+            <Text className="text-sm font-semibold text-rose-pine-text">Scrape debug info</Text>
+            <Text className="mt-2 text-xs text-rose-pine-muted">
+              Capture ID: {loadFromUrlDebugCapture?.captureId ?? "-"}
+            </Text>
+            <View className="mt-3 gap-1">
+              <Pressable
+                onPress={() =>
+                  loadFromUrlDebugCapture ? openDebugPath(loadFromUrlDebugCapture.htmlPath) : undefined
+                }
+              >
+                <Text className="text-xs text-rose-pine-foam underline">Open HTML capture</Text>
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  loadFromUrlDebugCapture
+                    ? openDebugPath(`${loadFromUrlDebugCapture.jsonPath}?view=1`)
+                    : undefined
+                }
+              >
+                <Text className="text-xs text-rose-pine-foam underline">Open JSON metadata</Text>
+              </Pressable>
+            </View>
+            <View className="mt-4 flex-row justify-end">
+              <Pressable
+                className="rounded-md bg-rose-pine-foam px-3 py-1.5"
+                onPress={() => setDebugPopupOpen(false)}
+              >
+                <Text className="text-xs font-semibold text-rose-pine-base">Close</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View className="mt-[15px] flex-row justify-center gap-2 pt-0">
         <Pressable
           className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80 disabled:opacity-50"

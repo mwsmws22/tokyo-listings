@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { createLogger } from "./lib/logger";
 import { registerAuthRoutes } from "./routes/auth";
+import { registerScrapeDebugRoutes } from "./routes/scrapeDebug";
 import { registerTrpc } from "./routes/trpc";
 
 const log = createLogger();
@@ -29,6 +30,7 @@ app.use(
 app.get("/health", (c) => c.json({ ok: true }));
 
 registerAuthRoutes(app);
+registerScrapeDebugRoutes(app);
 
 registerTrpc(app);
 

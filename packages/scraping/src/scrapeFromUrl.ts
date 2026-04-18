@@ -93,6 +93,7 @@ export async function scrapeFromUrl(
         canonicalUrl,
         message: e.message,
         code: e.code === "not_html" ? "http_error" : e.code,
+        debugCaptureId: e.debugCaptureId,
       };
     }
     const message = e instanceof Error ? e.message : "Fetch failed";
