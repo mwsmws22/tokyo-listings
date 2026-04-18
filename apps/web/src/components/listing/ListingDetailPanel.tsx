@@ -10,9 +10,10 @@ import {
 } from "@/lib/addressDisplay";
 import { formatAreaSqm, formatMonthsJa, formatRentYen } from "@/lib/listing-display";
 import { trpc } from "@/lib/trpc/client";
+import { pinEditModeAtom } from "@/state/pinEditMode";
 import { selectedListingIdAtom, selectedListingPreviewAtom } from "@/state/selectedListing";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 function valueOrNA(value: unknown): string {
@@ -22,6 +23,7 @@ function valueOrNA(value: unknown): string {
 
 export function ListingDetailPanel() {
   const [tab, setTab] = useState<"info" | "edit">("info");
+  const setPinEditMode = useSetAtom(pinEditModeAtom);
   const selectedId = useAtomValue(selectedListingIdAtom);
   const setSelectedId = useSetAtom(selectedListingIdAtom);
   const setSelectedPreview = useSetAtom(selectedListingPreviewAtom);
@@ -126,6 +128,11 @@ export function ListingDetailPanel() {
           houseNumber: row.property?.houseNumber,
         })
       : formatFreeformAddressForDisplay(row.addressText);
+
+  useEffect(() => {
+    setPinEditMode(tab === "edit");
+    return () => setPinEditMode(false);
+  }, [setPinEditMode, tab]);
 
   return (
     <View className="min-h-0 flex-1 gap-3">

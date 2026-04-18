@@ -204,13 +204,15 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 ## Phase 10: User Story 4 — Adjust map pin after geocode
 
-**Goal**: User refines coordinates after automatic geocode; persisted on listing/property per spec P4.
+**Goal**: Enforce one pin per property (coordinates owned by `property`), allow map-click pin movement without a separate “Set Coordinates” button, persist current pin on submit, lock pin movement when linking to an existing similar property, and allow pin/address edits only from right-panel **Edit** submenu.
 
-**Independent test**: Move pin, save, reload map → marker at new position.
+**Independent test**: On add flow for a new property, clicking map repositions the property pin and submit persists that location. When a similar property is selected, map clicks do not move the pin. On home/right panel, pin + address can be changed only in the **Edit** tab and saved back to the same property pin shared by its listings.
 
-- [ ] T056 [US4] Ensure geocoded coordinates flow from add form and `geocodeStatus` in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx` matches create/update behavior
-- [ ] T057 [US4] Implement draggable marker or “set pin” map interaction on add/edit listing map surface in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or dedicated map component) writing lat/lng + `pinExact` / manual geocode status via `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` `update`
-- [ ] T058 [US4] Persist `pinExact` and coordinates on `property`/`listing` per existing schema in `/home/smbuser/mws-server/tokyo-listings/packages/db/src/schema/listings.ts` and validators
+- [X] T056 [US4] Refactor add/edit coordinate contract in `/home/smbuser/mws-server/tokyo-listings/packages/validators/src/listing.ts` and `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` so property coordinates are the source of truth (one pin per property), with create/update persisting property lat/lng + `pinExact` and listing lat/lng mirroring property
+- [X] T057 [US4] Remove “Set Coordinates” action from `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`; implement map-click-to-move pin interaction in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/shell/ListingsMapWorkspace.tsx` (or map coordinator) for add flow and ensure submit saves current pin location
+- [X] T058 [US4] Enforce movement locks: when `selectedPropertyId` is set in add flow, disable map pin movement and coordinate edits in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/app/(app)/listings/add/page.tsx` and related map/selection state modules
+- [X] T059 [US4] Restrict pin + address editing to right-panel **Edit** submenu in `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingDetailPanel.tsx` and `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/listing/ListingFormParity.tsx`; Info tab remains read-only
+- [X] T060 [P] [US4] Add API/UI tests for one-pin-per-property behavior and edit-only pin/address mutation path in `/home/smbuser/mws-server/tokyo-listings/apps/api/test/` and `/home/smbuser/mws-server/tokyo-listings/apps/web/src/components/` (or `apps/web/test/`) including lock-when-linked scenario
 
 ---
 
@@ -218,11 +220,11 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 
 **Purpose**: Observability, docs, optional dev script for live URLs.
 
-- [ ] T059 [P] Add structured scrape logs (portal, hostname, ms, outcome code) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` using existing `pino` logger
-- [ ] T060 [P] Add optional CLI or `bun run scripts/scrape-debug.ts` at `/home/smbuser/mws-server/tokyo-listings/scripts/scrape-debug.ts` that calls `scrapeFromUrl` with argv URL for manual loop (document in quickstart)
-- [ ] T061 [P] Update `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` with final test commands and env keys
-- [ ] T062 Run through `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` manually and fix gaps
-- [ ] T063 [P] Biome check touched packages: run `/home/smbuser/mws-server/tokyo-listings/package.json` `lint` after implementation
+- [ ] T071 [P] Add structured scrape logs (portal, hostname, ms, outcome code) in `/home/smbuser/mws-server/tokyo-listings/apps/api/src/trpc/routers/listing.ts` using existing `pino` logger
+- [ ] T072 [P] Add optional CLI or `bun run scripts/scrape-debug.ts` at `/home/smbuser/mws-server/tokyo-listings/scripts/scrape-debug.ts` that calls `scrapeFromUrl` with argv URL for manual loop (document in quickstart)
+- [ ] T073 [P] Update `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` with final test commands and env keys
+- [ ] T074 Run through `/home/smbuser/mws-server/tokyo-listings/specs/004-listing-url-scraping/quickstart.md` manually and fix gaps
+- [ ] T075 [P] Biome check touched packages: run `/home/smbuser/mws-server/tokyo-listings/package.json` `lint` after implementation
 
 ---
 
@@ -260,7 +262,7 @@ Monorepo: `packages/scraping/`, `packages/validators/`, `packages/db/`, `apps/ap
 - **T009** parallel with **T008** once types exist (different files)
 - **T035** parallel with **T033–T034** (validators vs migration) with coordination on field names
 - **T038** parallel with **T036–T037** after API contract stable
-- **T059–T061** parallel in Phase 11
+- **T071–T073** parallel in Phase 11
 
 ### Parallel example: Phase 3 (Athome)
 
@@ -303,4 +305,4 @@ T008 money-area tests+impl || T009 address tests+impl (after T005–T007 types)
 
 - Legacy code path: `/home/smbuser/mws-server/tokyo-listings-old/tokyo-listings-server/app/services/ScrapingService.js` — reference only.
 - Images / asset download: **out of scope**; do not add tasks until a future spec.
-- Total tasks: **70** (T001–T063, T064–T067, T068–T070). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.
+- Total tasks: **75** (T001–T070 plus T071–T075 in polish after Phase 10 expansion). **Phase 2.5** (T015–T017) restores Vitest per [plan.md](./plan.md) after upgrading system Node off v12.

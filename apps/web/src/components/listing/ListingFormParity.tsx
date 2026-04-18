@@ -32,6 +32,9 @@ export type ListingCreateParityInput = {
   block?: number;
   houseNumber?: number;
   selectedPropertyId?: string;
+  latitude?: number;
+  longitude?: number;
+  pinExact?: boolean;
 };
 
 type Props = {
@@ -75,6 +78,8 @@ type Props = {
   onUrlPreviewClear?: () => void;
   /** User edited listing URL text — clear scrape result borders / state in parent. */
   onSourceUrlTextChange?: () => void;
+  /** Manual address geocode trigger on blur (pref/city/town only). */
+  onManualAddressCommit?: (parts: { prefecture: string; municipality: string; town: string }) => void;
   urlPreviewStatus?: "idle" | "loading" | "success" | "error";
   loadFromUrlError?: string | null;
   loadFromUrlWarnings?: string[];
@@ -180,6 +185,7 @@ export function ListingFormParity({
   onAutoPreviewFromUrl,
   onUrlPreviewClear,
   onSourceUrlTextChange,
+  onManualAddressCommit,
   urlPreviewStatus = "idle",
   loadFromUrlError = null,
   loadFromUrlWarnings = [],
@@ -187,7 +193,6 @@ export function ListingFormParity({
   loadFromUrlPreviewStatus = null,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
-  const [pinMessage, setPinMessage] = useState<string | null>(null);
   /** One automatic preview per canonical URL until the user edits the field. */
   const lastPreviewCanonicalRef = useRef<string | null>(null);
 
@@ -212,6 +217,13 @@ export function ListingFormParity({
     houseNumber: "",
   });
   const propertyAssociationActive = Boolean(selectedPropertyId);
+  const commitManualAddress = () => {
+    const prefecture = form.prefecture.trim();
+    const municipality = form.municipality.trim();
+    const town = form.town.trim();
+    if (!prefecture || !municipality || !town) return;
+    onManualAddressCommit?.({ prefecture, municipality, town });
+  };
   useEffect(() => {
     if (!propertyAssociationActive || !selectedPropertyDefaults) return;
     setForm((s) => ({
@@ -394,10 +406,6 @@ export function ListingFormParity({
     }
     setError(null);
     onSubmit(parsed.data);
-  }
-
-  function setCoordinates() {
-    setPinMessage("Pin placement is enabled from map interaction after selecting the listing.");
   }
 
   return (
@@ -592,6 +600,7 @@ export function ListingFormParity({
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.prefecture}
             editable={!propertyAssociationActive}
+            onBlur={commitManualAddress}
             onChangeText={(prefecture) => setForm((s) => ({ ...s, prefecture }))}
           />
           <TextInput
@@ -600,6 +609,7 @@ export function ListingFormParity({
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.municipality}
             editable={!propertyAssociationActive}
+            onBlur={commitManualAddress}
             onChangeText={(municipality) => setForm((s) => ({ ...s, municipality }))}
           />
           <TextInput
@@ -608,6 +618,7 @@ export function ListingFormParity({
             placeholderTextColor="var(--color-rose-pine-muted)"
             value={form.town}
             editable={!propertyAssociationActive}
+            onBlur={commitManualAddress}
             onChangeText={(town) => setForm((s) => ({ ...s, town }))}
           />
           <TextInput
@@ -669,7 +680,6 @@ export function ListingFormParity({
         </View>
       </View>
       {error ? <Text className="text-sm text-rose-pine-love">{error}</Text> : null}
-      {pinMessage ? <Text className="text-xs text-rose-pine-muted">{pinMessage}</Text> : null}
       <View className="mt-[15px] flex-row justify-center gap-2 pt-0">
         <Pressable
           className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80 disabled:opacity-50"
@@ -692,15 +702,7 @@ export function ListingFormParity({
               {secondaryAction.label}
             </Text>
           </Pressable>
-        ) : (
-          <Pressable
-            className="items-center rounded-lg bg-rose-pine-foam px-4 py-2.5 active:opacity-80"
-            disabled={pending}
-            onPress={setCoordinates}
-          >
-            <Text className="text-xs font-semibold text-rose-pine-base">Set Coordinates</Text>
-          </Pressable>
-        )}
+        ) : null}
       </View>
     </View>
   );

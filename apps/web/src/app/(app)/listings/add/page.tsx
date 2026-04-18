@@ -45,6 +45,7 @@ export default function AddListingsPage() {
   >("idle");
   const [similarDraft, setSimilarDraft] = useState<SimilarPropertiesDraft>({});
   const [similarPickerOpen, setSimilarPickerOpen] = useState(false);
+  const [draftPin, setDraftPin] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [selectedPropertyDefaults, setSelectedPropertyDefaults] = useState<{
     prefecture?: string | null;
@@ -77,8 +78,12 @@ export default function AddListingsPage() {
       setRecent((prev) => [row as ListingRow, ...prev]);
       setSelectedPropertyId(null);
       setSelectedPropertyDefaults(null);
+      setDraftPin(null);
       setSelectedId(row.id);
       setSelectedPreview(row as ListingRow);
+    },
+    onError: (err) => {
+      setLoadError(err.message);
     },
   });
 
@@ -119,6 +124,9 @@ export default function AddListingsPage() {
       setScrapeMeta({ portal: res.portal, fetchedAt: new Date() });
       setMapPreviewAddress(next.mapPreviewAddress);
       setPrefill(next.prefill);
+      if (next.prefill?.latitude != null && next.prefill?.longitude != null) {
+        setDraftPin({ lat: next.prefill.latitude, lng: next.prefill.longitude });
+      }
     },
     onError: (err) => {
       setLoadError(err.message);
@@ -153,11 +161,19 @@ export default function AddListingsPage() {
     setSimilarDraft({});
     setSelectedPropertyId(null);
     setSelectedPropertyDefaults(null);
+    setDraftPin(null);
   }, []);
 
   const onDraftForSimilarChange = useCallback((draft: SimilarPropertiesDraft) => {
     setSimilarDraft(draft);
   }, []);
+
+  const onManualAddressCommit = useCallback(
+    (parts: { prefecture: string; municipality: string; town: string }) => {
+      setMapPreviewAddress(`${parts.prefecture}${parts.municipality}${parts.town}`);
+    },
+    [],
+  );
 
   const onSelectSimilarProperty = useCallback(
     (propertyId: string) => {
@@ -191,10 +207,17 @@ export default function AddListingsPage() {
       if (row) {
         setSelectedId(row.id);
         setSelectedPreview(row);
+        if (row.property?.latitude != null && row.property?.longitude != null) {
+          setDraftPin({ lat: row.property.latitude, lng: row.property.longitude });
+        }
       }
     },
     [listingsForMap.data, selectedPropertyId, setSelectedId, setSelectedPreview, similarQuery.data],
   );
+
+  const onAddPinChange = useCallback((lat: number, lng: number) => {
+    setDraftPin({ lat, lng });
+  }, []);
 
   const updateSimilarAnchor = useCallback(() => {
     const r = readSimilarButtonRect(similarBtnRef.current);
@@ -261,6 +284,11 @@ export default function AddListingsPage() {
     <>
       <ListingsMapWorkspace
         addListingMapAddress={mapPreviewAddress}
+        enableAddPinPlacement
+        lockAddPinPlacement={Boolean(selectedPropertyId)}
+        onAddPinChange={onAddPinChange}
+        addDraftPin={draftPin}
+        showExistingPropertyPins={false}
         leftPane={
           <ScrollView className="max-h-[45vh] md:max-h-none">
             <View className="gap-3 px-3 py-2.5">
@@ -270,11 +298,13 @@ export default function AddListingsPage() {
               <ListingFormParity
                 initialValues={prefill}
                 pending={createMut.isPending}
+                requireSelections={false}
                 selectedPropertyId={selectedPropertyId}
                 selectedPropertyDefaults={selectedPropertyDefaults}
                 onAutoPreviewFromUrl={onAutoPreviewFromUrl}
                 onUrlPreviewClear={onUrlPreviewClear}
                 onSourceUrlTextChange={onSourceUrlTextChange}
+                onManualAddressCommit={onManualAddressCommit}
                 onDraftForSimilarChange={onDraftForSimilarChange}
                 similarPropertyCandidateCount={similarCount}
                 similarPropertiesButtonRef={similarBtnRef}
@@ -290,6 +320,9 @@ export default function AddListingsPage() {
                 onSubmit={(input) =>
                   createMut.mutate({
                     ...input,
+                    latitude: draftPin?.lat,
+                    longitude: draftPin?.lng,
+                    pinExact: draftPin ? true : undefined,
                     selectedPropertyId: selectedPropertyId ?? undefined,
                     sourcePortal: scrapeMeta.portal,
                     sourceFetchedAt: scrapeMeta.fetchedAt,

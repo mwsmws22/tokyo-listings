@@ -12,19 +12,6 @@ import { createPortal } from "react-dom";
 import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 
 const MIN_PANEL_WIDTH = 280;
-const MAX_PANEL_WIDTH = 640;
-
-function estimatePanelWidth(candidates: FindSimilarPropertyCandidate[]): number {
-  // Heuristic: rank + address + metrics; tune to keep compact but content-aware.
-  const widest = candidates.reduce((max, c, index) => {
-    const rankPart = `#${index + 1}`;
-    const addressPart = formatAddressLine(c);
-    const metricsPart = `${formatSquareM(c.averageSquareM)}${formatAreaDiff(c.areaDiffAbs) ? ` · ±${formatAreaDiff(c.areaDiffAbs)}` : ""}`;
-    const sample = `${rankPart} ${addressPart}  ${metricsPart}`;
-    return Math.max(max, sample.length);
-  }, 0);
-  return Math.ceil(130 + widest * 6.1);
-}
 
 type Props = {
   visible: boolean;
@@ -60,7 +47,7 @@ export function SimilarPropertiesPicker({
   const opacity = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(-6)).current;
   const [mounted, setMounted] = useState(false);
-  const [layout, setLayout] = useState({ left: 0, top: 0, width: MIN_PANEL_WIDTH, maxHeight: 360 });
+  const [layout, setLayout] = useState({ left: 0, top: 0, maxHeight: 360 });
 
   useEffect(() => setMounted(true), []);
 
@@ -68,14 +55,11 @@ export function SimilarPropertiesPicker({
     if (!visible || !anchorRect || typeof window === "undefined") {
       return;
     }
-    const availableRight = Math.max(220, window.innerWidth - anchorRect.left - 12);
-    const estimated = estimatePanelWidth(candidates);
-    const width = Math.min(Math.min(MAX_PANEL_WIDTH, availableRight), Math.max(MIN_PANEL_WIDTH, estimated));
-    const left = computeSimilarPanelLeft(anchorRect, width, window.innerWidth);
+    const left = anchorRect.left + anchorRect.width + 8;
     const top = anchorRect.top;
     const maxHeight = computeSimilarPanelMaxHeight(anchorRect.top, window.innerHeight);
-    setLayout({ left, top, width, maxHeight });
-  }, [visible, anchorRect, candidates]);
+    setLayout({ left, top, maxHeight });
+  }, [visible, anchorRect]);
 
   useEffect(() => {
     if (visible) {
@@ -108,11 +92,12 @@ export function SimilarPropertiesPicker({
   const panel = (
     <View
       pointerEvents="box-none"
-      className="fixed z-[10050] flex flex-col overflow-hidden rounded-lg border border-rose-pine-highlight-med bg-rose-pine-base shadow-xl"
+      className="fixed z-[10050] flex w-max flex-col overflow-hidden rounded-lg border border-rose-pine-highlight-med bg-rose-pine-base shadow-xl"
       style={{
         left: layout.left,
         top: layout.top,
-        width: layout.width,
+        minWidth: MIN_PANEL_WIDTH,
+        maxWidth: window.innerWidth - 24,
         maxHeight: layout.maxHeight,
       }}
     >
@@ -145,6 +130,7 @@ export function SimilarPropertiesPicker({
                 </Text>
                 <Text
                   className="min-w-0 flex-1 text-[10px] leading-snug text-rose-pine-text"
+                  style={{ marginRight: 20 }}
                   numberOfLines={1}
                   selectable={false}
                 >
@@ -152,7 +138,7 @@ export function SimilarPropertiesPicker({
                 </Text>
                 <Text
                   className="shrink-0 text-right text-[10px] leading-snug tabular-nums"
-                  style={{ marginLeft: 8 }}
+                  style={{ marginLeft: 0 }}
                   numberOfLines={1}
                   selectable={false}
                 >

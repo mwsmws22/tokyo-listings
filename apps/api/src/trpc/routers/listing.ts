@@ -163,6 +163,8 @@ export const listingRouter = router({
     try {
       row = await ctx.db.transaction(async (tx) => {
         let propertyId = input.selectedPropertyId ?? input.propertyId ?? null;
+        let listingLat: number | null = input.latitude ?? coords?.lat ?? null;
+        let listingLng: number | null = input.longitude ?? coords?.lng ?? null;
         if (propertyId) {
           const [owned] = await tx
             .select()
@@ -188,6 +190,8 @@ export const listingRouter = router({
           if (Object.keys(linkedPatch).length > 0) {
             await tx.update(property).set(linkedPatch).where(eq(property.id, owned.id));
           }
+          listingLat = (linkedPatch.latitude ?? owned.latitude ?? listingLat) as number | null;
+          listingLng = (linkedPatch.longitude ?? owned.longitude ?? listingLng) as number | null;
         } else {
           const [createdProperty] = await tx
             .insert(property)
@@ -195,8 +199,10 @@ export const listingRouter = router({
               userId,
               ...propertyPayload,
             })
-            .returning({ id: property.id });
+            .returning({ id: property.id, latitude: property.latitude, longitude: property.longitude });
           propertyId = createdProperty?.id ?? null;
+          listingLat = createdProperty?.latitude ?? listingLat;
+          listingLng = createdProperty?.longitude ?? listingLng;
         }
 
         if (!propertyId) {
@@ -214,8 +220,8 @@ export const listingRouter = router({
             title: input.title,
             monthlyRentYen: input.monthlyRentYen,
             addressText: input.addressText,
-            latitude: input.latitude ?? coords?.lat ?? null,
-            longitude: input.longitude ?? coords?.lng ?? null,
+            latitude: listingLat,
+            longitude: listingLng,
             geocodeStatus: (coords ? "ok" : hasKey ? "failed" : "pending") as
               | "pending"
               | "ok"
